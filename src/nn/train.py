@@ -352,6 +352,7 @@ def train(args: argparse.Namespace) -> float:
         "max_hist_len": args.max_hist_len,
         "dropout": args.dropout,
         "use_set_attention": use_set_attention,
+        "use_numeric_head": getattr(args, "numeric_head", False),
     }
 
     # 2. Инициализация продвинутой модели
@@ -568,6 +569,7 @@ def main() -> None:
     parser.add_argument("--no_set_attention", "--no-set-attention", dest="use_set_attention", action="store_false", help="Отключить Set-Attention (для сравнения с baseline)")
     parser.add_argument("--log-every", type=int, default=5)
     parser.add_argument("--cv-mode", choices=["danya", "simple"], default="danya", help="Режим валидации: 'danya' (pseudo-public 30% / pseudo-private 70% по timestamp) или 'simple'")
+    parser.add_argument("--numeric-head", action="store_true", help="Add a residual score from candidate features")
     parser.add_argument("--seed", type=int, default=42, help="Seed для воспроизводимости")
     parser.add_argument("--amp", action="store_true", default=False, help="Использовать Automatic Mixed Precision (только на GPU)")
     parser.add_argument(

@@ -169,6 +169,7 @@ class FeedRankingModel(nn.Module):
         max_position: int = 512,
         dropout: float = 0.15,
         use_set_attention: bool = True,
+        use_numeric_head: bool = False,
     ) -> None:
         super().__init__()
         self.d_model = d_model
@@ -232,6 +233,17 @@ class FeedRankingModel(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(64, 1),
         )
+
+        self.use_numeric_head = use_numeric_head
+        if use_numeric_head:
+            self.numeric_head = nn.Sequential(
+                nn.Linear(num_cand_feats, 64),
+                nn.ReLU(),
+                nn.Linear(64, 1),
+            )
+            # Start with the existing score and learn a residual from tabular features.
+            nn.init.zeros_(self.numeric_head[-1].weight)
+            nn.init.zeros_(self.numeric_head[-1].bias)
 
         # 6. Голова дебиасинга позиции (Position Bias Tower)
         # Обучается только на train по фиче pos
@@ -341,6 +353,9 @@ class FeedRankingModel(nn.Module):
         ], dim=-1)
 
         main_scores = self.main_head(head_input).squeeze(-1) # [B, M]
+
+        if self.use_numeric_head:
+            main_scores = main_scores + self.numeric_head(cand_feats.float()).squeeze(-1)
 
         # 7. Positional Debias Tower
         if use_pos_bias and "pos" in batch and batch["pos"] is not None:
