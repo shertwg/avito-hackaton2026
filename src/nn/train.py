@@ -221,18 +221,18 @@ def evaluate_ndcg(
         m_pub = mask_feeds(feed_ids_cat, pub_feeds)
         m_priv = mask_feeds(feed_ids_cat, priv_feeds)
         res["ndcg_public"] = (
-            mean_ndcg(feed_ids_cat[m_pub], targets_cat[m_pub], scores_cat[m_pub])
+            mean_ndcg(feed_ids_cat[m_pub], targets_cat[m_pub], scores_cat[m_pub], cutoff=30)
             if m_pub.any()
-            else res["ndcg_full"]
+            else res["ndcg@30"]
         )
         res["ndcg_private"] = (
-            mean_ndcg(feed_ids_cat[m_priv], targets_cat[m_priv], scores_cat[m_priv])
+            mean_ndcg(feed_ids_cat[m_priv], targets_cat[m_priv], scores_cat[m_priv], cutoff=30)
             if m_priv.any()
-            else res["ndcg_full"]
+            else res["ndcg@30"]
         )
     else:
-        res["ndcg_public"] = res["ndcg_full"]
-        res["ndcg_private"] = res["ndcg_full"]
+        res["ndcg_public"] = res["ndcg@30"]
+        res["ndcg_private"] = res["ndcg@30"]
 
     return res
 
@@ -379,7 +379,7 @@ def train(args: argparse.Namespace) -> float:
 
     # 3. Начальная оценка до обучения
     init_metrics = evaluate_ndcg(model, val_loader, device, cv_mode=cv_mode, use_amp=use_amp)
-    init_target = init_metrics["ndcg_public"] if cv_mode == "danya" else init_metrics["ndcg_full"]
+    init_target = init_metrics["ndcg_public"] if cv_mode == "danya" else init_metrics["ndcg@30"]
     print(
         f"Initial Val NDCG (без обучения): pub={init_metrics['ndcg_public']:.4f} | "
         f"priv={init_metrics['ndcg_private']:.4f} | full={init_metrics['ndcg_full']:.4f} | @30={init_metrics['ndcg@30']:.4f}"
@@ -462,7 +462,7 @@ def train(args: argparse.Namespace) -> float:
 
         # Валидация после эпохи
         val_metrics = evaluate_ndcg(model, val_loader, device, cv_mode=cv_mode, use_amp=use_amp)
-        cur_ndcg = val_metrics["ndcg_public"] if cv_mode == "danya" else val_metrics["ndcg_full"]
+        cur_ndcg = val_metrics["ndcg_public"] if cv_mode == "danya" else val_metrics["ndcg@30"]
 
         # Шаг шедулера ReduceLROnPlateau (для cosine шаг делается по батчам)
         if scheduler_type == "plateau":
@@ -517,9 +517,9 @@ def train(args: argparse.Namespace) -> float:
 
     total_time = time.perf_counter() - total_start
     metric_label = "pseudo-public (выбор чекпоинта)" if cv_mode == "danya" else "full"
-    print(f"\n[DONE] Обучение завершено за {total_time:.2f}с. Лучший Val NDCG ({metric_label}): {best_ndcg:.4f}")
+    print(f"\n[DONE] Обучение завершено за {total_time:.2f}с. Лучший Val NDCG@30 ({metric_label}): {best_ndcg:.4f}")
     if cv_mode == "danya":
-        print(f"       Соответствующий Val NDCG (pseudo-private отчёт): {best_priv_ndcg:.4f}")
+        print(f"       Соответствующий Val NDCG@30 (pseudo-private отчёт): {best_priv_ndcg:.4f}")
     print(f"Чекпоинт сохранен в: {out_dir / 'best_model.pt'}")
     return best_ndcg
 

@@ -106,6 +106,7 @@ tests/
 ### Валидация в стиле Дани (`--cv-mode danya`, по умолчанию)
 Для полной сопоставимости с GBDT Дани используется [`src/common/cv.py`](file:///d:/avito_hackathon/avito-hackaton2026/src/common/cv.py):
 - Сплит `val` делится по `timestamp` на ранние 30% (**`pseudo-public`**) и оставшиеся 70% (**`pseudo-private`**), имитируя публичный и приватный лидерборды соревнования.
+- Метрики `val_ndcg_public` и `val_ndcg_private` считаются с отсечкой на 30 кандидатов.
 - Чекпоинт `best_model.pt`, `EarlyStopping` и `ReduceLROnPlateau` ориентируются на **`val_ndcg_public`**, а **`val_ndcg_private`** только пишется в `history.csv` и выводится в отчет для честного сравнения с GBDT без утечек.
 - После каждой эпохи все метрики пишутся в `history.csv`:
   `epoch, train_loss, val_ndcg_full, val_ndcg_public, val_ndcg_private, val_ndcg_idcg30, val_ndcg_at30, lr, epoch_time_sec, best_ndcg`.
