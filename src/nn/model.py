@@ -234,17 +234,6 @@ class FeedRankingModel(nn.Module):
             nn.Linear(64, 1),
         )
 
-        self.use_numeric_head = use_numeric_head
-        if use_numeric_head:
-            self.numeric_head = nn.Sequential(
-                nn.Linear(num_cand_feats, 64),
-                nn.ReLU(),
-                nn.Linear(64, 1),
-            )
-            # Start with the existing score and learn a residual from tabular features.
-            nn.init.zeros_(self.numeric_head[-1].weight)
-            nn.init.zeros_(self.numeric_head[-1].bias)
-
         # 6. Голова дебиасинга позиции (Position Bias Tower)
         # Обучается только на train по фиче pos
         self.pos_bias_emb = nn.Embedding(max_position, 32)
@@ -253,6 +242,20 @@ class FeedRankingModel(nn.Module):
             nn.ReLU(),
             nn.Linear(32, 1),
         )
+
+        self.use_numeric_head = use_numeric_head
+        if use_numeric_head:
+            # Keep the shared model and dropout RNG aligned for paired runs.
+            with torch.random.fork_rng(devices=[]):
+                self.numeric_head = nn.Sequential(
+                    nn.Linear(num_cand_feats, 64),
+                    nn.ReLU(),
+                    nn.Linear(64, 1),
+                )
+                # Start with the existing score and learn a residual from tabular features.
+                nn.init.zeros_(self.numeric_head[-1].weight)
+                nn.init.zeros_(self.numeric_head[-1].bias)
+
 
     def forward(
         self,
