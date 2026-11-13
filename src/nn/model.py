@@ -170,10 +170,12 @@ class FeedRankingModel(nn.Module):
         dropout: float = 0.15,
         use_set_attention: bool = True,
         use_numeric_head: bool = False,
+        use_history_context: bool = True,
     ) -> None:
         super().__init__()
         self.d_model = d_model
         self.use_set_attention = use_set_attention
+        self.use_history_context = use_history_context
 
         # 1. Энкодер истории
         self.hist_encoder = HistoryTransformerEncoder(
@@ -313,6 +315,9 @@ class FeedRankingModel(nn.Module):
         ) # [B, M, d_model]
 
         attn_out = attn_out * has_any_hist.unsqueeze(-1).float()
+        # Keep attention dropout draws aligned in the history ablation.
+        if not self.use_history_context:
+            attn_out = torch.zeros_like(attn_out)
         cand_hist_ctx = self.cross_norm(cand_repr + attn_out) # Residual
 
         # 4.5. Listwise Set-Attention между кандидатами внутри ленты
