@@ -317,9 +317,10 @@ class FeedRankingModel(nn.Module):
             cand_hist_ctx = cand_hist_ctx * cand_mask.unsqueeze(-1).float()
 
         # 5. Скалярные произведения и сходства
-        u_norm = F.normalize(user_repr, p=2, dim=-1).unsqueeze(1) # [B, 1, d_model]
-        c_norm = F.normalize(cand_repr, p=2, dim=-1)             # [B, M, d_model]
-        h_norm = F.normalize(cand_hist_ctx, p=2, dim=-1)         # [B, M, d_model]
+        # FP16 rounds the normalization epsilon to zero for zero vectors.
+        u_norm = F.normalize(user_repr.float(), p=2, dim=-1).unsqueeze(1) # [B, 1, d_model]
+        c_norm = F.normalize(cand_repr.float(), p=2, dim=-1)             # [B, M, d_model]
+        h_norm = F.normalize(cand_hist_ctx.float(), p=2, dim=-1)         # [B, M, d_model]
 
         dot_u = (c_norm * u_norm).sum(dim=-1, keepdim=True)      # [B, M, 1]
         dot_h = (c_norm * h_norm).sum(dim=-1, keepdim=True)      # [B, M, 1]
