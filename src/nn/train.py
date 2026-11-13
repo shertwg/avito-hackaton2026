@@ -244,6 +244,7 @@ def train(args: argparse.Namespace) -> float:
     device = torch.device(args.device if args.device else ("cuda" if torch.cuda.is_available() else "cpu"))
     mixup_alpha = getattr(args, "mixup_alpha", 0.0)
     temperature = getattr(args, "temperature", 1.0)
+    target_temperature = getattr(args, "target_temperature", 1.0)
     use_set_attention = getattr(args, "use_set_attention", True)
     cv_mode = getattr(args, "cv_mode", "danya")
     scheduler_type = getattr(args, "scheduler", "plateau")
@@ -254,7 +255,7 @@ def train(args: argparse.Namespace) -> float:
     sharded_loader = getattr(args, "sharded_loader", True)
 
     print("=" * 75)
-    print(f"Запуск обучения: {args.data} | Device: {device} | AMP: {'ON' if use_amp else 'OFF'} | Loss: {args.loss} (T={temperature}) | Seed: {seed}")
+    print(f"Запуск обучения: {args.data} | Device: {device} | AMP: {'ON' if use_amp else 'OFF'} | Loss: {args.loss} (T={temperature}, target T={target_temperature}) | Seed: {seed}")
     if amp_requested and not use_amp:
         print("[INFO] Флаг --amp передан, но GPU недоступен (CPU режим) — AMP отключен.")
     print(f"Сплиты: train='{args.train_split}', val='{args.val_split}' | CV: {cv_mode} | Scheduler: {scheduler_type} (warmup={warmup_epochs}ep)")
@@ -432,7 +433,11 @@ def train(args: argparse.Namespace) -> float:
                 target = batch["target"]
 
                 if args.loss == "listnet":
-                    loss = listnet_loss(total_scores, target, cand_mask, logit_temperature=temperature)
+                    loss = listnet_loss(
+                        total_scores, target, cand_mask,
+                        logit_temperature=temperature,
+                        target_temperature=target_temperature,
+                    )
                 else:
                     loss = masked_bce_loss(total_scores, target, cand_mask)
 
@@ -556,6 +561,7 @@ def main() -> None:
     parser.add_argument("--loss", choices=["listnet", "bce"], default="listnet")
     parser.add_argument("--mixup-alpha", type=float, default=0.0, help="Beta(alpha, alpha) MixUp для эмбеддингов кандидатов (0 = выкл)")
     parser.add_argument("--temperature", type=float, default=1.0, help="Температура логитов в ListNet")
+    parser.add_argument("--target-temperature", type=float, default=1.0, help="Температура целевого распределения ListNet")
     parser.add_argument("--use-pos-bias", action="store_true", default=True, help="Включить голову debias для pos на train")
     parser.add_argument("--no-pos-bias", dest="use_pos_bias", action="store_false")
     parser.add_argument("--use_set_attention", "--use-set-attention", dest="use_set_attention", action="store_true", default=True, help="Включить Self-Attention между кандидатами ленты")
@@ -581,6 +587,8 @@ def main() -> None:
     parser.set_defaults(sharded_loader=True)
     parser.add_argument("--device", default=None)
     args = parser.parse_args()
+    if not math.isfinite(args.target_temperature) or args.target_temperature <= 0:
+        parser.error("--target-temperature must be finite and positive")
     if args.train_parts is not None and args.train_parts < 1:
         parser.error("--train-parts must be at least 1")
 
