@@ -226,3 +226,10 @@ uv run --locked python -m scripts.compare_baselines --baseline runs/baseline-ite
 | 13.11.2026 | Август | `02ebf18` | NN, ListNet T_target=1, 8 train-шардов, 49 058 лент, 5 эпох, batch=16, seed=42, AMP | 0.35021 / — / 0.28699 | — / 0.29666 | — / 0.28285 | — | RTX 2060 SUPER. Эпоха 3 выбрана по pseudo-public. +0,00823 к двухшардовому GPU-прогону. runs/nn-8parts-cuda-001. |
 | 13.11.2026 | Август | `bc7a1f5` | NN, ListNet T_target=0.5, 2 train-шарда, 5 эпох, batch=16, seed=42, AMP | 0.34623 / — / 0.28218 | — / 0.29152 | — / 0.27818 | — | RTX 2060 SUPER. Эпоха 5 выбрана по pseudo-public. +0,00356 к T_target=1 на pseudo-private и +0,00685 на pseudo-public. runs/nn-2parts-target05-001. |
 | 14.11.2026 | Август | `bc7a1f5` | NN, ListNet T_target=0.5, 8 train-шардов, 49 058 лент, 5 эпох, batch=16, seed=42, AMP | 0.35439 / — / 0.29206 | — / 0.30124 | — / 0.28812 | — | RTX 2060 SUPER. Эпоха 4 выбрана по pseudo-public. +0,00527 на pseudo-private к T_target=1 на 8 шардах. Экспорт FP32: 0,28817 на pseudo-private, метки и ключи val сверены, валидатор test OK. runs/nn-8parts-target05-001. |
+
+### Август — CatBoost и ансамбль, 14.11.2026
+
+| Дата | Автор | Коммит кода | Что сделано | val NDCG (full / @10 / @30) | Псевдо-Public (full / @30) | Псевдо-Private (full / @30) | Public платформы | Примечание |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 14.11.2026 | Август | `73293fe` | Локальный CatBoost YetiRank + cosine, 2 train-шарда, 38 деревьев, seed=42 | 0.36026 / 0.22888 / 0.29866 | 0.36579 / 0.30682 | 0.35789 / 0.29516 | — | Эталон метрики и валидатор пройдены. runs/cb-cosine-2parts-local-retry. |
+| 14.11.2026 | Август | `73293fe` | 70% локального CatBoost + 30% NN с 8 шардов, z-score внутри ленты | — | — / 0.30873 | — / 0.29506 | — | Вес и нормировка выбраны по pseudo-public. Разница с CatBoost на pseudo-private −0,00010, парный bootstrap 95% [−0,00177; +0,00155]. Валидатор OK. runs/blend-cb2-nn8-001. |
