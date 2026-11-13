@@ -261,12 +261,16 @@ def train(args: argparse.Namespace) -> float:
     print(f"Debias: {'ВКЛ' if args.use_pos_bias else 'ВЫКЛ'} | Set-Attention: {'ВКЛ' if use_set_attention else 'ВЫКЛ'} | MixUp: {mixup_alpha} | Patience: {args.patience}")
     print("=" * 75)
 
+    train_parts = getattr(args, "train_parts", None)
+    if train_parts is None:
+        train_parts = args.max_parts
+
     # 1. Загрузка данных
     if sharded_loader:
         train_dataset = ShardedFeedRankingDataset(
             data_root=args.data,
             split=args.train_split,
-            max_parts=args.max_parts,
+            max_parts=train_parts,
             max_feeds=args.max_feeds,
             max_hist_len=args.max_hist_len,
             shuffle=True,
@@ -285,7 +289,7 @@ def train(args: argparse.Namespace) -> float:
         train_dataset = FeedRankingDataset(
             data_root=args.data,
             split=args.train_split,
-            max_parts=args.max_parts,
+            max_parts=train_parts,
             max_feeds=args.max_feeds,
             max_hist_len=args.max_hist_len,
         )
@@ -544,7 +548,9 @@ def main() -> None:
     parser.add_argument("--nhead", type=int, default=4)
     parser.add_argument("--num-categories", type=int, default=1000)
     parser.add_argument("--max-hist-len", type=int, default=256)
-    parser.add_argument("--max-parts", type=int, default=None, help="Ограничить количество читаемых партов (для быстрого дебага)")
+    part_limits = parser.add_mutually_exclusive_group()
+    part_limits.add_argument("--train-parts", type=int, help="Ограничить только число шардов train")
+    part_limits.add_argument("--max-parts", type=int, default=None, help="Ограничить количество читаемых партов (для быстрого дебага)")
     parser.add_argument("--max-feeds", type=int, default=None, help="Ограничить общее количество читаемых лент (защита от OOM)")
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--loss", choices=["listnet", "bce"], default="listnet")
@@ -575,6 +581,8 @@ def main() -> None:
     parser.set_defaults(sharded_loader=True)
     parser.add_argument("--device", default=None)
     args = parser.parse_args()
+    if args.train_parts is not None and args.train_parts < 1:
+        parser.error("--train-parts must be at least 1")
 
     train(args)
 
