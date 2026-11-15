@@ -11,6 +11,7 @@ Pseudo-private в выборе не участвует: он только зап
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 from pathlib import Path
 
@@ -62,7 +63,10 @@ def main(argv=None) -> None:
         trial.set_user_attr("best_iteration", m.best_iteration)
         trial.set_user_attr("priv", mean_ndcg(ev["feed_id"].to_numpy(), ev["target"].to_numpy(), m.predict(ev),
                                               cutoff=30))
-        return mean_ndcg(es["feed_id"].to_numpy(), es["target"].to_numpy(), m.predict(es), cutoff=30)
+        score = mean_ndcg(es["feed_id"].to_numpy(), es["target"].to_numpy(), m.predict(es), cutoff=30)
+        del m
+        gc.collect()
+        return score
 
     study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=a.seed))
     study.optimize(objective, n_trials=ns.trials, timeout=ns.timeout)
