@@ -220,3 +220,7 @@ uv run --locked python -m scripts.compare_baselines --baseline runs/baseline-ite
 | 2026-11-13 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3599/0.3599/0.2991 | - | out=runs/lgb8-tuned-cv; feats=$H, 8 parts; tuned params; vs lgb8-cv priv +0.0037 [+0.0007, +0.0069], accepted |
 | 2026-11-13 | danya | - | blend weights cb8-cv 0.333 + lgb8-tuned-cv 0.667 | priv: -/-/0.3015 | - | out=runs/blend-cb-lgbt; vs blend-cb-lgb priv -0.0007 [-0.0025, +0.0012], noise |
 | 2026-11-13 | danya | - | blend weights cb8-cv 0.667 + lgb8-cv 0.167 + lgb8-tuned-cv 0.167 | priv: -/-/0.3014 | - | out=runs/blend-3; vs blend-cb-lgb priv -0.0008 [-0.0019, +0.0002], noise; blend-cb-lgb stays the submission |
+| 2026-11-13 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3566/0.3567/0.2942 | - | out=runs/lgb8-cv-s1 |
+| 2026-11-13 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3569/0.3569/0.2951 | - | out=runs/lgb8-cv-s2 |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02244 | priv: 0.3532/0.3533/0.2888 | - | out=runs/lgb32-tuned; feats=$H, 32 parts; tuned params, best_iter=141 on pseudo-public |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3590/0.3591/0.2968 | - | out=runs/lgb32-tuned-cv; feats=$H, 32 parts; iters 141 from lgb32-tuned; vs lgb8-tuned-cv priv -0.0022 [-0.0044, +0.0000], rejected |
