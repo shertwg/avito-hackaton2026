@@ -1,0 +1,34 @@
+{
+  "complete": true,
+  "manifest_sha256": "d5d918cc60a08b1f17bb5fbf95f83cfe59c786e9a64e304138463f3da449ab79",
+  "donor_parts": 480,
+  "donor_feeds": 2954254,
+  "excluded_train_parts": 32,
+  "active_categories": 54,
+  "independent_counts": "all category pairs via intersections of donor-feed bitsets",
+  "sampled_feeds": 480,
+  "sampled_candidate_rows": 40831,
+  "bytes": 159323038,
+  "splits": {
+    "train": {
+      "parts": 32,
+      "rows": 15373984
+    },
+    "val": {
+      "parts": 64,
+      "rows": 1389971
+    },
+    "test": {
+      "parts": 64,
+      "rows": 2904806
+    }
+  },
+  "duration_seconds": 99.69,
+  "memory": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 2580844544,
+    "working_set_bytes": 315453440,
+    "peak_working_set_bytes": 429883392
+  },
+  "audit_sha256": "1eb0f2b63126a483ff6449c922eb084183bf57ff4b26052ffa0b0e6b2b9e748b"
+}

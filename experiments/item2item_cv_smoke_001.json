@@ -1,0 +1,34 @@
+{
+  "complete": true,
+  "data": "synthetic only",
+  "entry_point": "src.gbdt.run_exp",
+  "feature_groups": 5,
+  "features": 109,
+  "folds": [
+    {
+      "fold": 0,
+      "train_val_feeds": 9,
+      "held_feeds": 3
+    },
+    {
+      "fold": 1,
+      "train_val_feeds": 9,
+      "held_feeds": 3
+    },
+    {
+      "fold": 2,
+      "train_val_feeds": 9,
+      "held_feeds": 3
+    },
+    {
+      "fold": 3,
+      "train_val_feeds": 9,
+      "held_feeds": 3
+    }
+  ],
+  "held_feed_training_exclusion": "checked on each model",
+  "oof_prediction_coverage": "each val feed exactly once",
+  "validation_rows": 275,
+  "test_validator": "passed",
+  "real_cv_training": "command prepared for model owner"
+}
