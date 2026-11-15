@@ -460,3 +460,18 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 
 Перед слиянием повторно прошли все 79 общих unittest-тестов за 40.685 с.
 Необязательный нейросетевой pytest-модуль `tests/test_edge_cases.py` исключён.
+
+## Этап 3: OOF-модели `itemstats-008 + item2item-008` и ансамбли (Даня) — 15.11.2026
+
+Аудит `data/features/item2item-008` (`runs/item2item_008_audit.json`): `complete: true`, 504 донорских шарда, 5,453,051 item, 95,507,441 postings, 408 лент.
+
+| дата | ветка | - | модель | pseudo-private NDCG full / idcg30 / @30 | Public | примечание |
+|---|---|---|---|---|---|---|
+| 2026-11-15 | danya | - | catboost/default pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3644/0.3644/0.3036 | - | out=runs/cb8-is-i2i; feats=$H8+itemstats-008+item2item-008 (109), GPU, best_iter=339; pub 0.3152, all 0.3071; --no-test |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3647/0.3648/0.3045 | - | out=runs/cb8-is-i2i-cv; feats=109, GPU, iters 339; pub 0.3164, all 0.3081; vs cb8-is-cv priv +0.00395 [+0.00120, +0.00657] (p=0.998), accepted; validator OK |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3662/0.3663/0.3051 | - | out=runs/cb8-is-i2i-qsm; feats=109, GPU, best_iter=349; pub 0.3167, all 0.3086; --no-test |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3662/0.3662/0.3055 | - | out=runs/cb8-is-i2i-qsm-cv; feats=109, GPU, iters 349; pub 0.3189, all 0.3095; vs cb8-is-qsm-cv priv +0.00101 [-0.00174, +0.00376], vs blend32-dima +0.00096 [-0.00182, +0.00375]; validator OK |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02244 | priv: 0.3649/0.3650/0.3045 | - | out=runs/lgb8-is-i2i-tuned; feats=109, CPU; pub 0.3173, all 0.3083; --no-test |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3656/0.3656/0.3055 | - | out=runs/lgb8-is-i2i-tuned-cv; feats=109, CPU; pub 0.3155, all 0.3085; vs lgb8-is-tuned-cv priv +0.00284 [+0.00018, +0.00547] (p=0.981), accepted; validator OK |
+| 2026-11-15 | danya | - | blend weights 6 OOF (cb32-qsm-cv-seeds + cb32-tuned-cv + lgb8-cv-seeds + cb8-is-i2i-cv + cb8-is-i2i-qsm-cv + lgb8-is-i2i-tuned-cv) | priv: -/-/0.3061 | - | out=runs/blend-oof-pure; pub 0.3201 (mean: pub 0.3194, priv 0.3069); vs blend32-dima priv +0.00160 [-0.00018, +0.00340] (all +0.00162 [+0.00006, +0.00317]), vs blend-cb-lgb +0.00392 [+0.00171, +0.00615]; validator OK |
+| 2026-11-15 | danya | - | blend weights 7 models (6 OOF + dima-joint008) | priv: -/-/0.3075 | - | out=runs/blend-team-v3; pub 0.3200; vs blend32-dima priv +0.00294 [+0.00129, +0.00463] (p=1.000), vs blend-cb-lgb +0.00526 [+0.00303, +0.00754] (p=1.000), Финал A (select_final); validator OK |
