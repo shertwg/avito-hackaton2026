@@ -779,3 +779,46 @@ uv run --locked python -m scripts.audit_item2item_features --cache data/features
 `--candidate-batch=64` задаёт размер запроса к индексу. Группа подключается
 через соответствующий `--feature-root` или флаг `--item2item` в
 `scripts.reproduce_ranking`. Зависимость SciPy зафиксирована в uv.lock.
+
+## Четыре временных OOF-фолда для joint + item2item
+
+Конфигурация содержит прежние 105 признаков joint-008 и четыре item2item,
+всего 109. Для сравнения зафиксированы параметры joint-008 и его 92 дерева,
+выбранные ранее по pseudo-Public. Настройка `--folds 4` задаёт четыре
+последовательных временных блока val. Каждый блок предсказывается моделью,
+обученной на восьми train-шардах и остальных трёх блоках val. Все кандидаты
+одной ленты попадают в один фолд. Это блочный OOF с обучением на остальных
+блоках. Донорские признаки itemstats и item2item используют исходный train с
+исключением всех восьми обучающих шардов и сохраняются одинаковыми для фолдов.
+
+Подготовка данных и пяти групп признаков выполняется после распаковки
+исходного архива в `competition`. Флаг `--resume` переиспользует совпадающие
+готовые файлы.
+
+```powershell
+uv sync --locked
+uv run --locked python -m scripts.reproduce_data --raw competition --feature-train-parts 8 --infeed data/features/infeed --resume
+uv run --locked python -m scripts.build_history_features --train-parts 8 --resume
+uv run --locked python -m scripts.build_itemstats_features --train-parts 8 --out data/features/itemstats-008 --resume
+uv run --locked python -m scripts.build_item2item_features --train-parts 8 --out data/features/item2item-008 --resume
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-008 --out runs/item2item_008_audit.json
+```
+
+Запуск четырёх моделей выполняет владелец основного обучения. Папка вывода
+должна быть отдельной для каждого эксперимента. `used_ram_limit` задаёт
+ориентир CatBoost, общий расход памяти включает загруженные таблицы и пулы.
+
+```powershell
+$cvOut = 'runs/dima-joint-item2item-008-cv'
+New-Item -ItemType Directory -Path $cvOut | Out-Null
+@{ thread_count = 2; used_ram_limit = '1024mb' } | ConvertTo-Json | Set-Content -Encoding ascii "$cvOut/catboost-params.json"
+uv run --locked python -m src.gbdt.run_exp --data competition --prepared data/prepared --train-parts 8 --feature-root data/features/cosine --feature-root data/features/infeed --feature-root data/features/history --feature-root data/features/itemstats-008 --feature-root data/features/item2item-008 --kind catboost --mode cv --folds 4 --iterations 92 --depth 6 --lr 0.1 --seed 42 --model-params "$cvOut/catboost-params.json" --out $cvOut
+uv run --locked python scripts/validate_submission.py competition/sample_submission.parquet "$cvOut/test_pred.parquet"
+```
+
+На выходе получаются `val_pred.parquet` с OOF-score и target для всех
+1 389 971 кандидатов val, `test_pred.parquet` для 2 904 806 кандидатов test
+и `metrics.json`. Test-score усредняется по моделям после z-score внутри
+каждой ленты. Для ансамбля используются эти два Parquet, веса выбираются
+по pseudo-Public. Метрики и статус Public платформы заносятся владельцем
+прогона в `experiments/log.md`.
