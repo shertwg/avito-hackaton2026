@@ -9,7 +9,7 @@ import polars as pl
 from scripts.audit_event_cosine_features import audit as audit_event
 from scripts.audit_feature_ranks import audit as audit_ranks
 from scripts.audit_time_features import audit as audit_time
-from src.common.event_cosine import build_feature_part, build_features as build_event
+from src.common.event_cosine import build_feature_part, build_features as build_event, vector_identity
 from src.common.feature_cache import KEY, cache_lock
 from src.common.feature_ranks import build_features as build_ranks
 from src.common.preparation import fingerprint, write_json
@@ -19,6 +19,16 @@ from tests.new_feature_fixture import make_prepared, rank_sources
 
 
 class AdditionalFeatureTests(unittest.TestCase):
+    def test_large_vector_metadata_uses_exact_size(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for split in ('train', 'val', 'test'):
+                directory = root / split / 'item_embeddings'
+                directory.mkdir(parents=True)
+                (directory / 'data.meta').write_text(json.dumps({'dtype': 'int8', 'shape': [81557944, 128], 'order': 'C'}))
+            with patch('src.common.event_cosine.fingerprint', return_value={'bytes': 10439416832, 'mtime_ns': 1}):
+                self.assertEqual(vector_identity(root)['vectors']['train']['data']['bytes'], 10439416832)
+
     def test_event_masks_negative_max_and_original_window(self):
         vectors = np.zeros((4, 128), dtype=np.int8)
         vectors[0, 0], vectors[1, 0], vectors[2, 1] = 1, -1, 1

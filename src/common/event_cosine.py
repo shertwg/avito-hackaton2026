@@ -2,6 +2,7 @@
 import hashlib
 import inspect
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -33,7 +34,7 @@ def vector_identity(raw):
         meta = json.loads(metadata)
         data = fingerprint(directory / 'data.memmap')
         if (meta['dtype'] != 'int8' or meta['order'] != 'C' or meta['shape'][1] != 128
-                or data['bytes'] != int(np.prod(meta['shape']))):
+                or data['bytes'] != math.prod(meta['shape'])):
             raise ValueError('invalid original split vector file')
         result[split] = {'meta_sha256': hashlib.sha256(metadata).hexdigest(), 'data': data}
     shared = '\n'.join(inspect.getsource(function) for function in
