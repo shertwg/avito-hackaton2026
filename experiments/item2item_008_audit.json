@@ -1,0 +1,41 @@
+{
+  "complete": true,
+  "group": "item2item",
+  "manifest_sha256": "94efeaaacd817dfb0ece5de82b8457b79eb4472a658cd43094fdea297a6aee55",
+  "sampled_feeds": 408,
+  "sampled_candidate_rows": 40695,
+  "bytes": 56253840,
+  "splits": {
+    "train": {
+      "parts": 8,
+      "rows": 3850759
+    },
+    "val": {
+      "parts": 64,
+      "rows": 1389971
+    },
+    "test": {
+      "parts": 64,
+      "rows": 2904806
+    }
+  },
+  "scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+  "formula_atol": 2e-06,
+  "formula_rtol": 2e-06,
+  "duration_seconds": 38.61,
+  "memory": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 2219819008,
+    "working_set_bytes": 324648960,
+    "peak_working_set_bytes": 527179776
+  },
+  "audit_sha256": "42903bd7146f291164f6a264ea34ea63d6c34fe35c676fa9e0c25bf5631ae3bf",
+  "shared_audit_sha256": "f94b54e1a565085a5a0789ace01ba0a91ea1785c3de2f14a416ff4877ad4e9fe",
+  "donor_parts": 504,
+  "donor_feeds": 3102008,
+  "index_items": 5453051,
+  "index_postings": 95507441,
+  "independently_verified_items": 53774,
+  "index_structure": "all items, offsets and posting lists",
+  "reference_scope": "sampled candidate/history item postings independently collected from all donor histories"
+}

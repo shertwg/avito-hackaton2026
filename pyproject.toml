@@ -13,6 +13,7 @@ dependencies = [
     "lightgbm==4.6.0",
     "optuna>=4,<5",
     "duckdb==1.4.3",
+    "scipy==1.17.1",
 ]
 
 [tool.uv]
