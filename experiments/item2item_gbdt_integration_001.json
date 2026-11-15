@@ -1,0 +1,22 @@
+{
+  "complete": true,
+  "entry_point": "src.gbdt.prepared.load_prepared",
+  "cohorts": {
+    "008": {
+      "coverage_verified": 8,
+      "loaded_train_parts": 1,
+      "rows": 476301,
+      "feature_groups": 10,
+      "model_features": 146,
+      "incompatible_item2item_cohort_rejected": true
+    },
+    "032": {
+      "coverage_verified": 32,
+      "loaded_train_parts": 1,
+      "rows": 476301,
+      "feature_groups": 10,
+      "model_features": 146,
+      "incompatible_item2item_cohort_rejected": true
+    }
+  }
+}
