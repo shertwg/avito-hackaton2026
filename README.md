@@ -20,8 +20,8 @@ src/common/data.py       чтение лент, признаки сходств�
 src/common/validation.py временное разбиение val и групповые OOF-фолды
 src/common/preparation.py подготовка таблиц и точный EDA по всем данным
 src/gbdt/train.py        простой CatBoost YetiRank: train / predict (бейзлайн)
-src/gbdt/run_exp.py      раннер экспериментов: CatBoost/LightGBM, позиция, режимы holdout/cv/final
-src/gbdt/tune.py         Optuna по val (ES на pseudo-public, цель — pseudo-private)
+src/gbdt/run_exp.py      раннер экспериментов: CatBoost/LightGBM (CPU/GPU), позиция, режимы holdout/cv/final
+src/gbdt/tune.py         Optuna по val (выбор по pseudo-public, отчёт на pseudo-private)
 src/gbdt/weights.py      IPW-веса против смещения позиции
 src/gbdt/extra_features.py  подключение признаков Антона/Августа (контракт на формат — в docstring)
 src/ensemble/blend.py    общий ансамбль N моделей: mean / подбор весов / стекинг по OOF
@@ -32,6 +32,7 @@ src/ensemble/blend_nn_gbdt.py  ранговый блендинг NN + GBDT (Ав
 src/ensemble/stacking.py Ridge-стекинг NN + GBDT (Август)
 eval/make_synthetic.py   крошечный синтетический датасет для проверки кода (не данные Авито)
 scripts/validate_submission.py   проверка формата сабмита
+scripts/average_runs.py          усреднение нескольких сидов по z-score внутри ленты
 scripts/check_dataset.py         проверка распакованного датасета
 scripts/make_validation_split.py создание таблицы разбиения val
 scripts/prepare_data.py          полный проход: Parquet + EDA
