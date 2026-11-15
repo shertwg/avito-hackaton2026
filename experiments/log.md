@@ -16,6 +16,7 @@
 | 13.11.2026 | Дима | `43c13cd` | Описательный анализ событий по категории кандидата на 32 train-шардах и всём val | — | — | — | — | Все десять групп h_cat_evtN > 0 содержат наблюдения. |
 | 13.11.2026 | Дима | `055f644` | Cosine + infeed + history + itemstats, 8 train-шардов, 105 признаков, 92 дерева | 0.363236 / 0.233965 / 0.302709 | 0.369146 / 0.311774 | 0.360702 / 0.298823 | — | Чекпойнт выбран по pseudo-Public. Эталон и валидатор пройдены. |
 | 13.11.2026 | Дима | `1a2e241` | Тот же набор и 8 шардов с добавлением userstats, 121 признак, 30 деревьев | 0.362064 / 0.232770 / 0.301274 | 0.368073 / 0.310522 | 0.359489 / 0.297308 | — | Добавление userstats дало разность Private -0.001514, 95% интервал [-0.003391, 0.000188]. |
+| 15.11.2026 | Дима | `12fbd63` | Cosine + itemstats + 4 category_cooc, 1 train-шард, 51 признак, 19 деревьев | 0.358392 / 0.228104 / 0.297019 | 0.367835 / 0.309221 | 0.354344 / 0.291788 | — | Парное сравнение с cosine + itemstats. Разность Private -0.003586, 95% интервал [-0.005724, -0.001622]. |
 
 Подробные параметры, хеши кода и данных, метрики и результат проверки: [baseline_check_001.json](baseline_check_001.json). Коммит в таблице — чистый коммит, на котором выполнялся прогон.
 
@@ -239,3 +240,32 @@ uv run --locked python -m scripts.reproduce_ranking --raw competition --train-pa
 uv run --locked python -m scripts.reproduce_ranking --raw competition --train-parts 8 --infeed --history --itemstats --userstats --out runs/reproduced-joint-userstats-008 --resume
 uv run --locked python -m scripts.compare_baselines --baseline runs/reproduced-joint-008 --candidate runs/reproduced-joint-userstats-008 --out runs/reproduced-joint-userstats-008/comparison.json
 ```
+
+## Категорийный вариант item2item — 15.11.2026
+
+По новому приоритету Дани реализована группа `category_cooc`. В исходном train 583 586 378 событий истории. Первый вариант использует компактную матрицу категорий. Каждая донорская лента даёт одно присутствие категории и одно совместное присутствие пары категорий. Оценка пары равна `C(i,j) / sqrt(C(i,i)*C(j,j))`. Матрица симметрична, одинаковые известные категории имеют оценку 1, категории без наблюдений — 0.
+
+Для кандидата считаются сумма и максимум этих оценок по первым 10 и 50 событиям собственной истории, всего четыре Float32-признака. Повторения в истории запроса учитываются при каждом вхождении. Направленные последовательные переходы категорий и пары конкретных товаров требуют отдельной реализации.
+
+Отдельные кеши исключают выбранные 8 или 32 обучающих шарда. Источниками служат 504 или 480 оставшихся train-шардов, используются только категории историй донорских лент. Прогресс агрегации сохраняется после каждого донорского шарда, готовые Parquet — после каждого выходного файла. Регрессионные тесты проверяют восстановление после обоих видов прерывания, ручные формулы, повторные события, неизвестные категории, одинаковые item_id с разными candidate_index, независимость от target и отклонение несовместимой обучающей выборки.
+
+Кеш на 8 шардах покрывает 8 145 536 строк, занимает 65 493 230 байт и построен за 89.34 с при пиковом рабочем наборе 339 152 896 байт. Кеш на 32 шардах покрывает 19 668 761 строку, занимает 159 323 038 байт и построен за 75.98 с при пике 346 415 104 байта. Весь val/test покрыт в обоих случаях.
+
+Независимые аудиты заняли 101.23 и 99.69 с. Все совместные частоты пересчитаны по исходным историям через битовые наборы донорских лент и их пересечения. Во всех строках проверены ключи, типы, конечность, диапазоны и отпечатки. Формулы дополнительно сверены на 408 лентах / 37 043 кандидатах и 480 лентах / 40 831 кандидате. В донорских историях найдены 54 категории. Нормальный GBDT-загрузчик проверен со всеми пятью группами и 109 признаками на реальном train-шарде, покрытие обеих выборок и отказы на несовместимых наборах подтверждены.
+
+Для согласованного проверочного обучения использован тот же один train-шард, что в готовом контроле cosine + itemstats, 476 301 кандидат / 6 132 ленты. Параметры общие — CatBoost YetiRank, максимум 100 итераций, depth=6, lr=0.1, seed=42, два CPU-потока. Вариант с category_cooc получил 51 признак и 19 деревьев, выбранных по pseudo-Public. Сравнение подтвердило одинаковые данные, параметры и val. Pseudo-Public NDCG@30 составил 0.309221 против 0.310286, pseudo-Private — 0.291788 против 0.295374. Разность Private -0.003586, парный bootstrap по 10 095 лентам, 1000 повторов, seed=42 дал 95% интервал [-0.005724, -0.001622]. В этом проверочном прогоне группа ухудшила результат. Она доступна как опциональная группа. Оценка относится к этому train-срезу и фиксированному val.
+
+Прогон занял 75.95 с. Full/@10/@30 сверены с эталоном, сабмит на 2 904 806 строк прошёл валидатор после загрузки модели. Общая проверка содержит 70 unittest-тестов, все прошли за 38.032 с. Необязательный нейросетевой pytest-модуль `tests/test_edge_cases.py` исключён из этого прогона.
+
+[Материализация 8](category_cooc_materialization_008.json), [материализация 32](category_cooc_materialization_032.json), [аудит 8](category_cooc_008_audit.json), [аудит 32](category_cooc_032_audit.json), [GBDT-интеграция](category_cooc_gbdt_integration_001.json), [модель](baseline_category_cooc_001.json), [парное сравнение](category_cooc_comparison_001.json).
+
+```powershell
+uv run --locked python -m scripts.build_category_cooc_features --train-parts 8 --out data/features/category-cooc-008 --resume
+uv run --locked python -m scripts.build_category_cooc_features --train-parts 32 --out data/features/category-cooc-032 --resume
+uv run --locked python -m scripts.audit_category_cooc_features --cache data/features/category-cooc-008 --out runs/category_cooc_008_audit.json
+uv run --locked python -m scripts.audit_category_cooc_features --cache data/features/category-cooc-032 --out runs/category_cooc_032_audit.json
+uv run --locked python -m scripts.run_baseline_check --feature-root data/features/cosine --feature-root data/features/itemstats-008 --feature-root data/features/category-cooc-008 --train-parts 1 --iterations 100 --depth 6 --seed 42 --threads 2 --out runs/baseline-category-cooc-001
+uv run --locked python -m scripts.compare_baselines --baseline runs/baseline-itemstats-001 --candidate runs/baseline-category-cooc-001 --out runs/baseline-category-cooc-001/comparison.json
+```
+
+Для передачи Дане подготовлен архив `dima_joint008_predictions_2026-11-15.zip` с исходными `val_pred.parquet` и `test_pred.parquet` модели со 105 признаками. Файлы сверены с опубликованными ранее SHA-256 и повторно проверены после упаковки. Размер ZIP составляет 32 236 939 байт, SHA-256 `3b3b43c7f77891aacc1816ae837a396601ba6f9553858adb1927b2aed59ce0d4`. По просьбе пользователя архив сохранён локально в папке «Загрузки».
