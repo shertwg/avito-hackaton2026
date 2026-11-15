@@ -114,8 +114,8 @@ def run(root: Path, raw: Path, output: Path, *, train_parts=1, iterations=100,
             tracked_code.append('src/common/category_cooc.py')
         if feature_manifest.get('feature_group') == 'history':
             tracked_code.append('src/common/history.py')
-        if feature_manifest.get('feature_group') in ('event_cosine', 'feature_ranks', 'time'):
-            producer = {'event_cosine': 'event_cosine', 'feature_ranks': 'feature_ranks', 'time': 'time_features'}
+        if feature_manifest.get('feature_group') in ('event_cosine', 'feature_ranks', 'time', 'item2item'):
+            producer = {'event_cosine': 'event_cosine', 'feature_ranks': 'feature_ranks', 'time': 'time_features', 'item2item': 'item2item'}
             tracked_code.extend([f"src/common/{producer[feature_manifest['feature_group']]}.py", 'src/common/feature_cache.py'])
         if feature_manifest.get('feature_group') == 'feature_ranks':
             tracked_code.append('src/common/infeed.py')

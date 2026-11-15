@@ -33,11 +33,11 @@ class RankingReproductionTests(unittest.TestCase):
                     pl.lit(0., dtype=pl.Float32).alias('score')).write_parquet(raw / 'sample_submission.parquet')
             options = dict(prepared=root / 'prepared', feature_dir=root / 'features', catalogue=root / 'catalogue',
                            train_parts=1, infeed=True, history=True, itemstats=True, userstats=True,
-                           event_cosine=True, feature_ranks=True, time_features=True,
+                           event_cosine=True, feature_ranks=True, time_features=True, item2item=True,
                            iterations=2, depth=2, threads=1, memory_mb=256)
             first = reproduce_ranking(raw, root / 'first', **options)
             self.assertTrue(first['complete'])
-            self.assertEqual(len(first['features']), 138)
+            self.assertEqual(len(first['features']), 142)
             self.assertEqual(first['submission']['validator'], 'passed')
             for group in ('itemstats', 'userstats'):
                 manifest = json.loads((root / f'features/{group}-001/manifest.json').read_text())

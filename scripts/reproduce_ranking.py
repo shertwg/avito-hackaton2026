@@ -11,7 +11,7 @@ def reproduce_ranking(raw=Path('competition'), output=Path('runs/reproduced-rank
                       prepared=Path('data/prepared'), feature_dir=Path('data/features'),
                       catalogue=Path('data/embedding_catalogue'),
                       train_parts=8, infeed=False, history=False, itemstats=False, userstats=False,
-                      category_cooc=False, event_cosine=False, feature_ranks=False, time_features=False,
+                      category_cooc=False, event_cosine=False, feature_ranks=False, time_features=False, item2item=False,
                       iterations=100, depth=6, seed=42, threads=2, memory_mb=2048, resume=False):
     output = Path(output).resolve()
     if output.exists():
@@ -24,7 +24,7 @@ def reproduce_ranking(raw=Path('competition'), output=Path('runs/reproduced-rank
     available_parts = len(list_parts(raw, 'train'))
     if train_parts > available_parts:
         raise ValueError('requested training size exceeds the source shard count')
-    if (itemstats or userstats or category_cooc or feature_ranks or time_features) and train_parts == available_parts:
+    if (itemstats or userstats or category_cooc or feature_ranks or time_features or item2item) and train_parts == available_parts:
         raise ValueError('statistics require at least one donor shard outside model training')
     reproduce(raw, prepared, output.parent / 'eda', catalogue=Path(catalogue), features=feature_dir / 'cosine',
               feature_train_parts=train_parts, infeed=feature_dir / 'infeed' if infeed else None,
@@ -69,6 +69,11 @@ def reproduce_ranking(raw=Path('competition'), output=Path('runs/reproduced-rank
         root = feature_dir / f'time-{train_parts:03d}'
         build_features(prepared, root, train_parts=train_parts, memory_mb=memory_mb, resume=resume)
         roots.append(root)
+    if item2item:
+        from src.common.item2item import build_features
+        root = feature_dir / f'item2item-{train_parts:03d}'
+        build_features(prepared, root, train_parts=train_parts, memory_mb=memory_mb, resume=resume)
+        roots.append(root)
     from scripts.run_baseline_check import run
     report = run(prepared, raw, output, train_parts=train_parts, iterations=iterations,
                  depth=depth, seed=seed, threads=threads, feature_root=roots)
@@ -107,6 +112,7 @@ def main():
     parser.add_argument('--event-cosine', action='store_true')
     parser.add_argument('--feature-ranks', action='store_true')
     parser.add_argument('--time-features', action='store_true')
+    parser.add_argument('--item2item', action='store_true')
     parser.add_argument('--iterations', type=int, default=100)
     parser.add_argument('--depth', type=int, default=6)
     parser.add_argument('--seed', type=int, default=42)
@@ -120,6 +126,7 @@ def main():
                       itemstats=args.itemstats, userstats=args.userstats, iterations=args.iterations,
                       category_cooc=args.category_cooc, event_cosine=args.event_cosine,
                       feature_ranks=args.feature_ranks, time_features=args.time_features,
+                      item2item=args.item2item,
                       depth=args.depth, seed=args.seed, threads=args.threads,
                       memory_mb=args.memory_mb, resume=args.resume)
 
