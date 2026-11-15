@@ -1,0 +1,37 @@
+{
+  "complete": true,
+  "group": "time",
+  "manifest_sha256": "3d57c10ec9d172fea93cd353d4727c5f95ffcf503f43f5c055d65c9dc8f83645",
+  "sampled_feeds": 480,
+  "sampled_candidate_rows": 47528,
+  "bytes": 134816923,
+  "splits": {
+    "train": {
+      "parts": 32,
+      "rows": 15373984
+    },
+    "val": {
+      "parts": 64,
+      "rows": 1389971
+    },
+    "test": {
+      "parts": 64,
+      "rows": 2904806
+    }
+  },
+  "scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+  "formula_atol": 2e-06,
+  "formula_rtol": 2e-06,
+  "duration_seconds": 19.95,
+  "memory": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 2154303488,
+    "working_set_bytes": 191963136,
+    "peak_working_set_bytes": 318791680
+  },
+  "audit_sha256": "dc7348b25315ac4652080481192e5ddb8298791c503b90e4db2979dfd81496a0",
+  "shared_audit_sha256": "f94b54e1a565085a5a0789ace01ba0a91ea1785c3de2f14a416ff4877ad4e9fe",
+  "donor_parts": 480,
+  "reference_item_count": 47353,
+  "age_reference": "minimum timestamp over all donor shards for sampled items"
+}
