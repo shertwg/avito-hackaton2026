@@ -647,3 +647,32 @@ uv run --locked python -m scripts.reproduce_ranking --raw competition --train-pa
 121 признаком, раздельными донорскими шардами и повторным запуском.
 Конфигурация окончательной командной модели будет зафиксирована после
 её выбора.
+
+## Совместная встречаемость категорий
+
+Группа `category_cooc` — первый категорийный вариант item2item по историям.
+Для каждой пары категорий считается число донорских лент, в историях которых
+присутствуют обе категории. Повторные события одной категории в донорской
+истории дают одно присутствие. Матрица симметрична.
+
+Оценка пары равна `C(i,j) / sqrt(C(i,i) * C(j,j))`. Для одинаковых известных
+категорий она равна 1, для категории без наблюдений — 0. Четыре признака
+`cc_sum_10`, `cc_max_10`, `cc_sum_50`, `cc_max_50` суммируют и максимизируют
+эту оценку по первым 10 и 50 событиям истории текущей ленты. Порядок событий
+и повторения в этих окнах сохраняются.
+
+Доноры исключают все выбранные обучающие шарды. Кеши на 8 и 32 шарда
+имеют отдельные папки. Загрузчик проверяет соответствие обучающей выборки.
+Агрегаты сохраняются после каждого донорского шарда, признаки — после
+каждого выходного файла. Числа всех пар независимо проверяются пересечениями
+битовых наборов донорских лент. Формулы проверяются на трёх лентах каждого
+файла, а ключи, типы, диапазоны и отпечатки — на всех строках.
+
+```powershell
+uv run --locked python -m scripts.build_category_cooc_features --train-parts 8 --out data/features/category-cooc-008 --resume
+uv run --locked python -m scripts.build_category_cooc_features --train-parts 32 --out data/features/category-cooc-032 --resume
+uv run --locked python -m scripts.audit_category_cooc_features --cache data/features/category-cooc-008 --out runs/category_cooc_008_audit.json
+uv run --locked python -m scripts.audit_category_cooc_features --cache data/features/category-cooc-032 --out runs/category_cooc_032_audit.json
+```
+
+Подключение выполняется через соответствующий `--feature-root`.

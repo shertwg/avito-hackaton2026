@@ -336,7 +336,7 @@ def attach_features(frame, feature_root, split, source_parts):
     manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
     if not manifest.get('complete'):
         raise ValueError('similarity feature set is incomplete')
-    if split == 'train' and manifest.get('feature_group') in ('itemstats','userstats'):
+    if split == 'train' and manifest.get('feature_group') in ('itemstats','userstats','category_cooc'):
         if not set(source_parts) <= set(manifest['excluded_train_sources']):
             raise ValueError(f"{manifest['feature_group']} donor shards overlap requested model training shards")
     missing = set(source_parts) - set(manifest['splits'].get(split, {}).get('parts', {}))
