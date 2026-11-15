@@ -224,3 +224,4 @@ uv run --locked python -m scripts.compare_baselines --baseline runs/baseline-ite
 | 2026-11-13 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3569/0.3569/0.2951 | - | out=runs/lgb8-cv-s2 |
 | 2026-11-15 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02244 | priv: 0.3532/0.3533/0.2888 | - | out=runs/lgb32-tuned; feats=$H, 32 parts; tuned params, best_iter=141 on pseudo-public |
 | 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3590/0.3591/0.2968 | - | out=runs/lgb32-tuned-cv; feats=$H, 32 parts; iters 141 from lgb32-tuned; vs lgb8-tuned-cv priv -0.0022 [-0.0044, +0.0000], rejected |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3612/0.3612/0.2998 | - | out=runs/cb32-is; feats=$H + itemstats-032, 32 parts; vs cb32-hist priv -0.0010 [-0.0044, +0.0025], rejected |
