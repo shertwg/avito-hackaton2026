@@ -676,3 +676,70 @@ uv run --locked python -m scripts.audit_category_cooc_features --cache data/feat
 ```
 
 Подключение выполняется через соответствующий `--feature-root`.
+
+## Cosine по типам событий
+
+Группа `event_cosine` использует последние 50 исходных событий истории и
+типы 1, 2 и 10. Для каждого типа сохраняются число доступных векторов,
+среднее и максимум cosine с кандидатом, всего девять Float32-признаков.
+Типы 1 и 2 выбраны как частые события train, тип 10 включён по запросу Дани.
+Окно отсекается до фильтрации по типу и наличию вектора. При отсутствии
+подходящих векторов среднее и максимум равны 0, отрицательный максимум
+сохраняется. Используются исходные векторы каждого split и маски `-1`.
+
+Кеш расширяется с сохранением проверенных файлов. Выборки на 8 и 32 шарда
+имеют частичное пересечение, поэтому общий кеш содержит их объединение.
+Весь val/test вычисляется один раз. `--prefetch-parts` объединяет чтение
+векторов для нескольких шардов и по умолчанию равно 4.
+
+```powershell
+uv run --locked python -m scripts.build_event_cosine_features --train-parts 8 --resume
+uv run --locked python -m scripts.build_event_cosine_features --train-parts 32 --resume
+uv run --locked python -m scripts.audit_event_cosine_features --train-parts 8 --out runs/event_cosine_008_audit.json
+uv run --locked python -m scripts.audit_event_cosine_features --train-parts 32 --out runs/event_cosine_032_audit.json
+```
+
+## Ранги сильных признаков
+
+Группа `feature_ranks` добавляет нормированные ранги `cos_user`,
+`cos_hist_max_10`, `cos_hist_max_50` и `is_item_ctr`. Ранг возрастающий,
+при равенстве используется средний ранг, делённый на размер ленты.
+Ранг `h_cat_share` уже доступен в history как `h_cat_share_feedrank`.
+CTR берётся из itemstats с тем же исключением обучающих шардов.
+Отдельные кеши содержат результаты для когорт 8 и 32.
+
+```powershell
+uv run --locked python -m scripts.build_feature_ranks --train-parts 8 --itemstats data/features/itemstats-008 --out data/features/feature-ranks-008 --resume
+uv run --locked python -m scripts.build_feature_ranks --train-parts 32 --itemstats data/features/itemstats-032 --out data/features/feature-ranks-032 --resume
+uv run --locked python -m scripts.audit_feature_ranks --itemstats data/features/itemstats-008 --cache data/features/feature-ranks-008 --out runs/feature_ranks_008_audit.json
+uv run --locked python -m scripts.audit_feature_ranks --itemstats data/features/itemstats-032 --cache data/features/feature-ranks-032 --out runs/feature_ranks_032_audit.json
+```
+
+## Время и возраст товара
+
+Группа `time` содержит час UTC (0–23), день недели UTC (понедельник 0),
+число дней после первого появления товара среди кандидатов донорского train
+и флаг наличия такого прошлого появления. Это наблюдаемый возраст в данных.
+Используется минимальный timestamp донорского кандидата строго раньше
+текущей ленты. Если прошлое появление отсутствует, возраст и флаг равны 0.
+Идентификаторы товаров 0 и отрицательные значения получают этот же вариант.
+Обучающие шарды исключаются из доноров, target используется только моделью.
+
+```powershell
+uv run --locked python -m scripts.build_time_features --train-parts 8 --out data/features/time-008 --resume
+uv run --locked python -m scripts.build_time_features --train-parts 32 --out data/features/time-032 --resume
+uv run --locked python -m scripts.audit_time_features --cache data/features/time-008 --out runs/time_008_audit.json
+uv run --locked python -m scripts.audit_time_features --cache data/features/time-032 --out runs/time_032_audit.json
+```
+
+Для новых кешей действует исключительная блокировка записи, которая
+освобождается операционной системой при завершении процесса. Повторный
+запуск переиспользует проверенные части. Аудит проверяет все строки
+структурно и пересчитывает формулы на трёх лентах каждого файла независимо
+от реализации расчёта признаков. Возраст сверяется по всем донорским шардам
+для товаров из этих лент.
+
+Все группы подключаются через `--feature-root`. В `scripts.reproduce_ranking`
+доступны флаги `--category-cooc`, `--event-cosine`, `--feature-ranks` и
+`--time-features`. Для рангов itemstats строится как зависимость. Полный
+набор его колонок добавляется в модель при явном флаге `--itemstats`.

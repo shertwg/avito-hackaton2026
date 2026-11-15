@@ -112,6 +112,13 @@ def run(root: Path, raw: Path, output: Path, *, train_parts=1, iterations=100,
             tracked_code.extend(['src/common/userstats.py','src/common/itemstats.py'])
         if feature_manifest.get('feature_group') == 'category_cooc':
             tracked_code.append('src/common/category_cooc.py')
+        if feature_manifest.get('feature_group') == 'history':
+            tracked_code.append('src/common/history.py')
+        if feature_manifest.get('feature_group') in ('event_cosine', 'feature_ranks', 'time'):
+            producer = {'event_cosine': 'event_cosine', 'feature_ranks': 'feature_ranks', 'time': 'time_features'}
+            tracked_code.extend([f"src/common/{producer[feature_manifest['feature_group']]}.py", 'src/common/feature_cache.py'])
+        if feature_manifest.get('feature_group') == 'feature_ranks':
+            tracked_code.append('src/common/infeed.py')
         feature_metadata.append({'group': feature_manifest.get('feature_group', 'cosine'),
                                  'manifest_sha256': hashlib.sha256(feature_manifest_path.read_bytes()).hexdigest(),
                                  'features': feature_manifest['features'],
