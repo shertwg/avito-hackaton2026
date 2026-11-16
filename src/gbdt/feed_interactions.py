@@ -1,4 +1,4 @@
-"""Внутриленточные нормировки и взаимодействия сильнейших признаков (без утечек между лентами)."""
+"""Внутриленточные нормировки, ранги и взаимодействия сильнейших признаков (без утечек между лентами)."""
 from __future__ import annotations
 
 import polars as pl
@@ -15,11 +15,21 @@ NORM_COLS = [
     "cos_user",
 ]
 
+RANK_COLS = [
+    "i2i_sum_50",
+    "i2i_sum_10",
+    "i2i_max_50",
+    "is_item_history_evt1",
+    "item_train_age_days",
+    "cos_hist_mean_50",
+]
+
 
 def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
-    """Добавляет z-score и отклонение от максимума внутри feed_id, а также ключевые взаимодействия."""
+    """Добавляет z-score, dmax, нормированные ранги внутри feed_id и доменные взаимодействия."""
     exprs: list[pl.Expr] = []
     cols: list[str] = []
+    feed_n = pl.len().over("feed_id").cast(pl.Float32)
 
     for c in NORM_COLS:
         if c not in df.columns:
@@ -39,11 +49,27 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         )
         cols.extend([z_name, d_name])
 
+    for c in RANK_COLS:
+        if c not in df.columns:
+            continue
+        r_name = f"fi_{c}_rank"
+        exprs.append(
+            (pl.col(c).cast(pl.Float32).rank(method="average").over("feed_id") / feed_n)
+            .fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(r_name)
+        )
+        cols.append(r_name)
+
     pairs = [
         ("fi_cos_x_ctr", "cos_user", "is_item_ctr", lambda a, b: a * b),
         ("fi_i2i50_x_cos", "i2i_sum_50", "cos_user", lambda a, b: a * b),
         ("fi_ctr_per_age", "is_item_ctr", "item_train_age_days", lambda a, b: a / (b + pl.lit(1.0, dtype=pl.Float32))),
         ("fi_i2i_ratio_10_50", "i2i_sum_10", "i2i_sum_50", lambda a, b: a / (b + pl.lit(1e-3, dtype=pl.Float32))),
+        ("fi_i2i50_x_ctr", "i2i_sum_50", "is_item_ctr", lambda a, b: a * b),
+        ("fi_i2i10_x_cos10", "i2i_sum_10", "cos_hist_max_10", lambda a, b: a * b),
+        ("fi_evt1_x_cos50", "is_item_history_evt1", "cos_hist_mean_50", lambda a, b: a * b),
+        ("fi_i2i_max_ratio", "i2i_max_10", "i2i_max_50", lambda a, b: a / (b + pl.lit(1e-3, dtype=pl.Float32))),
+        ("fi_f3z_x_cos10", "f3_z", "cos_hist_max_10", lambda a, b: a * b),
+        ("fi_f1z_x_i2i50", "f1_z", "i2i_sum_50", lambda a, b: a * b),
     ]
     for name, c1, c2, fn in pairs:
         if c1 in df.columns and c2 in df.columns:
@@ -52,6 +78,15 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
                 .fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(name)
             )
             cols.append(name)
+
+    for c in ["i2i_sum_50", "is_item_history_evt1", "item_train_age_days"]:
+        if c in df.columns:
+            lname = f"fi_log_{c}"
+            exprs.append(
+                pl.col(c).cast(pl.Float32).clip(lower_bound=0.0).log1p()
+                .fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(lname)
+            )
+            cols.append(lname)
 
     if exprs:
         df = df.with_columns(exprs)
