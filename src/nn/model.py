@@ -201,6 +201,7 @@ class FeedRankingModel(nn.Module):
         use_numeric_head: bool = False,
         use_history_context: bool = True,
         num_itemstats: int = 0,
+        num_item2item: int = 0,
         use_event_cosine: bool = False,
     ) -> None:
         super().__init__()
@@ -290,16 +291,8 @@ class FeedRankingModel(nn.Module):
                 nn.init.zeros_(self.numeric_head[-1].bias)
 
 
-        self.itemstats_head = None
-        if num_itemstats:
-            with torch.random.fork_rng(devices=[]):
-                self.itemstats_head = nn.Sequential(
-                    nn.Linear(num_itemstats, 64),
-                    nn.ReLU(),
-                    nn.Linear(64, 1),
-                )
-                nn.init.zeros_(self.itemstats_head[-1].weight)
-                nn.init.zeros_(self.itemstats_head[-1].bias)
+        self.itemstats_head = self._donor_head(num_itemstats)
+        self.item2item_head = self._donor_head(num_item2item)
 
         self.event_cosine_head = None
         if use_event_cosine:
@@ -311,6 +304,16 @@ class FeedRankingModel(nn.Module):
                 )
                 nn.init.zeros_(self.event_cosine_head[-1].weight)
                 nn.init.zeros_(self.event_cosine_head[-1].bias)
+
+    @staticmethod
+    def _donor_head(width):
+        if not width:
+            return None
+        with torch.random.fork_rng(devices=[]):
+            head = nn.Sequential(nn.Linear(width, 64), nn.ReLU(), nn.Linear(64, 1))
+            nn.init.zeros_(head[-1].weight)
+            nn.init.zeros_(head[-1].bias)
+        return head
 
     def forward(
         self,
@@ -420,6 +423,9 @@ class FeedRankingModel(nn.Module):
 
         if self.itemstats_head is not None:
             main_scores = main_scores + self.itemstats_head(batch["itemstats"]).squeeze(-1)
+
+        if self.item2item_head is not None:
+            main_scores = main_scores + self.item2item_head(batch["item2item"]).squeeze(-1)
 
         if self.event_cosine_head is not None:
             main_scores = main_scores + self.event_cosine_head(event_cosine_features(batch)).squeeze(-1)

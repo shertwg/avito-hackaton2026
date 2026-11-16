@@ -16,10 +16,12 @@ from src.common.resources import memory_snapshot
 KEY = ['split', 'feed_id', 'candidate_index']
 
 
-def selected_parts(source, count):
+def selected_parts(source, count, *, first_train_shards=False):
     parts = source['splits']['train']['parts']
     if not 1 <= count <= len(parts):
         raise ValueError('training shard count outside source range')
+    if first_train_shards:
+        return parts[:count]
     return [parts[int(index)] for index in np.linspace(0, len(parts) - 1, count, dtype=int)]
 
 
@@ -68,7 +70,7 @@ def cache_lock(output):
 
 def build_cache(prepared, output, *, train_parts, group, names, domains, producer,
                 extra, build_part, resume=False, excluded=None, prepare=None,
-                verify_extra=None, artifacts=()):
+                verify_extra=None, artifacts=(), first_train_shards=False):
     prepared, output = Path(prepared).resolve(), Path(output).resolve()
     if prepared == output or prepared in output.parents or output in prepared.parents:
         raise ValueError('feature output must be separate from prepared data')
@@ -76,7 +78,7 @@ def build_cache(prepared, output, *, train_parts, group, names, domains, produce
     source = json.loads(source_bytes)
     if not source.get('complete'):
         raise ValueError('prepared dataset incomplete')
-    requested = selected_parts(source, train_parts)
+    requested = selected_parts(source, train_parts, first_train_shards=first_train_shards)
     identity = {
         'prepared_manifest_sha256': hashlib.sha256(source_bytes).hexdigest(),
         'implementation_sha256': hashlib.sha256(Path(producer).read_bytes()).hexdigest(),
