@@ -822,3 +822,27 @@ uv run --locked python scripts/validate_submission.py competition/sample_submiss
 каждой ленты. Для ансамбля используются эти два Parquet, веса выбираются
 по pseudo-Public. Метрики и статус Public платформы заносятся владельцем
 прогона в `experiments/log.md`.
+
+### Последовательный OOF с дисковыми пулами
+
+`scripts.run_joint_oof` обрабатывает те же временные фолды последовательно.
+Объединённые признаки сохраняются по шардам, обучающий TSV сортируется через
+DuckDB с ограничением памяти. Для каждого фолда CatBoost читает один
+обучающий набор, квантует и сохраняет его на диск. Предсказания val/test
+считаются по шардам. Чтение исходного пула и обучение расходуют дополнительную
+память сверх лимита менеджера DuckDB.
+
+Сохраняются модель каждого фолда, контрольные точки CatBoost и промежуточные
+предсказания. `--resume` проверяет источники и переиспользует законченные
+фолды. При прерывании после сохранения модели повторяется расчёт её
+предсказаний. Число итераций фиксировано, held-out блок исключается при
+подготовке обучающего пула. Метрики сверяются с эталоном, итоговый test
+проверяется валидатором. Параметры и отпечатки входят в `run.json`.
+
+```powershell
+uv run --locked python -m scripts.run_joint_oof --train-parts 8 --folds 4 --iterations 92 --depth 6 --learning-rate 0.1 --seed 42 --threads 2 --memory-mb 512 --feature-root data/features/cosine --feature-root data/features/infeed --feature-root data/features/history --feature-root data/features/itemstats-008 --feature-root data/features/item2item-008 --out runs/dima-joint-item2item-008-cv-001 --resume
+```
+
+Итоговые `val_pred.parquet` и `test_pred.parquet` имеют командный формат.
+Дополнительно сохраняются ключи вхождений кандидатов и назначение фолдов.
+`test_pred` усредняет четыре предсказания с z-score внутри каждой ленты.
