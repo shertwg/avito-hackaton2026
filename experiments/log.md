@@ -531,3 +531,7 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3679/0.3679/0.3074 | - | out=runs/cb32-all-fi-qsm-cv; 152 feats, 32 parts, GPU, iters 518; pub 0.3193, all 0.3110 (all_ndcg_full 0.3703); validator OK |
 | 2026-11-16 | danya | - | blend weights 10 OOF (152-feat + 130-feat + 73-feat + nn-oof4) | priv: -/-/0.3100 | - | out=runs/blend-oof-v9; pub 0.3219, all 0.3136; validator OK |
 | 2026-11-16 | danya | - | blend mean 10 OOF (152-feat + 130-feat + 73-feat + nn-oof4) | priv: -/-/0.3107 | - | out=runs/blend-oof-v9-mean; pub 0.3210, all 0.3138; vs blend-oof-v5 priv +0.00175 [+0.00027, +0.00324] (p=0.992), Финал A (select_final); validator OK |
+| 2026-11-16 | danya | - | nn-is-oof4 (Август, 4-fold OOF с itemstats) | priv: -/-/0.3016 | - | out=runs/nn-is-oof4; pub 0.3131, all 0.3050; vs nn-oof4 priv +0.00091 [-0.00186, +0.00387]; validator OK |
+| 2026-11-16 | danya | - | blend weights 8 OOF (пул blend-oof-v5 с nn-is-oof4 вместо nn-oof4) | priv: -/-/0.3095 | - | out=runs/blend-oof-v5-nnis; pub 0.3234, all 0.3137; vs blend-oof-v5 priv +0.00059 [-0.00096, +0.00224] |
+| 2026-11-16 | danya | - | blend weights 10 OOF (пул v9 с nn-is-oof4 вместо nn-oof4) | priv: -/-/0.3096 | - | out=runs/blend-oof-v10; pub 0.3241 (mean: pub 0.3212, priv 0.3102); validator OK |
+| 2026-11-16 | danya | - | blend mean 11 OOF (пул v9 + nn-oof4 + nn-is-oof4) | priv: -/-/0.3103 | - | out=runs/blend-oof-v10-bothnn; pub 0.3217, all 0.3137; validator OK |
