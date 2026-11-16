@@ -389,12 +389,16 @@ class ShardedFeedRankingDataset(IterableDataset):
         max_hist_len: int = 256,
         shuffle: bool = True,
         seed: int = 42,
+        max_feeds_per_part: int | None = None,
     ) -> None:
         super().__init__()
         self.data_root = Path(data_root)
         self.split = split
         self.max_hist_len = max_hist_len
         self.max_feeds = max_feeds
+        if max_feeds_per_part is not None and max_feeds_per_part < 1:
+            raise ValueError("max_feeds_per_part must be positive")
+        self.max_feeds_per_part = max_feeds_per_part
         self.shuffle = shuffle
         self.seed = seed
         self.epoch = 0
@@ -408,7 +412,7 @@ class ShardedFeedRankingDataset(IterableDataset):
             self.parts = self.parts[:max_parts]
 
         self.part_sizes: list[int] = [pq.ParquetFile(p).metadata.num_rows for p in self.parts]
-        self.total_rows = int(sum(self.part_sizes))
+        self.total_rows = sum(min(n, max_feeds_per_part) for n in self.part_sizes) if max_feeds_per_part else sum(self.part_sizes)
         if self.max_feeds is not None and self.max_feeds > 0:
             self.total_rows = min(self.total_rows, self.max_feeds)
 
@@ -470,6 +474,9 @@ class ShardedFeedRankingDataset(IterableDataset):
                 row_indices = rng.permutation(n_rows)
             else:
                 row_indices = np.arange(n_rows)
+
+            if self.max_feeds_per_part is not None:
+                row_indices = row_indices[:self.max_feeds_per_part]
 
             if quota is not None:
                 remaining = quota - yielded

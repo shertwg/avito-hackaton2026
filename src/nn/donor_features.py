@@ -27,10 +27,12 @@ class DonorFeatureCollator:
         fit = {path.name for path in all_train[:train_parts]}
         identity = manifest["identity"]
         donors = set(identity.get("extra", identity)["donor_sources"])
-        if set(manifest["excluded_train_sources"]) != fit or donors != {p.name for p in all_train} - fit:
+        excluded = set(manifest["excluded_train_sources"])
+        train_sources = {path.name for path in all_train}
+        if not fit <= excluded <= train_sources or not donors or donors != train_sources - excluded:
             raise ValueError("Feature donor shards do not match the training split")
         parts = manifest["splits"][split]["parts"]
-        expected = fit if split == "train" else {p.name for p in find_parquet_parts(data, split)}
+        expected = excluded if split == "train" else {p.name for p in find_parquet_parts(data, split)}
         if set(parts) != expected:
             raise ValueError(f"Feature shard coverage differs for {split}")
 
@@ -38,6 +40,8 @@ class DonorFeatureCollator:
         self.rows = {}
         keys = ["feed_id", "candidate_index", "item_id"]
         for name, part in parts.items():
+            if split == "train" and name not in fit:
+                continue
             table = pl.read_parquet(root / split / name, columns=keys + self.features).sort(keys[:2])
             if table.height != part["rows"]:
                 raise ValueError(f"Wrong feature row count for {name}")

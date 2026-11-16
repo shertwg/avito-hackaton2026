@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import argparse
-from itertools import chain
+from itertools import chain, islice
 import json
 from pathlib import Path
 from time import perf_counter
@@ -37,7 +37,9 @@ def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet):
     start = perf_counter()
     model.train()
     losses = []
+    feed_visits = 0
     for batch in loader:
+        feed_visits += batch["feed_id"].numel()
         batch = {key: value.to(device) for key, value in batch.items()}
         optimizer.zero_grad()
         scores, _ = model(batch, use_pos_bias=True)
@@ -46,7 +48,7 @@ def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet):
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
         optimizer.step()
         losses.append(loss.item())
-    stats = {"seconds": perf_counter() - start, "steps": len(losses), "loss": float(np.mean(losses))}
+    stats = {"seconds": perf_counter() - start, "steps": len(losses), "feed_visits": feed_visits, "loss": float(np.mean(losses))}
     if not np.isfinite(stats["loss"]):
         raise RuntimeError("Non-finite training loss")
     print(stats, flush=True)
@@ -105,24 +107,38 @@ def run(args):
     if args.base_run:
         previous = Path(args.base_run)
         existing = json.loads((previous / "report.json").read_text(encoding="utf-8"))
-        keys = ("data", "seed", "train_parts", "base_epochs", "batch_size", "itemstats",
+        keys = ("data", "seed", "train_parts", "base_epochs", "base_steps", "base_feeds_per_shard", "batch_size", "itemstats",
                 "item2item", "time", "event_cosine", "history_match")
         for key in keys:
             default = False if key in ("event_cosine", "history_match") else None
             if existing["args"].get(key, default) != getattr(args, key):
                 raise ValueError(f"Base run has different {key}")
         base = torch.load(previous / "base.pt", map_location="cpu")
-        if base["model_config"] != config or base["epoch"] != args.base_epochs:
+        if base["model_config"] != config or not 1 <= base["epoch"] <= args.base_epochs:
             raise ValueError("Base checkpoint configuration does not match")
         torch.save(base, base_path)
     else:
         # Fit on train only, on a schedule fixed before scoring validation.
+        base_train = train
+        if args.base_feeds_per_shard:
+            base_train = ShardedFeedRankingDataset(
+                args.data, "train", max_parts=args.train_parts, seed=args.seed,
+                max_feeds_per_part=args.base_feeds_per_shard,
+            )
+        remaining = args.base_steps
         for epoch in range(1, args.base_epochs + 1):
-            train.set_epoch(epoch)
+            base_train.set_epoch(epoch)
             print(f"Base epoch {epoch}", flush=True)
-            loader = batches(train, args.batch_size, collators["train"])
-            timing["base"].append(train_epoch(model, optimizer, loader, device))
-        torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": args.base_epochs}, base_path)
+            loader = batches(base_train, args.batch_size, collators["train"])
+            stats = train_epoch(model, optimizer, loader if remaining is None else islice(loader, remaining), device)
+            timing["base"].append(stats)
+            if remaining is not None:
+                remaining -= stats["steps"]
+                if remaining == 0:
+                    break
+        if remaining:
+            raise ValueError("Base step budget exceeds the available epochs")
+        torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": epoch}, base_path)
 
     val = FeedRankingDataset(args.data, "val")
     parts = [pl.read_parquet(path, columns=["feed_id", "timestamp"]) for path in val.parts]
@@ -136,6 +152,7 @@ def run(args):
         raise ValueError("Validation must contain four nonempty folds")
 
     base = torch.load(base_path, map_location="cpu")
+    adaptation_epoch = base["epoch"] + 1
     predictions = []
     loss_fn = lambda_ndcg30_loss if args.adapt_loss == "lambda30" else adaptation_listnet
     for fold in range(5):
@@ -148,14 +165,14 @@ def run(args):
         model.load_state_dict(base["model_state"])
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
         print(f"{name}: train={0 if args.adapt_val_only else len(train)}, fit val={len(fit_val)}, held val={len(held)}", flush=True)
-        train.set_epoch(args.base_epochs + 1)
+        train.set_epoch(adaptation_epoch)
         val_loader = batches(fit_val, args.batch_size, collators["val"])
         loader = val_loader if args.adapt_val_only else chain(
             batches(train, args.batch_size, collators["train"]), val_loader,
         )
         timing["adaptation"][name] = train_epoch(model, optimizer, loader, device, loss_fn)
         path = out / f"{name}.pt"
-        torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": args.base_epochs + 1}, path)
+        torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": adaptation_epoch}, path)
         if not final:
             scored = score_checkpoint(path, Subset(val, held.tolist()), args.batch_size, device, collators["val"])
             if not np.array_equal(np.sort(scored["feed_id"].unique().to_numpy()), np.sort(row_feed[held])):
@@ -183,6 +200,8 @@ def main():
     parser.add_argument("--out", required=True)
     parser.add_argument("--train-parts", type=int, default=2)
     parser.add_argument("--base-epochs", type=int, default=3)
+    parser.add_argument("--base-steps", type=int, help="Cap base training at this many optimizer steps")
+    parser.add_argument("--base-feeds-per-shard", type=int, help="Sample this many feeds per shard in each base epoch")
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--seed", type=int, default=43)
     parser.add_argument("--lr", type=float, default=2e-4)
@@ -198,6 +217,9 @@ def main():
     args = parser.parse_args()
     if min(args.train_parts, args.base_epochs, args.batch_size) < 1 or not 0 < args.lr < float("inf"):
         parser.error("Expected positive training parameters and finite learning rate")
+    for value in (args.base_steps, args.base_feeds_per_shard):
+        if value is not None and value < 1:
+            parser.error("Base step and per-shard feed limits must be positive")
     run(args)
 
 
