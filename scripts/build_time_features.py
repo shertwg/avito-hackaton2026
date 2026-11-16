@@ -11,5 +11,6 @@ if __name__ == '__main__':
     parser.add_argument('--train-parts', type=int, default=8)
     parser.add_argument('--memory-mb', type=int, default=1536)
     parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--first-train-shards', action='store_true')
     args = parser.parse_args()
-    build_features(args.prepared, args.out, train_parts=args.train_parts, memory_mb=args.memory_mb, resume=args.resume)
+    build_features(args.prepared, args.out, train_parts=args.train_parts, memory_mb=args.memory_mb, resume=args.resume, first_train_shards=args.first_train_shards)

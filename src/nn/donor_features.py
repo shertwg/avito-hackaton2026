@@ -8,7 +8,7 @@ import numpy as np
 import polars as pl
 import torch
 
-from src.common import item2item, itemstats
+from src.common import item2item, itemstats, time_features
 from src.nn.dataset import collate_ranking_batch, find_parquet_parts
 
 
@@ -18,7 +18,7 @@ class DonorFeatureCollator:
         manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
         self.group = group
         self.collate = collate
-        self.features = {"itemstats": itemstats, "item2item": item2item}[group].feature_names()
+        self.features = {"itemstats": itemstats, "item2item": item2item, "time": time_features}[group].feature_names()
         if not manifest.get("complete") or manifest.get("feature_group") != group:
             raise ValueError("Expected a complete donor cache")
         if manifest.get("features") != self.features:
@@ -34,6 +34,7 @@ class DonorFeatureCollator:
         if set(parts) != expected:
             raise ValueError(f"Feature shard coverage differs for {split}")
 
+        self.raw_width = 6 if group == "time" else len(self.features)
         self.rows = {}
         keys = ["feed_id", "candidate_index", "item_id"]
         for name, part in parts.items():
@@ -44,7 +45,17 @@ class DonorFeatureCollator:
             ends = np.r_[starts[1:], table.height]
             indices = table["candidate_index"].to_numpy()
             items = table["item_id"].to_numpy()
-            values = np.log1p(table.select(self.features).to_numpy(order="c"))
+            raw = table.select(self.features).to_numpy(order="c")
+            if group == "time":
+                hour, weekday, age, seen = raw.T
+                hour_phase = hour * (2 * np.pi / 24)
+                week_phase = weekday * (2 * np.pi / 7)
+                values = np.column_stack((
+                    np.sin(hour_phase), np.cos(hour_phase),
+                    np.sin(week_phase), np.cos(week_phase), np.log1p(age), seen,
+                ))
+            else:
+                values = np.log1p(raw)
             if not np.isfinite(values).all():
                 raise ValueError(f"Non-finite features for {name}")
             for feed, start, end in zip(feeds, starts, ends):
@@ -54,11 +65,11 @@ class DonorFeatureCollator:
 
     @property
     def width(self):
-        return 2 * len(self.features)
+        return 2 * self.raw_width
 
     def __call__(self, samples):
         batch = self.collate(samples)
-        width = len(self.features)
+        width = self.raw_width
         result = np.zeros((*batch["candidate_mask"].shape, self.width), dtype=np.float32)
         for index, sample in enumerate(samples):
             items, values = self.rows[sample["feed_id"]]

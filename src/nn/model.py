@@ -202,6 +202,7 @@ class FeedRankingModel(nn.Module):
         use_history_context: bool = True,
         num_itemstats: int = 0,
         num_item2item: int = 0,
+        num_time: int = 0,
         use_event_cosine: bool = False,
     ) -> None:
         super().__init__()
@@ -293,6 +294,7 @@ class FeedRankingModel(nn.Module):
 
         self.itemstats_head = self._donor_head(num_itemstats)
         self.item2item_head = self._donor_head(num_item2item)
+        self.time_head = self._donor_head(num_time)
 
         self.event_cosine_head = None
         if use_event_cosine:
@@ -426,6 +428,9 @@ class FeedRankingModel(nn.Module):
 
         if self.item2item_head is not None:
             main_scores = main_scores + self.item2item_head(batch["item2item"]).squeeze(-1)
+
+        if self.time_head is not None:
+            main_scores = main_scores + self.time_head(batch["time"]).squeeze(-1)
 
         if self.event_cosine_head is not None:
             main_scores = main_scores + self.event_cosine_head(event_cosine_features(batch)).squeeze(-1)
