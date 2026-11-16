@@ -874,3 +874,25 @@ uv run --locked python -m scripts.audit_weighted_item2item_features --parent dat
 Аудит требует совпадения родительского manifest с его независимым аудитом.
 Веса и формулы пересчитываются скалярно через пересечения списков лент,
 ключи и числовые диапазоны проверяются на всех строках нового кеша.
+
+## Cosine с затуханием по истории
+
+Группа `recency_cosine` содержит четыре признака. Для исходных окон 10/50
+вычисляются взвешенный средний cosine и cosine с нормированным взвешенным
+профилем истории. Веса равны `2^(-position/10)`. Профиль собирается из
+единичных векторов товаров истории. Среднее делится на сумму весов
+доступных векторов. Пропуски сохраняют исходные позиции, повторы учитываются
+повторно. Нулевые профили и недоступные векторы кандидатов дают 0.
+Используются исходные версии векторов каждого split.
+
+```powershell
+uv run --locked python -m scripts.build_recency_cosine_features --train-parts 8 --resume
+uv run --locked python -m scripts.build_recency_cosine_features --train-parts 32 --resume
+uv run --locked python -m scripts.audit_recency_cosine_features --train-parts 8 --out runs/recency_cosine_008_audit.json
+uv run --locked python -m scripts.audit_recency_cosine_features --train-parts 32 --out runs/recency_cosine_032_audit.json
+```
+
+Кеш объединяет нужные train-шарды и содержит весь val/test.
+`--prefetch-parts` по умолчанию равен 2. Аудит независимо пересчитывает
+формулы в Float64 по исходным векторам на трёх лентах каждого файла,
+структурные проверки охватывают все строки.
