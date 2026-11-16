@@ -1,6 +1,8 @@
 """Ranking objectives used in neural adaptation experiments."""
 from __future__ import annotations
 
+import math
+
 import torch
 from torch.nn.functional import softplus
 
@@ -27,3 +29,13 @@ def lambda_ndcg30_loss(scores, target, valid):
     margins = scores[:, :, None] - scores[:, None, :]
     losses = (softplus(-margins) * weights).sum(dim=(1, 2))
     return (losses / valid.sum(1).clamp_min(1)).mean()
+
+
+def boost_hard_negative_logits(scores, target, valid, reference_scores):
+    """Triple the softmax mass of up to 20 highest-ranked labeled negatives."""
+    negative = valid & (target == 0)
+    with torch.no_grad():
+        reference = reference_scores.masked_fill(~negative, -torch.inf)
+        indices = reference.topk(min(20, scores.shape[1]), dim=1).indices
+        hard = torch.zeros_like(negative).scatter_(1, indices, True) & negative
+    return scores.float() + hard * math.log(3.0)

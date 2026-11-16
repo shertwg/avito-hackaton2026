@@ -21,7 +21,7 @@ from src.nn.dataset import (
 from src.nn.donor_features import DonorFeatureCollator
 from src.nn.model import FeedRankingModel
 from src.nn.predict import predict_single_model
-from src.nn.ranking_losses import lambda_ndcg30_loss
+from src.nn.ranking_losses import boost_hard_negative_logits, lambda_ndcg30_loss
 from src.nn.train import listnet_loss, seed_everything
 
 
@@ -33,7 +33,7 @@ def adaptation_listnet(scores, target, mask):
     return listnet_loss(scores, target, mask, target_temperature=0.5)
 
 
-def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet):
+def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet, reference_model=None):
     start = perf_counter()
     model.train()
     losses = []
@@ -43,7 +43,12 @@ def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet):
         batch = {key: value.to(device) for key, value in batch.items()}
         optimizer.zero_grad()
         scores, _ = model(batch, use_pos_bias=True)
-        loss = loss_fn(scores, batch["target"], batch["candidate_mask"])
+        target, mask = batch["target"], batch["candidate_mask"]
+        if reference_model is not None:
+            with torch.no_grad():
+                _, reference_scores = reference_model(batch, use_pos_bias=False)
+            scores = boost_hard_negative_logits(scores, target, mask, reference_scores)
+        loss = loss_fn(scores, target, mask)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
         optimizer.step()
@@ -141,8 +146,15 @@ def run(args):
         torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": epoch}, base_path)
 
     val = FeedRankingDataset(args.data, "val")
-    parts = [pl.read_parquet(path, columns=["feed_id", "timestamp"]) for path in val.parts]
+    parts = [
+        pl.scan_parquet(path).select(
+            "feed_id", "timestamp", pl.col("item_id").list.len().alias("candidate_count")
+        ).collect()
+        for path in val.parts
+    ]
     rows = pl.concat(parts)
+    eligible = rows["candidate_count"].to_numpy() >= args.adapt_min_candidates
+    rows = rows.drop("candidate_count")
     row_feed = rows["feed_id"].to_numpy()
     if len(np.unique(row_feed)) != len(val):
         raise ValueError("Expected one validation row per feed")
@@ -155,10 +167,17 @@ def run(args):
     adaptation_epoch = base["epoch"] + 1
     predictions = []
     loss_fn = lambda_ndcg30_loss if args.adapt_loss == "lambda30" else adaptation_listnet
+    reference_model = None
+    if args.adapt_loss == "hard-listnet":
+        reference_model = FeedRankingModel(**config).to(device)
+        reference_model.load_state_dict(base["model_state"])
+        reference_model.eval().requires_grad_(False)
     for fold in range(5):
         final = fold == 4
         name = "final" if final else f"fold{fold}"
-        kept = np.flatnonzero(row_fold != fold)
+        kept = np.flatnonzero((row_fold != fold) & eligible)
+        if not len(kept) and args.adapt_val_only:
+            raise ValueError(f"No eligible adaptation feeds in {name}")
         held = np.flatnonzero(row_fold == fold)
         fit_val = Subset(val, kept.tolist())
         seed_everything(args.seed)
@@ -170,7 +189,9 @@ def run(args):
         loader = val_loader if args.adapt_val_only else chain(
             batches(train, args.batch_size, collators["train"]), val_loader,
         )
-        timing["adaptation"][name] = train_epoch(model, optimizer, loader, device, loss_fn)
+        timing["adaptation"][name] = train_epoch(
+            model, optimizer, loader, device, loss_fn, reference_model,
+        )
         path = out / f"{name}.pt"
         torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": adaptation_epoch}, path)
         if not final:
@@ -212,10 +233,11 @@ def main():
     parser.add_argument("--history-match", action="store_true", help="Learn candidate-to-event similarity over the latest 20 history events")
     parser.add_argument("--base-run", help="Reuse the train-only base checkpoint from a completed run")
     parser.add_argument("--adapt-val-only", action="store_true", help="Adapt only on the fit portion of val")
-    parser.add_argument("--adapt-loss", choices=("listnet", "lambda30"), default="listnet")
+    parser.add_argument("--adapt-min-candidates", type=int, default=1, help="Minimum val feed size for adaptation")
+    parser.add_argument("--adapt-loss", choices=("listnet", "lambda30", "hard-listnet"), default="listnet")
     parser.add_argument("--device", default="cuda")
     args = parser.parse_args()
-    if min(args.train_parts, args.base_epochs, args.batch_size) < 1 or not 0 < args.lr < float("inf"):
+    if min(args.train_parts, args.base_epochs, args.batch_size, args.adapt_min_candidates) < 1 or not 0 < args.lr < float("inf"):
         parser.error("Expected positive training parameters and finite learning rate")
     for value in (args.base_steps, args.base_feeds_per_shard):
         if value is not None and value < 1:
