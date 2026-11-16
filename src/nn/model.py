@@ -53,6 +53,45 @@ def event_cosine_features(batch: dict[str, torch.Tensor]) -> torch.Tensor:
     return features.masked_fill(~features.isfinite() | ~valid_candidate.unsqueeze(-1), 0.0)
 
 
+class HistoryMatchHead(nn.Module):
+    """Supervised candidate-to-event similarity with recent-history pooling."""
+
+    WINDOW = 20
+
+    def __init__(self, emb_dim: int, num_categories: int, width: int = 32) -> None:
+        super().__init__()
+        self.candidate_projection = nn.Linear(emb_dim, width)
+        self.event_projection = nn.Linear(emb_dim, width)
+        self.category_embedding = nn.Embedding(num_categories, width, padding_idx=0)
+        self.event_embedding = nn.Embedding(32, width, padding_idx=0)
+        self.recency_bias = nn.Parameter(-0.2 * torch.arange(self.WINDOW).float().log1p())
+        self.output = nn.Linear(2, 1, bias=False)
+        nn.init.zeros_(self.output.weight)
+
+    def forward(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
+        window = slice(None, self.WINDOW)
+        history = batch["hist_emb"][:, window]
+        types = batch["hist_event_type"][:, window].clamp(0, self.event_embedding.num_embeddings - 1)
+        hist_categories = batch["hist_category_id"][:, window].clamp(0, self.category_embedding.num_embeddings - 1)
+        cand_categories = batch["cand_category_id"].clamp(0, self.category_embedding.num_embeddings - 1)
+        candidate = self.candidate_projection(batch["cand_emb"]) + self.category_embedding(cand_categories)
+        event = self.event_projection(history) + self.category_embedding(hist_categories) + self.event_embedding(types)
+        valid = batch["history_mask"][:, window] & batch["hist_has_emb_mask"][:, window]
+        valid_candidate = batch["candidate_mask"] & batch["cand_has_emb_mask"]
+
+        query = F.normalize(candidate.float(), dim=-1)
+        key = F.normalize(event.float(), dim=-1)
+        pairs = 4 * torch.bmm(query, key.transpose(1, 2)).float()
+        pairs = pairs + self.recency_bias[:history.shape[1]]
+        pairs = pairs.masked_fill(~valid[:, None, :], -1e4)
+        count = valid.sum(dim=1, keepdim=True)
+        maximum = pairs.amax(dim=2)
+        logmeanexp = pairs.logsumexp(dim=2) - count.clamp_min(1).float().log()
+        pooled = torch.stack((maximum, logmeanexp), dim=-1)
+        pooled = pooled.masked_fill(~(valid_candidate & (count > 0)).unsqueeze(-1), 0.0)
+        return self.output(pooled).squeeze(-1)
+
+
 class HistoryTransformerEncoder(nn.Module):
     def __init__(
         self,
@@ -204,6 +243,7 @@ class FeedRankingModel(nn.Module):
         num_item2item: int = 0,
         num_time: int = 0,
         use_event_cosine: bool = False,
+        use_history_match: bool = False,
     ) -> None:
         super().__init__()
         self.d_model = d_model
@@ -306,6 +346,11 @@ class FeedRankingModel(nn.Module):
                 )
                 nn.init.zeros_(self.event_cosine_head[-1].weight)
                 nn.init.zeros_(self.event_cosine_head[-1].bias)
+
+        self.history_match_head = None
+        if use_history_match:
+            with torch.random.fork_rng(devices=[]):
+                self.history_match_head = HistoryMatchHead(emb_dim, num_categories)
 
     @staticmethod
     def _donor_head(width):
@@ -434,6 +479,9 @@ class FeedRankingModel(nn.Module):
 
         if self.event_cosine_head is not None:
             main_scores = main_scores + self.event_cosine_head(event_cosine_features(batch)).squeeze(-1)
+
+        if self.history_match_head is not None:
+            main_scores = main_scores + self.history_match_head(batch)
 
         # 7. Positional Debias Tower
         if use_pos_bias and "pos" in batch and batch["pos"] is not None:
