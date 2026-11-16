@@ -21,6 +21,7 @@ from src.nn.dataset import (
 from src.nn.itemstats import ItemStatsCollator
 from src.nn.model import FeedRankingModel
 from src.nn.predict import predict_single_model
+from src.nn.ranking_losses import lambda_ndcg30_loss
 from src.nn.train import listnet_loss, seed_everything
 
 
@@ -28,7 +29,11 @@ def batches(dataset, batch_size, collate=collate_ranking_batch):
     return DataLoader(dataset, batch_size=batch_size, collate_fn=collate)
 
 
-def train_epoch(model, optimizer, loader, device):
+def adaptation_listnet(scores, target, mask):
+    return listnet_loss(scores, target, mask, target_temperature=0.5)
+
+
+def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet):
     start = perf_counter()
     model.train()
     losses = []
@@ -36,7 +41,7 @@ def train_epoch(model, optimizer, loader, device):
         batch = {key: value.to(device) for key, value in batch.items()}
         optimizer.zero_grad()
         scores, _ = model(batch, use_pos_bias=True)
-        loss = listnet_loss(scores, batch["target"], batch["candidate_mask"], target_temperature=0.5)
+        loss = loss_fn(scores, batch["target"], batch["candidate_mask"])
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
         optimizer.step()
@@ -91,13 +96,25 @@ def run(args):
     train = ShardedFeedRankingDataset(args.data, "train", max_parts=args.train_parts, seed=args.seed)
     timing = {"base": [], "adaptation": {}}
 
-    # The base model fits train only, on a schedule fixed before scoring validation.
-    for epoch in range(1, args.base_epochs + 1):
-        train.set_epoch(epoch)
-        print(f"Base epoch {epoch}", flush=True)
-        timing["base"].append(train_epoch(model, optimizer, batches(train, args.batch_size, collators["train"]), device))
     base_path = out / "base.pt"
-    torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": args.base_epochs}, base_path)
+    if args.base_run:
+        previous = Path(args.base_run)
+        existing = json.loads((previous / "report.json").read_text(encoding="utf-8"))
+        for key in ("data", "seed", "train_parts", "base_epochs", "batch_size", "itemstats"):
+            if existing["args"].get(key) != getattr(args, key):
+                raise ValueError(f"Base run has different {key}")
+        base = torch.load(previous / "base.pt", map_location="cpu")
+        if base["model_config"] != config or base["epoch"] != args.base_epochs:
+            raise ValueError("Base checkpoint configuration does not match")
+        torch.save(base, base_path)
+    else:
+        # Fit on train only, on a schedule fixed before scoring validation.
+        for epoch in range(1, args.base_epochs + 1):
+            train.set_epoch(epoch)
+            print(f"Base epoch {epoch}", flush=True)
+            loader = batches(train, args.batch_size, collators["train"])
+            timing["base"].append(train_epoch(model, optimizer, loader, device))
+        torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": args.base_epochs}, base_path)
 
     val = FeedRankingDataset(args.data, "val")
     parts = [pl.read_parquet(path, columns=["feed_id", "timestamp"]) for path in val.parts]
@@ -112,6 +129,7 @@ def run(args):
 
     base = torch.load(base_path, map_location="cpu")
     predictions = []
+    loss_fn = lambda_ndcg30_loss if args.adapt_loss == "lambda30" else adaptation_listnet
     for fold in range(5):
         final = fold == 4
         name = "final" if final else f"fold{fold}"
@@ -121,10 +139,13 @@ def run(args):
         seed_everything(args.seed)
         model.load_state_dict(base["model_state"])
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
-        print(f"{name}: train={len(train)}, fit val={len(fit_val)}, held val={len(held)}", flush=True)
+        print(f"{name}: train={0 if args.adapt_val_only else len(train)}, fit val={len(fit_val)}, held val={len(held)}", flush=True)
         train.set_epoch(args.base_epochs + 1)
-        loader = chain(batches(train, args.batch_size, collators["train"]), batches(fit_val, args.batch_size, collators["val"]))
-        timing["adaptation"][name] = train_epoch(model, optimizer, loader, device)
+        val_loader = batches(fit_val, args.batch_size, collators["val"])
+        loader = val_loader if args.adapt_val_only else chain(
+            batches(train, args.batch_size, collators["train"]), val_loader,
+        )
+        timing["adaptation"][name] = train_epoch(model, optimizer, loader, device, loss_fn)
         path = out / f"{name}.pt"
         torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": args.base_epochs + 1}, path)
         if not final:
@@ -158,6 +179,9 @@ def main():
     parser.add_argument("--seed", type=int, default=43)
     parser.add_argument("--lr", type=float, default=2e-4)
     parser.add_argument("--itemstats", help="Path to an itemstats cache built for these train shards")
+    parser.add_argument("--base-run", help="Reuse the train-only base checkpoint from a completed run")
+    parser.add_argument("--adapt-val-only", action="store_true", help="Adapt only on the fit portion of val")
+    parser.add_argument("--adapt-loss", choices=("listnet", "lambda30"), default="listnet")
     parser.add_argument("--device", default="cuda")
     args = parser.parse_args()
     if min(args.train_parts, args.base_epochs, args.batch_size) < 1 or not 0 < args.lr < float("inf"):
