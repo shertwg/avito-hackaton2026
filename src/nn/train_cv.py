@@ -84,6 +84,8 @@ def run(args):
     out.mkdir(parents=True, exist_ok=False)
     seed_everything(args.seed)
     config = {"use_numeric_head": True}
+    if args.event_cosine:
+        config["use_event_cosine"] = True
     collators = dict.fromkeys(("train", "val", "test"), collate_ranking_batch)
     if args.itemstats:
         collators = {
@@ -100,8 +102,8 @@ def run(args):
     if args.base_run:
         previous = Path(args.base_run)
         existing = json.loads((previous / "report.json").read_text(encoding="utf-8"))
-        for key in ("data", "seed", "train_parts", "base_epochs", "batch_size", "itemstats"):
-            if existing["args"].get(key) != getattr(args, key):
+        for key in ("data", "seed", "train_parts", "base_epochs", "batch_size", "itemstats", "event_cosine"):
+            if existing["args"].get(key, False if key == "event_cosine" else None) != getattr(args, key):
                 raise ValueError(f"Base run has different {key}")
         base = torch.load(previous / "base.pt", map_location="cpu")
         if base["model_config"] != config or base["epoch"] != args.base_epochs:
@@ -179,6 +181,7 @@ def main():
     parser.add_argument("--seed", type=int, default=43)
     parser.add_argument("--lr", type=float, default=2e-4)
     parser.add_argument("--itemstats", help="Path to an itemstats cache built for these train shards")
+    parser.add_argument("--event-cosine", action="store_true", help="Add event-type cosine features over the latest 50 history events")
     parser.add_argument("--base-run", help="Reuse the train-only base checkpoint from a completed run")
     parser.add_argument("--adapt-val-only", action="store_true", help="Adapt only on the fit portion of val")
     parser.add_argument("--adapt-loss", choices=("listnet", "lambda30"), default="listnet")

@@ -24,6 +24,35 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+EVENT_COSINE_TYPES = 10
+EVENT_COSINE_WINDOW = 50
+
+
+def event_cosine_features(batch: dict[str, torch.Tensor]) -> torch.Tensor:
+    """Maximum candidate cosine per event type over the latest history window."""
+    history = batch["hist_emb"][:, :EVENT_COSINE_WINDOW]
+    event_types = batch["hist_event_type"][:, :EVENT_COSINE_WINDOW]
+    valid_history = (
+        batch["history_mask"][:, :EVENT_COSINE_WINDOW]
+        & batch["hist_has_emb_mask"][:, :EVENT_COSINE_WINDOW]
+        & (event_types >= 1)
+        & (event_types <= EVENT_COSINE_TYPES)
+    )
+    candidates = batch["cand_emb"]
+    with torch.autocast(device_type=candidates.device.type, enabled=False):
+        cand_unit = F.normalize(candidates.float(), dim=-1)
+        hist_unit = F.normalize(history.float(), dim=-1)
+        cosine = torch.bmm(cand_unit, hist_unit.transpose(1, 2)).clamp(-1, 1)
+    groups = event_types.masked_fill(~valid_history, 0)
+    features = cosine.new_full((*candidates.shape[:2], EVENT_COSINE_TYPES + 1), -torch.inf)
+    features.scatter_reduce_(
+        2, groups[:, None, :].expand_as(cosine), cosine, reduce="amax",
+    )
+    features = features[..., 1:]
+    valid_candidate = batch["candidate_mask"] & batch["cand_has_emb_mask"]
+    return features.masked_fill(~features.isfinite() | ~valid_candidate.unsqueeze(-1), 0.0)
+
+
 class HistoryTransformerEncoder(nn.Module):
     def __init__(
         self,
@@ -172,6 +201,7 @@ class FeedRankingModel(nn.Module):
         use_numeric_head: bool = False,
         use_history_context: bool = True,
         num_itemstats: int = 0,
+        use_event_cosine: bool = False,
     ) -> None:
         super().__init__()
         self.d_model = d_model
@@ -270,6 +300,17 @@ class FeedRankingModel(nn.Module):
                 )
                 nn.init.zeros_(self.itemstats_head[-1].weight)
                 nn.init.zeros_(self.itemstats_head[-1].bias)
+
+        self.event_cosine_head = None
+        if use_event_cosine:
+            with torch.random.fork_rng(devices=[]):
+                self.event_cosine_head = nn.Sequential(
+                    nn.Linear(EVENT_COSINE_TYPES, 32),
+                    nn.ReLU(),
+                    nn.Linear(32, 1),
+                )
+                nn.init.zeros_(self.event_cosine_head[-1].weight)
+                nn.init.zeros_(self.event_cosine_head[-1].bias)
 
     def forward(
         self,
@@ -379,6 +420,9 @@ class FeedRankingModel(nn.Module):
 
         if self.itemstats_head is not None:
             main_scores = main_scores + self.itemstats_head(batch["itemstats"]).squeeze(-1)
+
+        if self.event_cosine_head is not None:
+            main_scores = main_scores + self.event_cosine_head(event_cosine_features(batch)).squeeze(-1)
 
         # 7. Positional Debias Tower
         if use_pos_bias and "pos" in batch and batch["pos"] is not None:
