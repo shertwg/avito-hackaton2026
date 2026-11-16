@@ -62,6 +62,7 @@ def get_args(argv=None) -> argparse.Namespace:
     ap.add_argument("--model-params", default=None, help="JSON-файл с доп. параметрами модели (пишет tune.py)")
     ap.add_argument("--features-dir", default=None, help="папка с внешними признаками (extra_features.py)")
     ap.add_argument("--extra", nargs="*", default=[], help="группы внешних признаков, напр. anton avgust")
+    ap.add_argument("--feed-interactions", action="store_true", help="добавить внутриленточные z-score/dmax и взаимодействия")
     ap.add_argument("--max-parts", type=int, default=None)
     ap.add_argument("--n-jobs", type=int, default=1, help="процессов при построении признаков")
     ap.add_argument("--cache", default=None, help="папка кэша таблиц признаков")
@@ -82,11 +83,15 @@ def load_all(a: argparse.Namespace, need_test: bool) -> tuple[dict[str, pl.DataF
         else:
             df = load_split(a.data, s, a.max_parts, a.n_jobs, a.cache)
         df, extra_cols = attach(df, a.features_dir, a.extra, s)
+        fi_cols: list[str] = []
+        if getattr(a, "feed_interactions", False):
+            from src.gbdt.feed_interactions import add_feed_interactions
+            df, fi_cols = add_feed_interactions(df)
         if "pos" not in df.columns:
             df = df.with_columns(pl.lit(None, dtype=pl.Int16).alias("pos"))
         frames[s] = df.with_columns(pl.col("category_id").cast(pl.Int32), pl.col("pos").cast(pl.Int16)
                                     ).sort("feed_id", maintain_order=True)
-    return frames, base_feats + extra_cols
+    return frames, base_feats + extra_cols + fi_cols
 
 
 def apply_pos(df: pl.DataFrame, a: argparse.Namespace, is_train: bool) -> pl.DataFrame:
