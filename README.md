@@ -846,3 +846,31 @@ uv run --locked python -m scripts.run_joint_oof --train-parts 8 --folds 4 --iter
 Итоговые `val_pred.parquet` и `test_pred.parquet` имеют командный формат.
 Дополнительно сохраняются ключи вхождений кандидатов и назначение фолдов.
 `test_pred` усредняет четыре предсказания с z-score внутри каждой ленты.
+
+## Item2item с весами истории
+
+Группа `weighted_item2item` использует проверенный индекс `item2item-008`
+или `item2item-032`. Для окон 10/50 рассчитываются среднее и максимум
+сходства с весами `2^(-position/10)`. Три канала используют всю историю,
+только события типа 2 и только события типа 10, всего 12 признаков.
+Веса событий заданы индикаторами принадлежности каналу. Среднее делится
+на сумму весов всей истории соответствующего канала, включая неизвестные
+товары. Это нормирует сигнал на взвешенную длину истории. Нормировка на
+популярность кандидата и товара истории сохраняется из исходного индекса.
+
+Индивидуальные timestamps событий в данных отсутствуют. Давность здесь
+определяется позицией события, период полураспада равен десяти позициям.
+Веса применяются к истории запроса, донорские совместные встречаемости
+берутся из родительского индекса. Повторы и исходный порядок сохраняются.
+Неизвестные товары и пустые каналы дают 0.
+
+```powershell
+uv run --locked python -m scripts.build_weighted_item2item_features --parent data/features/item2item-008 --train-parts 8 --out data/features/weighted-item2item-008 --resume
+uv run --locked python -m scripts.build_weighted_item2item_features --parent data/features/item2item-032 --train-parts 32 --out data/features/weighted-item2item-032 --resume
+uv run --locked python -m scripts.audit_weighted_item2item_features --parent data/features/item2item-008 --parent-audit experiments/item2item_008_audit.json --cache data/features/weighted-item2item-008 --out runs/weighted_item2item_008_audit.json
+uv run --locked python -m scripts.audit_weighted_item2item_features --parent data/features/item2item-032 --parent-audit experiments/item2item_032_audit.json --cache data/features/weighted-item2item-032 --out runs/weighted_item2item_032_audit.json
+```
+
+Аудит требует совпадения родительского manifest с его независимым аудитом.
+Веса и формулы пересчитываются скалярно через пересечения списков лент,
+ключи и числовые диапазоны проверяются на всех строках нового кеша.
