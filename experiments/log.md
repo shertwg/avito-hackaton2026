@@ -588,3 +588,7 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | Среднее смесей NN seed=42 и 43 | 0,30990 | 0,30797 | — | runs/forward-chronological-s42-replication-001 |
 
 На последних 3 605 лентах смесь NN seed=42 прибавила +0,00345 к базовой NN (парный bootstrap 95% [−0,00042; +0,00745]), смесь с CatBoost прибавила +0,00858 к локальному CatBoost (95% [+0,00426; +0,01303]). Среднее двух смесей NN прибавило +0,00014 к смеси seed=43 (95% [−0,00147; +0,00176]). Оба сида проверены на одних лентах. Файлов прогнозов командного v9 локально пока нет.
+
+### 17.11.2026 — парная NN seed=43 поверх blend32-dima
+
+Проверка на доступном командном архиве danya-team-best-03045-for-avgust.zip. Прогнозы NN взяты из runs/nn-oof4-base-itemstats-i2i-time-mean-001. Вес NN выбран по pseudo-public из сетки 0–0,50. На верхней границе (50% NN) NDCG@30 вырос с 0,31837 до 0,32014 на pseudo-public, с 0,30452 до 0,30794 на pseudo-private. Прибавка +0,00342, парный bootstrap 95% [+0,00129; +0,00554] на 10 095 лентах. CPU, без обучения. Полное покрытие OOF, валидатор test OK. Отчёт и parquet-файлы в runs/blend32-dima-nn-time-s43-overlay-001. Для оценки v9 нужны его val_pred.parquet и test_pred.parquet.
