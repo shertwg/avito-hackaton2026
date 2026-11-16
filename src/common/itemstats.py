@@ -45,7 +45,7 @@ def lookup_sql(entity, prior, smoothing):
             f'LEFT JOIN {entity}_exposure e USING ({key}) LEFT JOIN {entity}_history h USING ({key})')
 
 
-def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=1024, threads=2, resume=False):
+def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=1024, threads=2, resume=False, first_train_shards=False):
     prepared,output = Path(prepared).resolve(),Path(output).resolve()
     if prepared == output or prepared in output.parents or output in prepared.parents:
         raise ValueError('itemstats output must be separate from prepared data')
@@ -56,6 +56,8 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
     if not source.get('complete'):
         raise ValueError('prepared dataset incomplete')
     selected = training_sources(source,train_parts)
+    if first_train_shards:
+        selected = source['splits']['train']['parts'][:train_parts]
     excluded = {entry['source'] for entry in selected}
     donors = [entry for entry in source['splits']['train']['parts'] if entry['source'] not in excluded]
     outputs = {'train':selected, **{split:source['splits'][split]['parts'] for split in ('val','test')}}

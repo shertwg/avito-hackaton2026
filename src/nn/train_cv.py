@@ -18,13 +18,14 @@ from src.common.metric import mean_ndcg
 from src.nn.dataset import (
     FeedRankingDataset, ShardedFeedRankingDataset, collate_ranking_batch,
 )
+from src.nn.itemstats import ItemStatsCollator
 from src.nn.model import FeedRankingModel
 from src.nn.predict import predict_single_model
 from src.nn.train import listnet_loss, seed_everything
 
 
-def batches(dataset, batch_size):
-    return DataLoader(dataset, batch_size=batch_size, collate_fn=collate_ranking_batch)
+def batches(dataset, batch_size, collate=collate_ranking_batch):
+    return DataLoader(dataset, batch_size=batch_size, collate_fn=collate)
 
 
 def train_epoch(model, optimizer, loader, device):
@@ -47,8 +48,8 @@ def train_epoch(model, optimizer, loader, device):
     return stats
 
 
-def score_checkpoint(path, dataset, batch_size, device):
-    feed, item, score, _ = predict_single_model(path, batches(dataset, batch_size), device)
+def score_checkpoint(path, dataset, batch_size, device, collate=collate_ranking_batch):
+    feed, item, score, _ = predict_single_model(path, batches(dataset, batch_size, collate), device)
     return pl.DataFrame({"feed_id": feed, "item_id": item, "score": score}).cast(
         {"feed_id": pl.Int32, "item_id": pl.Int32, "score": pl.Float32}
     )
@@ -78,6 +79,13 @@ def run(args):
     out.mkdir(parents=True, exist_ok=False)
     seed_everything(args.seed)
     config = {"use_numeric_head": True}
+    collators = dict.fromkeys(("train", "val", "test"), collate_ranking_batch)
+    if args.itemstats:
+        collators = {
+            split: ItemStatsCollator(args.itemstats, args.data, split, args.train_parts)
+            for split in collators
+        }
+        config["num_itemstats"] = collators["train"].width
     model = FeedRankingModel(**config).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
     train = ShardedFeedRankingDataset(args.data, "train", max_parts=args.train_parts, seed=args.seed)
@@ -87,7 +95,7 @@ def run(args):
     for epoch in range(1, args.base_epochs + 1):
         train.set_epoch(epoch)
         print(f"Base epoch {epoch}", flush=True)
-        timing["base"].append(train_epoch(model, optimizer, batches(train, args.batch_size), device))
+        timing["base"].append(train_epoch(model, optimizer, batches(train, args.batch_size, collators["train"]), device))
     base_path = out / "base.pt"
     torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": args.base_epochs}, base_path)
 
@@ -115,12 +123,12 @@ def run(args):
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
         print(f"{name}: train={len(train)}, fit val={len(fit_val)}, held val={len(held)}", flush=True)
         train.set_epoch(args.base_epochs + 1)
-        loader = chain(batches(train, args.batch_size), batches(fit_val, args.batch_size))
+        loader = chain(batches(train, args.batch_size, collators["train"]), batches(fit_val, args.batch_size, collators["val"]))
         timing["adaptation"][name] = train_epoch(model, optimizer, loader, device)
         path = out / f"{name}.pt"
         torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": args.base_epochs + 1}, path)
         if not final:
-            scored = score_checkpoint(path, Subset(val, held.tolist()), args.batch_size, device)
+            scored = score_checkpoint(path, Subset(val, held.tolist()), args.batch_size, device, collators["val"])
             if not np.array_equal(np.sort(scored["feed_id"].unique().to_numpy()), np.sort(row_feed[held])):
                 raise ValueError(f"Wrong held-out feeds in {name}")
             predictions.append(scored)
@@ -129,12 +137,12 @@ def run(args):
     report = {
         "device": torch.cuda.get_device_name(device) if device.type == "cuda" else str(device),
         "train_feeds": len(train), "args": vars(args), "timing": timing,
-        "base": evaluate(args.data, score_checkpoint(base_path, val, args.batch_size, device)),
+        "base": evaluate(args.data, score_checkpoint(base_path, val, args.batch_size, device, collators["val"])),
         "oof": evaluate(args.data, oof),
     }
     oof.write_parquet(out / "val_pred.parquet")
     rows.with_columns(pl.Series("fold", row_fold)).write_parquet(out / "folds.parquet")
-    test = score_checkpoint(out / "final.pt", FeedRankingDataset(args.data, "test"), args.batch_size, device)
+    test = score_checkpoint(out / "final.pt", FeedRankingDataset(args.data, "test"), args.batch_size, device, collators["test"])
     test.write_parquet(out / "test_pred.parquet")
     (out / "report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps(report, indent=2), flush=True)
@@ -149,6 +157,7 @@ def main():
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--seed", type=int, default=43)
     parser.add_argument("--lr", type=float, default=2e-4)
+    parser.add_argument("--itemstats", help="Path to an itemstats cache built for these train shards")
     parser.add_argument("--device", default="cuda")
     args = parser.parse_args()
     if min(args.train_parts, args.base_epochs, args.batch_size) < 1 or not 0 < args.lr < float("inf"):

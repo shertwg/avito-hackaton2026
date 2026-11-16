@@ -13,6 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('--memory-mb',type=int,default=1024)
     parser.add_argument('--threads',type=int,default=2)
     parser.add_argument('--resume',action='store_true')
+    parser.add_argument('--first-train-shards', action='store_true', help='exclude the first N train shards used by the neural loader')
     args = parser.parse_args()
     build_features(args.prepared,args.out,train_parts=args.train_parts,smoothing=args.smoothing,
-                   memory_mb=args.memory_mb,threads=args.threads,resume=args.resume)
+                   memory_mb=args.memory_mb,threads=args.threads,resume=args.resume, first_train_shards=args.first_train_shards)

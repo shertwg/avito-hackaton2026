@@ -171,6 +171,7 @@ class FeedRankingModel(nn.Module):
         use_set_attention: bool = True,
         use_numeric_head: bool = False,
         use_history_context: bool = True,
+        num_itemstats: int = 0,
     ) -> None:
         super().__init__()
         self.d_model = d_model
@@ -258,6 +259,17 @@ class FeedRankingModel(nn.Module):
                 nn.init.zeros_(self.numeric_head[-1].weight)
                 nn.init.zeros_(self.numeric_head[-1].bias)
 
+
+        self.itemstats_head = None
+        if num_itemstats:
+            with torch.random.fork_rng(devices=[]):
+                self.itemstats_head = nn.Sequential(
+                    nn.Linear(num_itemstats, 64),
+                    nn.ReLU(),
+                    nn.Linear(64, 1),
+                )
+                nn.init.zeros_(self.itemstats_head[-1].weight)
+                nn.init.zeros_(self.itemstats_head[-1].bias)
 
     def forward(
         self,
@@ -364,6 +376,9 @@ class FeedRankingModel(nn.Module):
 
         if self.use_numeric_head:
             main_scores = main_scores + self.numeric_head(cand_feats.float()).squeeze(-1)
+
+        if self.itemstats_head is not None:
+            main_scores = main_scores + self.itemstats_head(batch["itemstats"]).squeeze(-1)
 
         # 7. Positional Debias Tower
         if use_pos_bias and "pos" in batch and batch["pos"] is not None:
