@@ -156,12 +156,17 @@ def run(args):
     eligible = rows["candidate_count"].to_numpy() >= args.adapt_min_candidates
     rows = rows.drop("candidate_count")
     row_feed = rows["feed_id"].to_numpy()
+    timestamps = rows["timestamp"].to_numpy()
     if len(np.unique(row_feed)) != len(val):
         raise ValueError("Expected one validation row per feed")
-    feeds, folds = time_folds(row_feed, rows["timestamp"].to_numpy(), 4)
+    feeds, folds = time_folds(row_feed, timestamps, 4)
     row_fold = folds[np.searchsorted(feeds, row_feed)]
     if len(np.unique(row_fold)) != 4:
         raise ValueError("Validation must contain four nonempty folds")
+    if args.forward_eval:
+        last_train = pl.scan_parquet(train.parts).select(pl.col("timestamp").max()).collect().item()
+        if last_train >= timestamps[row_fold == 2].min():
+            raise ValueError("Train data must end before the first forward evaluation block")
 
     base = torch.load(base_path, map_location="cpu")
     adaptation_epoch = base["epoch"] + 1
@@ -172,13 +177,26 @@ def run(args):
         reference_model = FeedRankingModel(**config).to(device)
         reference_model.load_state_dict(base["model_state"])
         reference_model.eval().requires_grad_(False)
-    for fold in range(5):
+    fold_ids = range(2, 4) if args.forward_eval else range(5)
+    forward_windows = {}
+    for fold in fold_ids:
         final = fold == 4
         name = "final" if final else f"fold{fold}"
-        kept = np.flatnonzero((row_fold != fold) & eligible)
-        if not len(kept) and args.adapt_val_only:
-            raise ValueError(f"No eligible adaptation feeds in {name}")
         held = np.flatnonzero(row_fold == fold)
+        fit_mask = row_fold != fold
+        if args.forward_eval:
+            # A time_folds boundary can divide feeds with an identical timestamp.
+            first_held = int(timestamps[held].min())
+            fit_mask = timestamps < first_held
+        kept = np.flatnonzero(fit_mask & eligible)
+        if not len(kept) and (args.adapt_val_only or args.forward_eval):
+            raise ValueError(f"No eligible adaptation feeds in {name}")
+        if args.forward_eval:
+            forward_windows[name] = {
+                "fit_count": len(kept), "fit_end": int(timestamps[kept].max()),
+                "holdout_count": len(held), "holdout_start": first_held,
+                "holdout_end": int(timestamps[held].max()),
+            }
         fit_val = Subset(val, kept.tolist())
         seed_everything(args.seed)
         model.load_state_dict(base["model_state"])
@@ -204,11 +222,20 @@ def run(args):
     report = {
         "device": torch.cuda.get_device_name(device) if device.type == "cuda" else str(device),
         "train_feeds": len(train), "args": vars(args), "timing": timing,
+    }
+    rows.with_columns(pl.Series("fold", row_fold)).write_parquet(out / "folds.parquet")
+    if args.forward_eval:
+        oof.write_parquet(out / "forward_pred.parquet")
+        report["windows"] = forward_windows
+        (out / "report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+        print(json.dumps(report, indent=2), flush=True)
+        return
+
+    report.update({
         "base": evaluate(args.data, score_checkpoint(base_path, val, args.batch_size, device, collators["val"])),
         "oof": evaluate(args.data, oof),
-    }
+    })
     oof.write_parquet(out / "val_pred.parquet")
-    rows.with_columns(pl.Series("fold", row_fold)).write_parquet(out / "folds.parquet")
     test = score_checkpoint(out / "final.pt", FeedRankingDataset(args.data, "test"), args.batch_size, device, collators["test"])
     test.write_parquet(out / "test_pred.parquet")
     (out / "report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
@@ -232,6 +259,7 @@ def main():
     parser.add_argument("--event-cosine", action="store_true", help="Add event-type cosine features over the latest 50 history events")
     parser.add_argument("--history-match", action="store_true", help="Learn candidate-to-event similarity over the latest 20 history events")
     parser.add_argument("--base-run", help="Reuse the train-only base checkpoint from a completed run")
+    parser.add_argument("--forward-eval", action="store_true", help="Score val blocks 2 and 3 with strictly earlier fit data")
     parser.add_argument("--adapt-val-only", action="store_true", help="Adapt only on the fit portion of val")
     parser.add_argument("--adapt-min-candidates", type=int, default=1, help="Minimum val feed size for adaptation")
     parser.add_argument("--adapt-loss", choices=("listnet", "lambda30", "hard-listnet"), default="listnet")
