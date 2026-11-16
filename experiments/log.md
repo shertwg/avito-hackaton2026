@@ -13,6 +13,13 @@
 
 | 13.11.2026 | Дима | `3f9c669` | Cosine + 32 itemstats; 1 train-шард, 42 дерева; статистики из 504 других шардов, alpha=20 | 0.360929 / 0.231232 / 0.299849 | 0.368352 / 0.310286 | 0.357746 / 0.295374 | — | Выбор чекпойнта по pseudo-Public. Эталон и валидатор пройдены. Источники статистик исключают 8 шардов, включая обучающий. |
 | 13.11.2026 | Дима | `6c20d45` | Cosine + itemstats + 16 userstats; тот же 1 train-шард, 63 признака, 41 дерево; alpha=20 | 0.361030 / 0.230818 / 0.300081 | 0.368273 / 0.310417 | 0.357925 / 0.295649 | — | Выбор чекпойнта по pseudo-Public. Эталон и валидатор пройдены. Прирост от userstats не подтверждён: 95% интервал разности включает ноль. |
+| 13.11.2026 | Дима | `43c13cd` | Описательный анализ событий по категории кандидата на 32 train-шардах и всём val | — | — | — | — | Все десять групп h_cat_evtN > 0 содержат наблюдения. |
+| 13.11.2026 | Дима | `055f644` | Cosine + infeed + history + itemstats, 8 train-шардов, 105 признаков, 92 дерева | 0.363236 / 0.233965 / 0.302709 | 0.369146 / 0.311774 | 0.360702 / 0.298823 | — | Чекпойнт выбран по pseudo-Public. Эталон и валидатор пройдены. |
+| 13.11.2026 | Дима | `1a2e241` | Тот же набор и 8 шардов с добавлением userstats, 121 признак, 30 деревьев | 0.362064 / 0.232770 / 0.301274 | 0.368073 / 0.310522 | 0.359489 / 0.297308 | — | Добавление userstats дало разность Private -0.001514, 95% интервал [-0.003391, 0.000188]. |
+| 15.11.2026 | Дима | `12fbd63` | Cosine + itemstats + 4 category_cooc, 1 train-шард, 51 признак, 19 деревьев | 0.358392 / 0.228104 / 0.297019 | 0.367835 / 0.309221 | 0.354344 / 0.291788 | — | Парное сравнение с cosine + itemstats. Разность Private -0.003586, 95% интервал [-0.005724, -0.001622]. |
+| 15.11.2026 | Дима | `0abfc5e` | Cosine + itemstats + event_cosine, 1 train-шард, 56 признаков, 26 деревьев | 0.361203 / 0.230450 / 0.299675 | 0.370352 / 0.311196 | 0.357281 / 0.294735 | — | Разность Private к тому же контролю -0.000639, 95% интервал [-0.002739, 0.001313]. |
+| 15.11.2026 | Дима | `0abfc5e` | Cosine + itemstats + feature_ranks, 1 train-шард, 51 признак, 41 дерево | 0.358649 / 0.228131 / 0.297069 | 0.364648 / 0.305674 | 0.356077 / 0.293380 | — | Разность Private -0.001994, 95% интервал [-0.004546, 0.000332]. |
+| 15.11.2026 | Дима | `0abfc5e` | Cosine + itemstats + time, 1 train-шард, 51 признак, 20 деревьев | 0.359153 / 0.228357 / 0.298057 | 0.366723 / 0.308271 | 0.355908 / 0.293678 | — | Разность Private -0.001696, 95% интервал [-0.004099, 0.000624]. |
 
 Подробные параметры, хеши кода и данных, метрики и результат проверки: [baseline_check_001.json](baseline_check_001.json). Коммит в таблице — чистый коммит, на котором выполнялся прогон.
 
@@ -220,6 +227,280 @@ uv run --locked python -m scripts.compare_baselines --baseline runs/baseline-ite
 | 2026-11-13 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3599/0.3599/0.2991 | - | out=runs/lgb8-tuned-cv; feats=$H, 8 parts; tuned params; vs lgb8-cv priv +0.0037 [+0.0007, +0.0069], accepted |
 | 2026-11-13 | danya | - | blend weights cb8-cv 0.333 + lgb8-tuned-cv 0.667 | priv: -/-/0.3015 | - | out=runs/blend-cb-lgbt; vs blend-cb-lgb priv -0.0007 [-0.0025, +0.0012], noise |
 | 2026-11-13 | danya | - | blend weights cb8-cv 0.667 + lgb8-cv 0.167 + lgb8-tuned-cv 0.167 | priv: -/-/0.3014 | - | out=runs/blend-3; vs blend-cb-lgb priv -0.0008 [-0.0019, +0.0002], noise; blend-cb-lgb stays the submission |
+| 2026-11-13 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3566/0.3567/0.2942 | - | out=runs/lgb8-cv-s1 |
+| 2026-11-13 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3569/0.3569/0.2951 | - | out=runs/lgb8-cv-s2 |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02244 | priv: 0.3532/0.3533/0.2888 | - | out=runs/lgb32-tuned; feats=$H, 32 parts; tuned params, best_iter=141 on pseudo-public |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3590/0.3591/0.2968 | - | out=runs/lgb32-tuned-cv; feats=$H, 32 parts; iters 141 from lgb32-tuned; vs lgb8-tuned-cv priv -0.0022 [-0.0044, +0.0000], rejected |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3612/0.3612/0.2998 | - | out=runs/cb32-is; feats=$H + itemstats-032, 32 parts; vs cb32-hist priv -0.0010 [-0.0044, +0.0025], rejected |
+| 2026-11-15 | danya | - | seed-avg z-score lgb8-cv + lgb8-cv-s1 + lgb8-cv-s2 mode=cv depth=8 lr=0.05 | priv: -/-/0.2987 | - | out=runs/lgb8-cv-seeds; feats=$H, 8 parts, 3 seeds; pub 0.3104; vs lgb8-cv priv +0.00333 [+0.00101, +0.00576] (p=0.998), accepted; validator OK |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3601/0.3601/0.2979 | - | out=runs/lgb32-tuned-cv298; feats=$H, 32 parts; tuned params, iters 298 from lgb8-tuned; pub 0.3104; vs lgb8-tuned-cv priv -0.00111 [-0.00320, +0.00105] (p=0.151), rejected |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3621/0.3621/0.3004 | - | out=runs/cb32-qsm; feats=$H, 32 parts, GPU (border_count=254, one_hot_max_size=100); best_iter=188; pub 0.3117; vs cb32-hist priv -0.00044 [-0.00208, +0.00138] (p=0.298) |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3624/0.3624/0.3007 | - | out=runs/cb32-qsm-cv; feats=$H, 32 parts, GPU, iters 188 from cb32-qsm; pub 0.3114; vs cb32-hist priv -0.00010 [-0.00179, +0.00170], vs cb8-cv +0.00022 [-0.00198, +0.00239]; select_final B; validator OK |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3615/0.3616/0.2994 | - | out=runs/cb32-yeti-gpu; feats=$H, 32 parts, GPU (border_count=254, one_hot_max_size=100), no-test; best_iter=688; pub 0.3113; vs cb32-hist priv -0.00137 [-0.00287, +0.00019] |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3617/0.3618/0.3000 | - | out=runs/cb32-cv; feats=$H, 32 parts, GPU, iters 688 from cb32-yeti-gpu (~10.9 min); pub 0.3115; vs cb32-hist priv -0.00082 [-0.00237, +0.00081], vs cb8-cv -0.00049 [-0.00259, +0.00156], rejected; validator OK |
+| 2026-11-15 | danya | - | blend weights cb8-cv 0.500 + lgb8-cv-seeds 0.500 (z-score, weights fit on pseudo-public) | priv: -/-/0.3010 | - | out=runs/blend-cb-lgb-seeds; pub 0.3155; vs blend-cb-lgb priv -0.00116 [-0.00269, +0.00027] (p=0.067), rejected; validator OK |
+| 2026-11-15 | danya | - | blend weights cb32-cv 0.333 + lgb32-tuned-cv 0.667 (z-score, weights fit on pseudo-public) | priv: -/-/0.2994 | - | out=runs/blend32-sec23; pub 0.3116; vs blend-cb-lgb priv -0.00277 [-0.00512, -0.00061] (p=0.006), rejected; validator OK |
+| 2026-11-15 | danya | - | blend weights cb8-cv 0.333 + cb32-cv 0.167 + cb32-qsm-cv 0.167 + lgb8-cv-seeds 0.333 (z-score, weights fit on pseudo-public) | priv: -/-/0.3018 | - | out=runs/blend32; pub 0.3164; vs blend-cb-lgb priv -0.00036 [-0.00195, +0.00119] (p=0.334), not accepted over blend-cb-lgb; validator OK |
+| 2026-11-15 | danya | - | dima baseline-joint-008-retry-001 (catboost/YetiRank mode=holdout depth=6 lr=0.1 seed=42, 92 trees) | priv: 0.3607/0.3607/0.2988 | - | out=runs/dima-joint008; feats=$H + itemstats-008 (105, 504 donor parts), 8 train parts; pub 0.3118; vs cb8-cv priv -0.00166 [-0.00504, +0.00171] (p=0.164); validator OK |
+| 2026-11-15 | danya | - | blend weights cb8-cv 0.200 + lgb8-cv 0.400 + dima-joint008 0.400 (z-score, weights fit on pseudo-public) | priv: -/-/0.3042 | - | out=runs/blend-cb-lgb-dima; pub 0.3173; vs blend-cb-lgb priv +0.00199 [-0.00014, +0.00421] (p=0.965, all +0.00224); validator OK |
+| 2026-11-15 | danya | - | blend weights cb8-cv 0.133 + cb32-cv 0.067 + cb32-qsm-cv 0.267 + lgb8-cv-seeds 0.267 + dima-joint008 0.267 (z-score, weights fit on pseudo-public) | priv: -/-/0.3045 | - | out=runs/blend32-dima; pub 0.3184; vs blend-cb-lgb priv +0.00232 [+0.00024, +0.00446] (p=0.986, all +0.00280), accepted; new best submission; validator OK |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3601/0.3601/0.2980 | - | out=runs/cb32-is-us; feats=$H + itemstats-032 + userstats-032 (121), 32 parts, GPU; best_iter=280; pub 0.3114; vs cb32-hist priv -0.00283 [-0.00622, +0.00072] (p=0.051), rejected |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=holdout extra=- depth=8 lr=0.11063 | priv: 0.3617/0.3618/0.2999 | - | out=runs/cb32-tuned; feats=$H, 32 parts, GPU, Optuna 25 trials on 8 parts (best pub=0.31423, l2_leaf_reg=8.142, random_strength=0.320); best_iter=390; pub 0.3108 |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=cv extra=- depth=8 lr=0.11063 | priv: 0.3615/0.3615/0.2999 | - | out=runs/cb32-tuned-cv; feats=$H, 32 parts, GPU, tuned params, iters 390 from cb32-tuned; pub 0.3115; vs cb32-cv priv -0.00005 [-0.00086, +0.00080], vs cb32-hist -0.00086 [-0.00234, +0.00075], rejected; validator OK |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3621/0.3622/0.3004 | - | out=runs/cb32-qsm-cv-s1; feats=$H, 32 parts, GPU, seed=1, iters 188; pub 0.3123 |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3616/0.3616/0.3001 | - | out=runs/cb32-qsm-cv-s2; feats=$H, 32 parts, GPU, seed=2, iters 188; pub 0.3112 |
+| 2026-11-15 | danya | - | seed-avg z-score cb32-qsm-cv + s1 + s2 mode=cv depth=8 lr=0.05 | priv: -/-/0.3006 | - | out=runs/cb32-qsm-cv-seeds; feats=$H, 32 parts, 3 seeds; pub 0.3120; vs cb32-qsm-cv priv -0.00009 [-0.00091, +0.00074] (all +0.00011), vs cb32-hist -0.00019 [-0.00186, +0.00158]; validator OK |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3615/0.3615/0.3005 | - | out=runs/cb8-is-cv; feats=$H8+itemstats-008 (105), GPU, iters 249 from cb8-is; pub 0.3140, all 0.3046; vs dima-joint008 priv +0.00171 [-0.00004, +0.00350], vs cb8-cv +0.00005 [-0.00317, +0.00302] |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3624/0.3625/0.3010 | - | out=runs/cb8-is-qsm; feats=$H8+itemstats-008 (105), GPU, best_iter=248; pub 0.3127, all 0.3045; --no-test |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3650/0.3651/0.3045 | - | out=runs/cb8-is-qsm-cv; feats=$H8+itemstats-008 (105), GPU, iters 248 from cb8-is-qsm; pub 0.3163, all 0.3080; vs dima-joint008 priv +0.00565 [+0.00372, +0.00763], vs cb8-cv +0.00399 [+0.00088, +0.00694], accepted |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02244 | priv: 0.3594/0.3594/0.2970 | - | out=runs/lgb8-is-tuned; feats=$H8+itemstats-008 (105), CPU, best_iter=140; pub 0.3130; --no-test |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3634/0.3635/0.3027 | - | out=runs/lgb8-is-tuned-cv; feats=$H8+itemstats-008 (105), CPU, iters 140 from lgb8-is-tuned; pub 0.3150, all 0.3064; vs lgb8-tuned-cv priv +0.00361 [+0.00083, +0.00637], vs dima-joint008 +0.00384 [+0.00128, +0.00631], accepted |
+
+## Связь типов событий с категорией кандидата — 13.11.2026
+
+В `scripts.analyse_history_events` добавлен режим `--entity category`. Условие `h_cat_evtN > 0` выбирает вхождения кандидатов, категория которых встречалась в истории пользователя с типом события N. Используются уже проверенные признаки history. Дробные доли категорий преобразуются в условие присутствия; в таблице считаются кандидаты и позитивы. Исходный режим по товарам сохранён.
+
+Проанализированы 15 373 984 кандидата / 196 954 ленты train и весь val из 1 389 971 кандидата / 14 423 лент. Итоговые числа строк и позитивов совпали с исходным анализом по товарам. Проверены отпечатки источников, однозначность соединения по вхождению кандидата, конечность и диапазон долей. В отчёт записаны хеши подготовленного датасета, history-манифеста и кода анализа.
+
+Все десять категорийных групп содержат наблюдения. На val доля target=1 составляет 1.65–2.21% при общей доле 1.58%. Для типа 10 в группе 51 338 кандидатов, 1 135 позитивов, 954 ленты. Доля равна 2.2108%, отношение к общей доле — 1.398. На train для типа 10 — 484 860 кандидатов и 14 329 позитивов, доля 2.9553% против общей 2.2111%.
+
+Оценки описывают связь с target в выбранных группах. Группы пересекаются, на результат влияют состав категорий, длина истории и исходная позиция train. Для интерпретации значений кодов событий требуется дополнительная проверка состава групп. Этот анализ использует полный val как EDA. Исходные группы совпадения конкретного товара `h_item_evtN > 0` по-прежнему пусты.
+
+Пять целевых unittest-тестов history и анализа событий прошли. Регрессионный тест проверяет дробные доли 0.25/0.5/0.75, подсчёт отдельных candidate_index при одинаковом item_id, позитивы, отсутствующую группу и отклонение долей выше единицы. Результаты реального анализа дополнительно сверены с исходными общими счётчиками train/val.
+
+[Таблица событий по категориям](history_category_event_target_032.md), [полные агрегаты и отпечатки](history_category_event_target_032.json).
+
+```powershell
+uv run --locked python -m scripts.analyse_history_events --entity category --train-parts 32 --out experiments/history_category_event_target_032
+```
+
+## Совместные группы на 8 шардах — 13.11.2026
+
+Завершены два заранее заданных прогона на одинаковых 3 850 759 кандидатах / 49 200 лентах train. Первая модель использует cosine, infeed, history и itemstats-008, всего 105 признаков. Вторая добавляет 16 userstats-008. Параметры общие — CatBoost YetiRank, максимум 100 итераций, depth=6, lr=0.1, seed=42, два CPU-потока. Чекпойнты выбраны только по 4 328 лентам pseudo-Public. Таргетные статистики исключают все восемь обучающих шардов.
+
+Сравнение подтвердило одинаковые параметры, обучающие шарды, val-кандидатов, цели и назначение holdout. Хеши общего кода и метаданные общих групп совпадают. Модели обучены на чистых коммитах `055f644` и `1a2e241`. Оба отчёта подтверждают совпадение full/@10/@30 с эталоном и успешную проверку сабмитов на 2 904 806 строках после загрузки сохранённых моделей.
+
+Модель со 105 признаками сохранила 92 дерева и получила NDCG@30 pseudo-Public 0.311774, pseudo-Private 0.298823. Вариант с userstats сохранил 30 деревьев, получил pseudo-Public 0.310522, pseudo-Private 0.297308. Разность Private равна -0.001514. Парный bootstrap по 10 095 лентам, 1000 повторов, seed=42 дал 95% интервал [-0.003391, 0.000188]. Польза userstats в этом прогоне не подтверждена. Модель со 105 признаками также имеет более высокий pseudo-Public, который использовался для выбора чекпойнта.
+
+Успешные прогоны заняли 3251 и 1912 секунд. Пиковые рабочие наборы составили 6 231 179 264 и 7 773 200 384 байта. Первый терминальный запуск прервался на этапе fit. Завершённая пара выполнена отдельным фоновым процессом Windows, результаты находятся в папках с суффиксом `retry-001`.
+
+Для обеих моделей подготовлены `val_pred.parquet` на 1 389 971 строку и `test_pred.parquet` на 2 904 806 строк в командном формате. Проверены конечность Float32-скоров и точное сохранение значений после записи. Модели и предсказания лежат локально в `runs/baseline-joint-008-retry-001/` и `runs/baseline-joint-userstats-008-retry-001/`. Хеши моделей и предсказаний сохранены в агрегированном отчёте передачи.
+
+После завершения прогонов повторена общая проверка. Все 68 unittest-тестов прошли за 20.546 с. Модуль `tests/test_edge_cases.py` с необязательными PyTorch/pytest исключён из этого прогона.
+
+[Прогон со 105 признаками](baseline_joint_008.json), [прогон со 121 признаком](baseline_joint_userstats_008.json), [парное сравнение](userstats_comparison_008.json), [состав и отпечатки файлов передачи](joint_gbdt_handoff_008.json).
+
+```powershell
+uv run --locked python -m scripts.reproduce_ranking --raw competition --train-parts 8 --infeed --history --itemstats --out runs/reproduced-joint-008 --resume
+uv run --locked python -m scripts.reproduce_ranking --raw competition --train-parts 8 --infeed --history --itemstats --userstats --out runs/reproduced-joint-userstats-008 --resume
+uv run --locked python -m scripts.compare_baselines --baseline runs/reproduced-joint-008 --candidate runs/reproduced-joint-userstats-008 --out runs/reproduced-joint-userstats-008/comparison.json
+```
+
+## Категорийный вариант item2item — 15.11.2026
+
+По новому приоритету Дани реализована группа `category_cooc`. В исходном train 583 586 378 событий истории. Первый вариант использует компактную матрицу категорий. Каждая донорская лента даёт одно присутствие категории и одно совместное присутствие пары категорий. Оценка пары равна `C(i,j) / sqrt(C(i,i)*C(j,j))`. Матрица симметрична, одинаковые известные категории имеют оценку 1, категории без наблюдений — 0.
+
+Для кандидата считаются сумма и максимум этих оценок по первым 10 и 50 событиям собственной истории, всего четыре Float32-признака. Повторения в истории запроса учитываются при каждом вхождении. Направленные последовательные переходы категорий и пары конкретных товаров требуют отдельной реализации.
+
+Отдельные кеши исключают выбранные 8 или 32 обучающих шарда. Источниками служат 504 или 480 оставшихся train-шардов, используются только категории историй донорских лент. Прогресс агрегации сохраняется после каждого донорского шарда, готовые Parquet — после каждого выходного файла. Регрессионные тесты проверяют восстановление после обоих видов прерывания, ручные формулы, повторные события, неизвестные категории, одинаковые item_id с разными candidate_index, независимость от target и отклонение несовместимой обучающей выборки.
+
+Кеш на 8 шардах покрывает 8 145 536 строк, занимает 65 493 230 байт и построен за 89.34 с при пиковом рабочем наборе 339 152 896 байт. Кеш на 32 шардах покрывает 19 668 761 строку, занимает 159 323 038 байт и построен за 75.98 с при пике 346 415 104 байта. Весь val/test покрыт в обоих случаях.
+
+Независимые аудиты заняли 101.23 и 99.69 с. Все совместные частоты пересчитаны по исходным историям через битовые наборы донорских лент и их пересечения. Во всех строках проверены ключи, типы, конечность, диапазоны и отпечатки. Формулы дополнительно сверены на 408 лентах / 37 043 кандидатах и 480 лентах / 40 831 кандидате. В донорских историях найдены 54 категории. Нормальный GBDT-загрузчик проверен со всеми пятью группами и 109 признаками на реальном train-шарде, покрытие обеих выборок и отказы на несовместимых наборах подтверждены.
+
+Для согласованного проверочного обучения использован тот же один train-шард, что в готовом контроле cosine + itemstats, 476 301 кандидат / 6 132 ленты. Параметры общие — CatBoost YetiRank, максимум 100 итераций, depth=6, lr=0.1, seed=42, два CPU-потока. Вариант с category_cooc получил 51 признак и 19 деревьев, выбранных по pseudo-Public. Сравнение подтвердило одинаковые данные, параметры и val. Pseudo-Public NDCG@30 составил 0.309221 против 0.310286, pseudo-Private — 0.291788 против 0.295374. Разность Private -0.003586, парный bootstrap по 10 095 лентам, 1000 повторов, seed=42 дал 95% интервал [-0.005724, -0.001622]. В этом проверочном прогоне группа ухудшила результат. Она доступна как опциональная группа. Оценка относится к этому train-срезу и фиксированному val.
+
+Прогон занял 75.95 с. Full/@10/@30 сверены с эталоном, сабмит на 2 904 806 строк прошёл валидатор после загрузки модели. Общая проверка содержит 70 unittest-тестов, все прошли за 38.032 с. Необязательный нейросетевой pytest-модуль `tests/test_edge_cases.py` исключён из этого прогона.
+
+[Материализация 8](category_cooc_materialization_008.json), [материализация 32](category_cooc_materialization_032.json), [аудит 8](category_cooc_008_audit.json), [аудит 32](category_cooc_032_audit.json), [GBDT-интеграция](category_cooc_gbdt_integration_001.json), [модель](baseline_category_cooc_001.json), [парное сравнение](category_cooc_comparison_001.json).
+
+```powershell
+uv run --locked python -m scripts.build_category_cooc_features --train-parts 8 --out data/features/category-cooc-008 --resume
+uv run --locked python -m scripts.build_category_cooc_features --train-parts 32 --out data/features/category-cooc-032 --resume
+uv run --locked python -m scripts.audit_category_cooc_features --cache data/features/category-cooc-008 --out runs/category_cooc_008_audit.json
+uv run --locked python -m scripts.audit_category_cooc_features --cache data/features/category-cooc-032 --out runs/category_cooc_032_audit.json
+uv run --locked python -m scripts.run_baseline_check --feature-root data/features/cosine --feature-root data/features/itemstats-008 --feature-root data/features/category-cooc-008 --train-parts 1 --iterations 100 --depth 6 --seed 42 --threads 2 --out runs/baseline-category-cooc-001
+uv run --locked python -m scripts.compare_baselines --baseline runs/baseline-itemstats-001 --candidate runs/baseline-category-cooc-001 --out runs/baseline-category-cooc-001/comparison.json
+```
+
+Для передачи Дане подготовлен архив `dima_joint008_predictions_2026-11-15.zip` с исходными `val_pred.parquet` и `test_pred.parquet` модели со 105 признаками. Файлы сверены с опубликованными ранее SHA-256 и повторно проверены после упаковки. Размер ZIP составляет 32 236 939 байт, SHA-256 `3b3b43c7f77891aacc1816ae837a396601ba6f9553858adb1927b2aed59ce0d4`. По просьбе пользователя архив сохранён локально в папке «Загрузки».
+
+## Event-cosine, ранги и время — 15.11.2026
+
+По приоритетам Дани реализованы три опциональные группы. `event_cosine` содержит среднее и максимум cosine по типам событий 1, 2 и 10, а также число доступных векторов каждого типа. Используется окно первых 50 исходных событий, затем фильтрация по типу и маске вектора. Группа содержит девять Float32-признаков. Типы 1 и 2 выбраны как частые события train, тип 10 включён по запросу Дани. Все векторы берутся из исходной таблицы соответствующего split. Отрицательный максимум сохраняется, отсутствующие векторы дают нулевой счётчик и нулевые cosine.
+
+Общий кеш `event-cosine` покрывает объединение из 38 train-шардов, нужных для выборок 8 и 32, и весь val/test. В нём 22 561 433 строки, 358 818 576 байт Parquet. Завершающий вызов расширения до выборки из 32 шардов занял 186.48 с, пик рабочего набора этого вызова составил 712 847 360 байт. Ранее рассчитанные файлы переиспользованы. Чтение векторов группируется по четырём шардам. Проверка размера векторного файла использует целочисленное произведение Python, корректное для train-файла 10 439 416 832 байта на Windows.
+
+`feature_ranks` содержит четыре нормированных средних ранга внутри ленты для `cos_user`, `cos_hist_max_10`, `cos_hist_max_50`, `is_item_ctr`. Источник CTR исключает нужные обучающие шарды. Ранг `h_cat_share` уже присутствует в history под именем `h_cat_share_feedrank`. Отдельные кеши на 8 и 32 шарда покрывают 8 145 536 и 19 668 761 строку, занимают 122 813 112 и 301 439 609 байт. Построение заняло 24.70 и 42.94 с. Ресурсные поля исходных манифестов могут обновляться при resume, поэтому зависимость отслеживает числовую сигнатуру, идентичность itemstats и отпечатки используемых файлов.
+
+`time` содержит час UTC, день недели UTC с понедельника 0, возраст в днях после первого появления товара среди донорских кандидатов и флаг такого прошлого появления. Минимальный донорский timestamp должен быть строго раньше текущего. Для отсутствующего прошлого и идентификаторов товаров 0 или меньше возраст и флаг равны 0. Это наблюдаемый возраст в данных. Кеши занимают 54 546 610 и 134 816 923 байта, покрытие такое же, как у рангов. Построение заняло 65.67 и 103.03 с. Пики рабочих наборов составили 529 866 752 и 922 198 016 байт. Таблица первых появлений сохраняется в DuckDB и переиспользуется при resume.
+
+Все шесть аудитов прошли. Ключи, схема, диапазоны, конечность значений и отпечатки проверены на всех строках соответствующей когорты. Независимые формулы проверены на 408 лентах / 40 695 кандидатах для восьми шардов и 480 лентах / 47 528 кандидатах для 32. Для event-cosine используется Float64-расчёт по исходным векторам, для рангов — границы равных значений в отсортированном массиве, для возраста — независимый минимум по всем 504 или 480 донорским шардам для товаров из проверяемых лент. Допуски rtol/atol=2e-6.
+
+Кеши защищены исключительной блокировкой записи, освобождаемой ОС при завершении процесса. Регрессионные проверки покрывают отрицательные cosine, сохранение масок и исходного окна, повторные item_id с разными candidate_index, возобновление после прерывания, расширение общего кеша, одновременную запись, изменения векторов, равные ранги, несовместимые донорские когорты, UTC около начала эпохи и строгое исключение будущих и одновременных появлений товара. Все 75 общих unittest-тестов прошли за 26.119 с. Необязательный нейросетевой pytest-модуль `tests/test_edge_cases.py` исключён из этого прогона. Сквозной тест одной команды прошёл с восемью группами и 138 признаками, включая повторный запуск.
+
+На реальном train-шарде GBDT-загрузчик прочитал все девять групп и 142 признака. Проверены покрытие выборок 8 и 32 и отказы на несовместимых когортах рангов и времени. В `reproduce_ranking` добавлены флаги новых групп, а в отчёт проверочного обучения — хеши их кода.
+
+Выполнено по одному заранее заданному проверочному обучению на 476 301 кандидате / 6 132 лентах train. Для всех трёх использован готовый контроль cosine + itemstats с NDCG@30 pseudo-Private 0.295374. Параметры общие — максимум 100 итераций, depth=6, lr=0.1, seed=42, два CPU-потока. Выбор чекпойнта выполнен по pseudo-Public. Метаданные двух общих групп, обучающие шарды, параметры, val-ключи, цели и holdout совпали с контролем.
+
+| Добавленная группа | Признаков модели | Деревьев | pseudo-Public @30 | pseudo-Private @30 | Разность Private | 95% парный интервал |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| event_cosine | 56 | 26 | 0.311196 | 0.294735 | -0.000639 | [-0.002739, 0.001313] |
+| feature_ranks | 51 | 41 | 0.305674 | 0.293380 | -0.001994 | [-0.004546, 0.000332] |
+| time | 51 | 20 | 0.308271 | 0.293678 | -0.001696 | [-0.004099, 0.000624] |
+
+Парный bootstrap выполнен по 10 095 лентам, 1000 повторов, seed=42. Все интервалы включают ноль. Положительный эффект на этом малом train-срезе и фиксированном val не подтверждён. Группы доступны опционально для последующей проверки владельцами основных моделей. Full/@10/@30 совпали с эталоном, все три сабмита на 2 904 806 строк прошли валидатор после загрузки сохранённых моделей. Длительность прогонов составила 90.61, 118.62 и 84.72 с соответственно.
+
+[Материализация и контроль исходных групп](additional_feature_materialization_001.json), [проверка загрузчика](additional_gbdt_integration_001.json), [event-cosine 8](event_cosine_008_audit.json), [event-cosine 32](event_cosine_032_audit.json), [ранги 8](feature_ranks_008_audit.json), [ранги 32](feature_ranks_032_audit.json), [время 8](time_008_audit.json), [время 32](time_032_audit.json).
+
+[Прогон event-cosine](baseline_event_cosine_001.json), [сравнение event-cosine](event_cosine_comparison_001.json), [прогон рангов](baseline_feature_ranks_001.json), [сравнение рангов](feature_ranks_comparison_001.json), [прогон времени](baseline_time_001.json), [сравнение времени](time_comparison_001.json).
+
+Команды построения и аудита для обеих когорт приведены в README. Проверочные модели воспроизводятся с добавлением одной группы к общему контролю, например
+
+```powershell
+uv run --locked python -m scripts.run_baseline_check --feature-root data/features/cosine --feature-root data/features/itemstats-008 --feature-root data/features/event-cosine --out runs/baseline-event-cosine-001 --train-parts 1 --iterations 100 --depth 6 --seed 42 --threads 2
+uv run --locked python -m scripts.compare_baselines --baseline runs/baseline-itemstats-001 --candidate runs/baseline-event-cosine-001 --out runs/baseline-event-cosine-001/comparison.json
+```
+
+Для рангов дополнительный корень равен `data/features/feature-ranks-008`, для времени — `data/features/time-008`. Для каждого прогона нужна отдельная новая папка вывода.
+
+15.11 проверен актуальный журнал ветки Дани. Заполненных оценок Public платформы в нём пока нет. Сверка порядка моделей ожидает этих записей. [Журнал ветки danya](https://github.com/shertwg/avito-hackaton2026/blob/danya/experiments/log.md)
+
+## Item2item по конкретным товарам — Дима, 15.11.2026
+
+Добавлены четыре признака `i2i_sum_10`, `i2i_max_10`, `i2i_sum_50`,
+`i2i_max_50`. Сходство пары равно числу донорских историй, содержащих оба
+товара, делённому на корень из произведения чисел историй для каждого товара.
+Каждый товар учитывается один раз внутри донорской ленты. Повторы текущей
+истории сохраняются, окна отсекаются до обработки неизвестных товаров.
+Неизвестные и неположительные ID дают 0, известная пара товара с собой — 1.
+Target в расчёте отсутствует. Донорские группы исключают все train-шарды
+соответствующей когорты.
+
+Индекс хранит отсортированные списки донорских лент для нужных товаров в
+трёх mmap-массивах. Сходства вычисляются разреженными произведениями с
+локальным сжатием ID лент. DuckDB сохраняет таблицы для resume, файлы
+признаков имеют отдельные контрольные точки и исключительную блокировку
+записи. Зафиксирована прямая зависимость SciPy. Ограничение DuckDB 1536 МБ
+относится к его менеджеру памяти, общий рабочий набор процесса приведён ниже.
+
+| Когорта | Строк train/val/test | Товаров в индексе | Связей товар–лента | Parquet, байт | Время, с | Пик рабочего набора, байт |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 008 | 3850759/1389971/2904806 | 5453051 | 95507441 | 56253840 | 536.34 | 2602283008 |
+| 032 | 15373984/1389971/2904806 | 10931497 | 143172991 | 152734706 | 1002.72 | 3824844800 |
+
+Оба кеша покрывают весь val/test. Независимые аудиты прошли. Структура всего индекса, ключи, схемы, диапазоны, конечность значений и отпечатки проверены полностью. Для когорты 008 списки лент для 53774 проверяемых товаров заново собраны по всем 504 донорским шардам, формулы сверены на 408 лентах / 40695 кандидатах. Для когорты 032 списки лент для 63001 проверяемых товаров заново собраны по всем 480 донорским шардам, формулы сверены на 480 лентах / 47528 кандидатах. Независимая числовая сверка ограничена этой выборкой товаров.
+
+Все 79 общих unittest-тестов прошли за 35.680 с. Необязательный нейросетевой
+pytest-модуль `tests/test_edge_cases.py` исключён. Новые тесты покрывают
+дубликаты, неизвестные ID, нормировку, окна, пустой индекс, независимость от
+target, донорские исключения, повреждение индекса и возобновление после
+прерывания таблицы, публикации массивов и файла признаков. Сквозное
+синтетическое воспроизведение прошло с девятью группами и 142 признаками.
+Обычный GBDT-загрузчик прочитал реальный train-шард со всеми десятью
+группами и 146 признаками для обеих когорт. Неподходящая донорская когорта
+item2item отклонена.
+
+### Один проверочный прогон
+
+Использованы тот же один train-шард, 476 301 кандидат / 6 132 ленты,
+и готовый контроль cosine + itemstats. Метаданные обеих исходных групп
+полностью совпадают. Кандидат содержит 51 признак. Параметры общие
+CatBoost YetiRank, максимум 100 итераций, depth=6, lr=0.1, seed=42,
+два CPU-потока. Чекпойнт выбран по pseudo-Public.
+
+С item2item pseudo-Public NDCG@30=0.311299892, pseudo-Private=0.298266319. Контроль Private=0.295374228, разность +0.002892091 (+0.979%). 95% парный bootstrap-интервал [+0.000069901, +0.005920777], 1000 повторов по 10 095 лентам, seed=42. В сохранённой модели 31 дерево. Положительный интервал получен на фиксированном малом train-срезе. Проверку в основных командных моделях ведут их владельцы. Группа подключается явно. Полные метрики full/@10/@30 совпали с эталоном. Сабмит на 2 904 806 кандидатов прошёл валидатор после загрузки сохранённой модели.
+
+[Материализация](item2item_materialization_001.json), [аудит 8](item2item_008_audit.json),
+[аудит 32](item2item_032_audit.json), [проверка GBDT](item2item_gbdt_integration_001.json),
+[модель](baseline_item2item_001.json), [парное сравнение](item2item_comparison_001.json).
+
+```powershell
+uv run --locked python -m scripts.build_item2item_features --train-parts 8 --out data/features/item2item-008 --resume
+uv run --locked python -m scripts.build_item2item_features --train-parts 32 --out data/features/item2item-032 --resume
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-008 --out runs/item2item_008_audit.json
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-032 --out runs/item2item_032_audit.json
+uv run --locked python -m scripts.run_baseline_check --feature-root data/features/cosine --feature-root data/features/itemstats-008 --feature-root data/features/item2item-008 --train-parts 1 --iterations 100 --depth 6 --seed 42 --threads 2 --out runs/baseline-item2item-001
+uv run --locked python -m scripts.compare_baselines --baseline runs/baseline-itemstats-001 --candidate runs/baseline-item2item-001 --out runs/baseline-item2item-001/comparison.json
+```
+
+Для воспроизведения с сырых данных добавлен флаг `--item2item` в
+`scripts.reproduce_ranking`. В журнале ветки `danya`, проверенном через
+GitHub API 15.11, заполненных значений Public платформы пока нет.
+Сверка порядка моделей ожидает этих записей. Финальный ансамбль остаётся
+поздним пунктом после выбора командной конфигурации с 01.12.
+
+## Командный ансамбль и передача item2item в OOF — Дима, 15.11.2026
+
+Даня подтвердил получение архива joint-008, совпадение SHA-256 и успешную
+проверку val/test. Его журнал содержит новые принятые ансамбли с этой моделью.
+По сообщению Дани `blend-cb-lgb-dima` получил pseudo-Private 0.30419,
+pseudo-Public 0.31729. Новый лучший командный сабмит `blend32-dima` получил
+pseudo-Private 0.30452 и pseudo-Public 0.31837. Парная разность к прежнему
+0.30220 равна +0.00232 с интервалом [+0.00024, +0.00446]. Значения команды
+взяты из сообщения Дани, записи ветки danya проверены через GitHub API.
+Public платформы в этих строках ожидает заполнения.
+[Журнал Дани](https://github.com/shertwg/avito-hackaton2026/blob/danya/experiments/log.md)
+
+По выбору пользователя подготовлена команда для запуска владельцем модели.
+В README добавлен `src.gbdt.run_exp --mode cv --folds 4` с пятью группами
+cosine, infeed, history, itemstats-008, item2item-008, всего 109 признаков.
+Параметры сохраняют joint-008, depth=6, lr=0.1, seed=42, 92 итерации,
+два CPU-потока. Число итераций зафиксировано по прежнему чекпойнту joint-008.
+Каждая из четырёх моделей использует train и три блока val, предсказывает
+оставшийся блок val. Test-score усредняется после z-score внутри ленты.
+
+Команда прошла синтетическую сквозную проверку через настоящий CV-раннер
+с теми же пятью группами и 109 признаками. Для каждого обучения перехват
+вызова fit проверил отсутствие предсказываемого блока среди обучающих лент.
+Все ленты val предсказаны ровно один раз, ключи и target сохранены, test
+прошёл валидатор. Проверка использовала по две итерации и depth=2.
+Выполнение CV на реальных данных передано Дане.
+[Проверка CV](item2item_cv_smoke_001.json)
+
+Перед слиянием повторно прошли все 79 общих unittest-тестов за 40.685 с.
+Необязательный нейросетевой pytest-модуль `tests/test_edge_cases.py` исключён.
+
+## Этап 3: OOF-модели `itemstats-008 + item2item-008` и ансамбли (Даня) — 15.11.2026
+
+Аудит `data/features/item2item-008` (`runs/item2item_008_audit.json`): `complete: true`, 504 донорских шарда, 5,453,051 item, 95,507,441 postings, 408 лент.
+
+| дата | ветка | - | модель | pseudo-private NDCG full / idcg30 / @30 | Public | примечание |
+|---|---|---|---|---|---|---|
+| 2026-11-15 | danya | - | catboost/default pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3644/0.3644/0.3036 | - | out=runs/cb8-is-i2i; feats=$H8+itemstats-008+item2item-008 (109), GPU, best_iter=339; pub 0.3152, all 0.3071; --no-test |
+| 2026-11-15 | danya | - | catboost/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3647/0.3648/0.3045 | - | out=runs/cb8-is-i2i-cv; feats=109, GPU, iters 339; pub 0.3164, all 0.3081; vs cb8-is-cv priv +0.00395 [+0.00120, +0.00657] (p=0.998), accepted; validator OK |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3662/0.3663/0.3051 | - | out=runs/cb8-is-i2i-qsm; feats=109, GPU, best_iter=349; pub 0.3167, all 0.3086; --no-test |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3662/0.3662/0.3055 | - | out=runs/cb8-is-i2i-qsm-cv; feats=109, GPU, iters 349; pub 0.3189, all 0.3095; vs cb8-is-qsm-cv priv +0.00101 [-0.00174, +0.00376], vs blend32-dima +0.00096 [-0.00182, +0.00375]; validator OK |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02244 | priv: 0.3649/0.3650/0.3045 | - | out=runs/lgb8-is-i2i-tuned; feats=109, CPU; pub 0.3173, all 0.3083; --no-test |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3656/0.3656/0.3055 | - | out=runs/lgb8-is-i2i-tuned-cv; feats=109, CPU; pub 0.3155, all 0.3085; vs lgb8-is-tuned-cv priv +0.00284 [+0.00018, +0.00547] (p=0.981), accepted; validator OK |
+| 2026-11-15 | danya | - | blend weights 6 OOF (cb32-qsm-cv-seeds + cb32-tuned-cv + lgb8-cv-seeds + cb8-is-i2i-cv + cb8-is-i2i-qsm-cv + lgb8-is-i2i-tuned-cv) | priv: -/-/0.3061 | - | out=runs/blend-oof-pure; pub 0.3201 (mean: pub 0.3194, priv 0.3069); vs blend32-dima priv +0.00160 [-0.00018, +0.00340] (all +0.00162 [+0.00006, +0.00317]), vs blend-cb-lgb +0.00392 [+0.00171, +0.00615]; validator OK |
+| 2026-11-15 | danya | - | blend weights 7 models (6 OOF + dima-joint008) | priv: -/-/0.3075 | - | out=runs/blend-team-v3; pub 0.3200; vs blend32-dima priv +0.00294 [+0.00129, +0.00463] (p=1.000), vs blend-cb-lgb +0.00526 [+0.00303, +0.00754] (p=1.000), Финал A (select_final); validator OK |
+
+## Этап 4: сиды, Optuna-тюнинг на 109 признаках, 32 шарда `item2item-032` и нейросеть Августа (Даня) — 15–16.11.2026
+
+Аудит `data/features/item2item-032` (`runs/item2item_032_audit.json`): `complete: true`, 480 донорских шардов, 10,931,497 items, 143,172,991 postings, 480 лент.
+Импортирована OOF-нейросеть Августа (`nn-avgust-oof4-predictions.zip` -> `runs/nn-oof4`, 1,389,971 строк val без пропусков и дублей, validator OK).
+
+| дата | ветка | - | модель | pseudo-private NDCG full / idcg30 / @30 | Public | примечание |
+|---|---|---|---|---|---|---|
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3672/0.3673/0.3065 | - | out=runs/cb8-is-i2i-qsm-cv-s1; seed=1, iters 349, pub 0.3177, all 0.3099 |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3661/0.3661/0.3058 | - | out=runs/cb8-is-i2i-qsm-cv-s2; seed=2, iters 349, pub 0.3181, all 0.3095 |
+| 2026-11-15 | danya | - | seed-avg mean cb8-is-i2i-qsm-cv + s1 + s2 | priv: -/-/0.3066 | - | out=runs/cb8-is-i2i-qsm-cv-seeds; pub 0.3180, all 0.3100; vs cb8-is-i2i-qsm-cv priv +0.00116 [+0.00016, +0.00213] (p=0.991), accepted; validator OK |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3653/0.3654/0.3052 | - | out=runs/lgb8-is-i2i-tuned-cv-s1; seed=1, pub 0.3127, all 0.3075 |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3662/0.3663/0.3057 | - | out=runs/lgb8-is-i2i-tuned-cv-s2; seed=2, pub 0.3156, all 0.3087 |
+| 2026-11-15 | danya | - | seed-avg mean lgb8-is-i2i-tuned-cv + s1 + s2 | priv: -/-/0.3055 | - | out=runs/lgb8-is-i2i-tuned-cv-seeds; pub 0.3148, diff 0.00000 vs seed 0 |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02024 | priv: 0.3667/0.3668/0.3066 | - | out=runs/lgb8-is-i2i-opt-cv; Optuna runs/tune-lgb-i2i (best pub 0.3193), 435 iters, pub 0.3171, all 0.3097; vs lgb8-is-i2i-tuned-cv all +0.00119 [+0.00015, +0.00224] (p=0.987); validator OK |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=9 lr=0.03199 | priv: 0.3668/0.3669/0.3063 | - | out=runs/cb8-is-i2i-qsm-opt-cv; Optuna runs/tune-cb-qsm-i2i (best pub 0.3178), 404 iters, pub 0.3172, all 0.3096; validator OK |
+| 2026-11-15 | danya | - | blend weights 7 OOF (без Dima) | priv: -/-/0.3075 | - | out=runs/blend-oof-pure-v4; pub 0.3207, all 0.3114 (mean: priv 0.3080) |
+| 2026-11-16 | danya | - | nn-oof4 (Август, 4-fold OOF) | priv: -/-/0.3007 | - | out=runs/nn-oof4; pub 0.3144, all 0.3048; validator OK |
+| 2026-11-16 | danya | - | blend weights 9 models (7 OOF + nn-oof4 + dima-joint008) | priv: -/-/0.3079 | - | out=runs/blend-team-nn-v4; pub 0.3203, all 0.3116 |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3669/0.3669/0.3061 | - | out=runs/cb32-is-i2i-qsm; feats=$H32+itemstats-032+item2item-032 (109), GPU, best_iter=923; pub 0.3181, all 0.3097; --no-test |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3677/0.3677/0.3077 | - | out=runs/cb32-is-i2i-qsm-cv; feats=109, 32 parts, GPU, iters 923; pub 0.3167, all 0.3104; vs cb8-is-i2i-qsm-cv priv +0.00220 [+0.00041, +0.00396] (p=0.992), Финал B (select_final), accepted; validator OK |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02024 | priv: 0.3637/0.3638/0.3029 | - | out=runs/lgb32-is-i2i-opt; 32 parts, CPU, pub 0.3164, all 0.3069; --no-test |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02024 | priv: 0.3644/0.3644/0.3034 | - | out=runs/lgb32-is-i2i-opt-cv; 32 parts, CPU, pub 0.3153, all 0.3070; rejected vs lgb8-is-i2i-opt-cv |
+| 2026-11-16 | danya | - | blend weights 8 OOF (cb32-is-i2i-qsm-cv + cb8-is-i2i-qsm-cv-seeds + cb8-is-i2i-qsm-opt-cv + cb32-qsm-cv-seeds + lgb8-cv-seeds + nn-oof4) | priv: -/-/0.3090 | - | out=runs/blend-oof-v5; pub 0.3218, all 0.3128; vs blend32-dima priv +0.00444 [+0.00229, +0.00659] (p=1.000), vs blend-team-v3 priv +0.00150 [-0.00005, +0.00309] (all +0.00161 [+0.00030, +0.00289], p=0.992), Финал A (select_final); validator OK |
+| 2026-11-16 | danya | - | blend weights 9 models (8 OOF + dima-joint008) | priv: -/-/0.3087 | - | out=runs/blend-team-v5; pub 0.3218, all 0.3126; validator OK |
+
 | 13.11.2026 | Август | `02ebf18` | NN, ListNet, 2 train-шарда, 12 264 ленты, 1 эпоха, batch=16, seed=42 | 0.33179 / — / 0.26342 | — / 0.27118 | — / 0.26010 | — | Весь val: 14 423 ленты. CPU, эпоха 302,20 с, наблюдавшийся пик рабочего набора 6,60 GiB. Чекпоинт: runs/nn-2parts-001/best_model.pt. |
 | 13.11.2026 | Август | `02ebf18` | NN, ListNet, 2 train-шарда, 1 эпоха, batch=16, seed=42, --no-pos-bias | 0.3323 / — / 0.2639 | — / 0.2702 | — / 0.2612 | — | Весь val: 14 423 ленты. CPU, эпоха 679,50 с. Разница с позиционной головой +0,0011 на pseudo-private, в пределах шума. |
 | 13.11.2026 | Август | `02ebf18` | NN, ListNet, позиционная голова, 2 train-шарда, 5 эпох, batch=16, seed=42, AMP | 0.34283 / — / 0.27764 | — / 0.28467 | — / 0.27462 | — | RTX 2060 SUPER, PyTorch 2.10.0+cu126. Чекпоинт эпохи 5 выбран по pseudo-public. Эпохи 38,80–53,33 с без валидации. Прирост +0,01566 к эпохе 1 того же прогона. runs/nn-2parts-cuda-001. Валидатор test_pred.parquet: OK, 2 904 806 строк. |

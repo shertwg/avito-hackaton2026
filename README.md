@@ -20,8 +20,8 @@ src/common/data.py       чтение лент, признаки сходств�
 src/common/validation.py временное разбиение val и групповые OOF-фолды
 src/common/preparation.py подготовка таблиц и точный EDA по всем данным
 src/gbdt/train.py        простой CatBoost YetiRank: train / predict (бейзлайн)
-src/gbdt/run_exp.py      раннер экспериментов: CatBoost/LightGBM, позиция, режимы holdout/cv/final
-src/gbdt/tune.py         Optuna по val (ES на pseudo-public, цель — pseudo-private)
+src/gbdt/run_exp.py      раннер экспериментов: CatBoost/LightGBM (CPU/GPU), позиция, режимы holdout/cv/final
+src/gbdt/tune.py         Optuna по val (выбор по pseudo-public, отчёт на pseudo-private)
 src/gbdt/weights.py      IPW-веса против смещения позиции
 src/gbdt/extra_features.py  подключение признаков Антона/Августа (контракт на формат — в docstring)
 src/ensemble/blend.py    общий ансамбль N моделей: mean / подбор весов / стекинг по OOF
@@ -32,6 +32,7 @@ src/ensemble/blend_nn_gbdt.py  ранговый блендинг NN + GBDT (Ав
 src/ensemble/stacking.py Ridge-стекинг NN + GBDT (Август)
 eval/make_synthetic.py   крошечный синтетический датасет для проверки кода (не данные Авито)
 scripts/validate_submission.py   проверка формата сабмита
+scripts/average_runs.py          усреднение нескольких сидов по z-score внутри ленты
 scripts/check_dataset.py         проверка распакованного датасета
 scripts/make_validation_split.py создание таблицы разбиения val
 scripts/prepare_data.py          полный проход: Parquet + EDA
@@ -528,6 +529,17 @@ uv run --locked python -m scripts.audit_history_features --out runs/history_cach
 uv run --locked python -m scripts.analyse_history_events --train-parts 8 --out experiments/history_event_target_008
 ```
 
+Для связи событий с категорией кандидата доступен отдельный режим.
+Условие `h_cat_evtN > 0` означает, что категория кандидата встречалась
+в истории с типом события N. Таблица содержит доли target=1 для этих групп
+на выбранном train и полном val. Группы могут пересекаться. На результаты
+влияют состав категорий, длина истории и позиция в train. Значения описывают
+статистическую связь с целью, их интерпретация требует учёта этих факторов.
+
+```powershell
+uv run --locked python -m scripts.analyse_history_events --entity category --train-parts 32 --out experiments/history_category_event_target_032
+```
+
 ## Статистики товаров и категорий
 
 Группа `itemstats` содержит 32 Float32-признака. Для товара и категории считаются
@@ -632,7 +644,182 @@ uv run --locked python -m scripts.reproduce_ranking --raw competition --train-pa
 и завершение всех этапов. `--resume` переиспользует проверенные данные
 и признаки. Для нового обучения нужна новая папка `--out`.
 
-Команда проверена сквозным синтетическим тестом со всеми пятью группами,
-121 признаком, раздельными донорскими шардами и повторным запуском.
+Команда проверена сквозным синтетическим тестом с восемью группами,
+138 признаками, раздельными донорскими шардами и повторным запуском.
 Конфигурация окончательной командной модели будет зафиксирована после
 её выбора.
+
+## Совместная встречаемость категорий
+
+Группа `category_cooc` — первый категорийный вариант item2item по историям.
+Для каждой пары категорий считается число донорских лент, в историях которых
+присутствуют обе категории. Повторные события одной категории в донорской
+истории дают одно присутствие. Матрица симметрична.
+
+Оценка пары равна `C(i,j) / sqrt(C(i,i) * C(j,j))`. Для одинаковых известных
+категорий она равна 1, для категории без наблюдений — 0. Четыре признака
+`cc_sum_10`, `cc_max_10`, `cc_sum_50`, `cc_max_50` суммируют и максимизируют
+эту оценку по первым 10 и 50 событиям истории текущей ленты. Порядок событий
+и повторения в этих окнах сохраняются.
+
+Доноры исключают все выбранные обучающие шарды. Кеши на 8 и 32 шарда
+имеют отдельные папки. Загрузчик проверяет соответствие обучающей выборки.
+Агрегаты сохраняются после каждого донорского шарда, признаки — после
+каждого выходного файла. Числа всех пар независимо проверяются пересечениями
+битовых наборов донорских лент. Формулы проверяются на трёх лентах каждого
+файла, а ключи, типы, диапазоны и отпечатки — на всех строках.
+
+```powershell
+uv run --locked python -m scripts.build_category_cooc_features --train-parts 8 --out data/features/category-cooc-008 --resume
+uv run --locked python -m scripts.build_category_cooc_features --train-parts 32 --out data/features/category-cooc-032 --resume
+uv run --locked python -m scripts.audit_category_cooc_features --cache data/features/category-cooc-008 --out runs/category_cooc_008_audit.json
+uv run --locked python -m scripts.audit_category_cooc_features --cache data/features/category-cooc-032 --out runs/category_cooc_032_audit.json
+```
+
+Подключение выполняется через соответствующий `--feature-root`.
+
+## Cosine по типам событий
+
+Группа `event_cosine` использует последние 50 исходных событий истории и
+типы 1, 2 и 10. Для каждого типа сохраняются число доступных векторов,
+среднее и максимум cosine с кандидатом, всего девять Float32-признаков.
+Типы 1 и 2 выбраны как частые события train, тип 10 включён по запросу Дани.
+Окно отсекается до фильтрации по типу и наличию вектора. При отсутствии
+подходящих векторов среднее и максимум равны 0, отрицательный максимум
+сохраняется. Используются исходные векторы каждого split и маски `-1`.
+
+Кеш расширяется с сохранением проверенных файлов. Выборки на 8 и 32 шарда
+имеют частичное пересечение, поэтому общий кеш содержит их объединение.
+Весь val/test вычисляется один раз. `--prefetch-parts` объединяет чтение
+векторов для нескольких шардов и по умолчанию равно 4.
+
+```powershell
+uv run --locked python -m scripts.build_event_cosine_features --train-parts 8 --resume
+uv run --locked python -m scripts.build_event_cosine_features --train-parts 32 --resume
+uv run --locked python -m scripts.audit_event_cosine_features --train-parts 8 --out runs/event_cosine_008_audit.json
+uv run --locked python -m scripts.audit_event_cosine_features --train-parts 32 --out runs/event_cosine_032_audit.json
+```
+
+## Ранги сильных признаков
+
+Группа `feature_ranks` добавляет нормированные ранги `cos_user`,
+`cos_hist_max_10`, `cos_hist_max_50` и `is_item_ctr`. Ранг возрастающий,
+при равенстве используется средний ранг, делённый на размер ленты.
+Ранг `h_cat_share` уже доступен в history как `h_cat_share_feedrank`.
+CTR берётся из itemstats с тем же исключением обучающих шардов.
+Отдельные кеши содержат результаты для когорт 8 и 32.
+
+```powershell
+uv run --locked python -m scripts.build_feature_ranks --train-parts 8 --itemstats data/features/itemstats-008 --out data/features/feature-ranks-008 --resume
+uv run --locked python -m scripts.build_feature_ranks --train-parts 32 --itemstats data/features/itemstats-032 --out data/features/feature-ranks-032 --resume
+uv run --locked python -m scripts.audit_feature_ranks --itemstats data/features/itemstats-008 --cache data/features/feature-ranks-008 --out runs/feature_ranks_008_audit.json
+uv run --locked python -m scripts.audit_feature_ranks --itemstats data/features/itemstats-032 --cache data/features/feature-ranks-032 --out runs/feature_ranks_032_audit.json
+```
+
+## Время и возраст товара
+
+Группа `time` содержит час UTC (0–23), день недели UTC (понедельник 0),
+число дней после первого появления товара среди кандидатов донорского train
+и флаг наличия такого прошлого появления. Это наблюдаемый возраст в данных.
+Используется минимальный timestamp донорского кандидата строго раньше
+текущей ленты. Если прошлое появление отсутствует, возраст и флаг равны 0.
+Идентификаторы товаров 0 и отрицательные значения получают этот же вариант.
+Обучающие шарды исключаются из доноров, target используется только моделью.
+
+```powershell
+uv run --locked python -m scripts.build_time_features --train-parts 8 --out data/features/time-008 --resume
+uv run --locked python -m scripts.build_time_features --train-parts 32 --out data/features/time-032 --resume
+uv run --locked python -m scripts.audit_time_features --cache data/features/time-008 --out runs/time_008_audit.json
+uv run --locked python -m scripts.audit_time_features --cache data/features/time-032 --out runs/time_032_audit.json
+```
+
+Для новых кешей действует исключительная блокировка записи, которая
+освобождается операционной системой при завершении процесса. Повторный
+запуск переиспользует проверенные части. Аудит проверяет все строки
+структурно и пересчитывает формулы на трёх лентах каждого файла независимо
+от реализации расчёта признаков. Возраст сверяется по всем донорским шардам
+для товаров из этих лент.
+
+Все группы подключаются через `--feature-root`. В `scripts.reproduce_ranking`
+доступны флаги `--category-cooc`, `--event-cosine`, `--feature-ranks`,
+`--time-features` и `--item2item`. Для рангов itemstats строится как зависимость. Полный
+набор его колонок добавляется в модель при явном флаге `--itemstats`.
+
+## Item2item по историям товаров
+
+Группа `item2item` содержит четыре Float32-признака. Для последних 10 и 50
+событий истории вычисляются сумма и максимум совместной встречаемости товара
+кандидата с товарами истории. Сходство пары равно числу донорских лент,
+содержащих оба товара в истории, делённому на квадратный корень из произведения
+чисел лент для каждого товара. Повторы товара внутри донорской истории
+учитываются один раз. Повторы в истории текущего пользователя сохраняются.
+Окно отсекается до обработки отсутствующих товаров. Совпадение товара с собой
+имеет сходство 1 при наличии донорских наблюдений. Неизвестные товары и
+неположительные идентификаторы дают 0. Target в расчёте отсутствует.
+
+Для каждой когорты из доноров исключаются все её train-шарды. Индекс хранит
+отсортированные списки донорских лент для нужных товаров. Запросы используют
+разреженные произведения с локальным сжатием идентификаторов лент. Индекс
+сохраняется в трёх массивах NumPy, читаемых через mmap. DuckDB ограничивает
+память построения и сохраняет таблицы для возобновления после прерывания.
+Файлы признаков сохраняются после каждого шарда. Кеши 8 и 32 независимы.
+
+Аудит проверяет все строки признаков, структуру всего индекса и независимо
+собирает списки донорских лент для товаров из трёх проверяемых лент каждого
+файла. Для этих товаров просмотрены все донорские истории. Формулы
+пересчитываются пересечениями множеств, с допусками rtol/atol=2e-6.
+
+```powershell
+uv run --locked python -m scripts.build_item2item_features --train-parts 8 --out data/features/item2item-008 --resume
+uv run --locked python -m scripts.build_item2item_features --train-parts 32 --out data/features/item2item-032 --resume
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-008 --out runs/item2item_008_audit.json
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-032 --out runs/item2item_032_audit.json
+```
+
+По умолчанию `--memory-mb=1536` ограничивает DuckDB, а
+`--candidate-batch=64` задаёт размер запроса к индексу. Группа подключается
+через соответствующий `--feature-root` или флаг `--item2item` в
+`scripts.reproduce_ranking`. Зависимость SciPy зафиксирована в uv.lock.
+
+## Четыре временных OOF-фолда для joint + item2item
+
+Конфигурация содержит прежние 105 признаков joint-008 и четыре item2item,
+всего 109. Для сравнения зафиксированы параметры joint-008 и его 92 дерева,
+выбранные ранее по pseudo-Public. Настройка `--folds 4` задаёт четыре
+последовательных временных блока val. Каждый блок предсказывается моделью,
+обученной на восьми train-шардах и остальных трёх блоках val. Все кандидаты
+одной ленты попадают в один фолд. Это блочный OOF с обучением на остальных
+блоках. Донорские признаки itemstats и item2item используют исходный train с
+исключением всех восьми обучающих шардов и сохраняются одинаковыми для фолдов.
+
+Подготовка данных и пяти групп признаков выполняется после распаковки
+исходного архива в `competition`. Флаг `--resume` переиспользует совпадающие
+готовые файлы.
+
+```powershell
+uv sync --locked
+uv run --locked python -m scripts.reproduce_data --raw competition --feature-train-parts 8 --infeed data/features/infeed --resume
+uv run --locked python -m scripts.build_history_features --train-parts 8 --resume
+uv run --locked python -m scripts.build_itemstats_features --train-parts 8 --out data/features/itemstats-008 --resume
+uv run --locked python -m scripts.build_item2item_features --train-parts 8 --out data/features/item2item-008 --resume
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-008 --out runs/item2item_008_audit.json
+```
+
+Запуск четырёх моделей выполняет владелец основного обучения. Папка вывода
+должна быть отдельной для каждого эксперимента. `used_ram_limit` задаёт
+ориентир CatBoost, общий расход памяти включает загруженные таблицы и пулы.
+
+```powershell
+$cvOut = 'runs/dima-joint-item2item-008-cv'
+New-Item -ItemType Directory -Path $cvOut | Out-Null
+@{ thread_count = 2; used_ram_limit = '1024mb' } | ConvertTo-Json | Set-Content -Encoding ascii "$cvOut/catboost-params.json"
+uv run --locked python -m src.gbdt.run_exp --data competition --prepared data/prepared --train-parts 8 --feature-root data/features/cosine --feature-root data/features/infeed --feature-root data/features/history --feature-root data/features/itemstats-008 --feature-root data/features/item2item-008 --kind catboost --mode cv --folds 4 --iterations 92 --depth 6 --lr 0.1 --seed 42 --model-params "$cvOut/catboost-params.json" --out $cvOut
+uv run --locked python scripts/validate_submission.py competition/sample_submission.parquet "$cvOut/test_pred.parquet"
+```
+
+На выходе получаются `val_pred.parquet` с OOF-score и target для всех
+1 389 971 кандидатов val, `test_pred.parquet` для 2 904 806 кандидатов test
+и `metrics.json`. Test-score усредняется по моделям после z-score внутри
+каждой ленты. Для ансамбля используются эти два Parquet, веса выбираются
+по pseudo-Public. Метрики и статус Public платформы заносятся владельцем
+прогона в `experiments/log.md`.

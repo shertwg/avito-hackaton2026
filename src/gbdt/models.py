@@ -40,9 +40,22 @@ class Ranker:
             else self._fit_lgb(tr, weight, va, es_rounds)
 
     def _fit_cb(self, tr, weight, va, es_rounds):
-        params = dict(loss_function=self.loss, iterations=self.iterations, learning_rate=self.lr,
-                      depth=self.depth, eval_metric="NDCG:top=30;type=Base", random_seed=self.seed,
-                      task_type=self.task_type, verbose=200, allow_writing_files=False, **self.extra)
+        extra = dict(self.extra)
+        loss_fn = self.loss
+        params = dict(iterations=self.iterations, learning_rate=self.lr, depth=self.depth,
+                      random_seed=self.seed, task_type=self.task_type, verbose=200,
+                      allow_writing_files=False)
+        if self.task_type == "GPU":
+            extra.setdefault("border_count", 254)
+            extra.setdefault("one_hot_max_size", 100)
+            if "skip_train" not in loss_fn:
+                loss_fn += (";" if ":" in loss_fn else ":") + "hints=skip_train~true"
+            if va is not None:
+                params["eval_metric"] = "NDCG:top=30;type=Base;hints=skip_train~true"
+        else:
+            params["eval_metric"] = "NDCG:top=30;type=Base"
+        params["loss_function"] = loss_fn
+        params.update(extra)
         if va is not None:
             params.update(od_type="Iter", od_wait=es_rounds)
         m = CatBoostRanker(**params)

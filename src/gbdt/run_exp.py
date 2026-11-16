@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import gc
 import json
 from pathlib import Path
 
@@ -181,14 +182,17 @@ def run(a: argparse.Namespace) -> dict:
         fold_of = dict(zip(uf.tolist(), fold.tolist()))
         row_fold = np.array([fold_of[x] for x in va_raw["feed_id"].to_numpy()])
         oof = np.zeros(va_raw.height)
+        te = apply_pos(frames["test"], a, False) if need_test else None
         for k in range(a.folds):
             held = row_fold == k
             tr, w = train_frame(frames, a, va_raw.filter(pl.Series(~held)))
             model = make_ranker(a, feats, iters).fit(tr, w)
             oof[held] = model.predict(apply_pos(va_raw.filter(pl.Series(held)), a, False))
-            if need_test:
-                te = apply_pos(frames["test"], a, False)
+            if te is not None:
                 test_scores.append(feed_zscore(te["feed_id"].to_numpy(), model.predict(te)))
+            del model, tr, w
+            gc.collect()
+            print(f"[cv] fold {k + 1}/{a.folds} done", flush=True)
         va = apply_pos(va_raw, a, False)
         res.update(split_metrics(va, oof, pub, priv))
         val_pred = va.select("feed_id", "item_id", "target").with_columns(pl.Series("score", oof))
