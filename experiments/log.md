@@ -475,3 +475,28 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3656/0.3656/0.3055 | - | out=runs/lgb8-is-i2i-tuned-cv; feats=109, CPU; pub 0.3155, all 0.3085; vs lgb8-is-tuned-cv priv +0.00284 [+0.00018, +0.00547] (p=0.981), accepted; validator OK |
 | 2026-11-15 | danya | - | blend weights 6 OOF (cb32-qsm-cv-seeds + cb32-tuned-cv + lgb8-cv-seeds + cb8-is-i2i-cv + cb8-is-i2i-qsm-cv + lgb8-is-i2i-tuned-cv) | priv: -/-/0.3061 | - | out=runs/blend-oof-pure; pub 0.3201 (mean: pub 0.3194, priv 0.3069); vs blend32-dima priv +0.00160 [-0.00018, +0.00340] (all +0.00162 [+0.00006, +0.00317]), vs blend-cb-lgb +0.00392 [+0.00171, +0.00615]; validator OK |
 | 2026-11-15 | danya | - | blend weights 7 models (6 OOF + dima-joint008) | priv: -/-/0.3075 | - | out=runs/blend-team-v3; pub 0.3200; vs blend32-dima priv +0.00294 [+0.00129, +0.00463] (p=1.000), vs blend-cb-lgb +0.00526 [+0.00303, +0.00754] (p=1.000), Финал A (select_final); validator OK |
+
+## Этап 4: сиды, Optuna-тюнинг на 109 признаках, 32 шарда `item2item-032` и нейросеть Августа (Даня) — 15–16.11.2026
+
+Аудит `data/features/item2item-032` (`runs/item2item_032_audit.json`): `complete: true`, 480 донорских шардов, 10,931,497 items, 143,172,991 postings, 480 лент.
+Импортирована OOF-нейросеть Августа (`nn-avgust-oof4-predictions.zip` -> `runs/nn-oof4`, 1,389,971 строк val без пропусков и дублей, validator OK).
+
+| дата | ветка | - | модель | pseudo-private NDCG full / idcg30 / @30 | Public | примечание |
+|---|---|---|---|---|---|---|
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3672/0.3673/0.3065 | - | out=runs/cb8-is-i2i-qsm-cv-s1; seed=1, iters 349, pub 0.3177, all 0.3099 |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3661/0.3661/0.3058 | - | out=runs/cb8-is-i2i-qsm-cv-s2; seed=2, iters 349, pub 0.3181, all 0.3095 |
+| 2026-11-15 | danya | - | seed-avg mean cb8-is-i2i-qsm-cv + s1 + s2 | priv: -/-/0.3066 | - | out=runs/cb8-is-i2i-qsm-cv-seeds; pub 0.3180, all 0.3100; vs cb8-is-i2i-qsm-cv priv +0.00116 [+0.00016, +0.00213] (p=0.991), accepted; validator OK |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3653/0.3654/0.3052 | - | out=runs/lgb8-is-i2i-tuned-cv-s1; seed=1, pub 0.3127, all 0.3075 |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02244 | priv: 0.3662/0.3663/0.3057 | - | out=runs/lgb8-is-i2i-tuned-cv-s2; seed=2, pub 0.3156, all 0.3087 |
+| 2026-11-15 | danya | - | seed-avg mean lgb8-is-i2i-tuned-cv + s1 + s2 | priv: -/-/0.3055 | - | out=runs/lgb8-is-i2i-tuned-cv-seeds; pub 0.3148, diff 0.00000 vs seed 0 |
+| 2026-11-15 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02024 | priv: 0.3667/0.3668/0.3066 | - | out=runs/lgb8-is-i2i-opt-cv; Optuna runs/tune-lgb-i2i (best pub 0.3193), 435 iters, pub 0.3171, all 0.3097; vs lgb8-is-i2i-tuned-cv all +0.00119 [+0.00015, +0.00224] (p=0.987); validator OK |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=9 lr=0.03199 | priv: 0.3668/0.3669/0.3063 | - | out=runs/cb8-is-i2i-qsm-opt-cv; Optuna runs/tune-cb-qsm-i2i (best pub 0.3178), 404 iters, pub 0.3172, all 0.3096; validator OK |
+| 2026-11-15 | danya | - | blend weights 7 OOF (без Dima) | priv: -/-/0.3075 | - | out=runs/blend-oof-pure-v4; pub 0.3207, all 0.3114 (mean: priv 0.3080) |
+| 2026-11-16 | danya | - | nn-oof4 (Август, 4-fold OOF) | priv: -/-/0.3007 | - | out=runs/nn-oof4; pub 0.3144, all 0.3048; validator OK |
+| 2026-11-16 | danya | - | blend weights 9 models (7 OOF + nn-oof4 + dima-joint008) | priv: -/-/0.3079 | - | out=runs/blend-team-nn-v4; pub 0.3203, all 0.3116 |
+| 2026-11-15 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3669/0.3669/0.3061 | - | out=runs/cb32-is-i2i-qsm; feats=$H32+itemstats-032+item2item-032 (109), GPU, best_iter=923; pub 0.3181, all 0.3097; --no-test |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3677/0.3677/0.3077 | - | out=runs/cb32-is-i2i-qsm-cv; feats=109, 32 parts, GPU, iters 923; pub 0.3167, all 0.3104; vs cb8-is-i2i-qsm-cv priv +0.00220 [+0.00041, +0.00396] (p=0.992), Финал B (select_final), accepted; validator OK |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02024 | priv: 0.3637/0.3638/0.3029 | - | out=runs/lgb32-is-i2i-opt; 32 parts, CPU, pub 0.3164, all 0.3069; --no-test |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02024 | priv: 0.3644/0.3644/0.3034 | - | out=runs/lgb32-is-i2i-opt-cv; 32 parts, CPU, pub 0.3153, all 0.3070; rejected vs lgb8-is-i2i-opt-cv |
+| 2026-11-16 | danya | - | blend weights 8 OOF (cb32-is-i2i-qsm-cv + cb8-is-i2i-qsm-cv-seeds + cb8-is-i2i-qsm-opt-cv + cb32-qsm-cv-seeds + lgb8-cv-seeds + nn-oof4) | priv: -/-/0.3090 | - | out=runs/blend-oof-v5; pub 0.3218, all 0.3128; vs blend32-dima priv +0.00444 [+0.00229, +0.00659] (p=1.000), vs blend-team-v3 priv +0.00150 [-0.00005, +0.00309] (all +0.00161 [+0.00030, +0.00289], p=0.992), Финал A (select_final); validator OK |
+| 2026-11-16 | danya | - | blend weights 9 models (8 OOF + dima-joint008) | priv: -/-/0.3087 | - | out=runs/blend-team-v5; pub 0.3218, all 0.3126; validator OK |
