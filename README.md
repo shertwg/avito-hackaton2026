@@ -896,3 +896,55 @@ uv run --locked python -m scripts.audit_recency_cosine_features --train-parts 32
 `--prefetch-parts` по умолчанию равен 2. Аудит независимо пересчитывает
 формулы в Float64 по исходным векторам на трёх лентах каждого файла,
 структурные проверки охватывают все строки.
+
+## Расширенный контекст ленты
+
+Группа `feed_context` содержит 34 признака. Для f1–f5 добавлены отклонения
+от максимума и среднего ленты. Для `cos_user`, `is_item_ctr` и четырёх
+item2item-сигналов добавлены отклонения и z-score с выборочным стандартным
+отклонением. Для item2item также добавлены средние ранги, делённые на размер
+ленты. Ранги cosine/CTR уже доступны в `feature_ranks`, z-score и ранги
+f1–f5 доступны в `infeed`. Два взаимодействия равны `cos_user * is_item_ctr`
+и `cos_hist_max_50 * is_item_ctr`.
+
+При постоянном признаке и в ленте из одного кандидата z-score равен 0.
+Вычисления используют Float64, результат сохраняется в Float32 с насыщением
+диапазона для экстремальных значений. Донорские когорты itemstats и item2item
+должны совпадать с выбранными train-шардами.
+
+```powershell
+uv run --locked python -m scripts.build_feed_context_features --itemstats data/features/itemstats-008 --item2item data/features/item2item-008 --train-parts 8 --out data/features/feed-context-008 --resume
+uv run --locked python -m scripts.build_feed_context_features --itemstats data/features/itemstats-032 --item2item data/features/item2item-032 --train-parts 32 --out data/features/feed-context-032 --resume
+uv run --locked python -m scripts.audit_feed_context_features --itemstats data/features/itemstats-008 --item2item data/features/item2item-008 --cache data/features/feed-context-008 --out runs/feed_context_008_audit.json
+uv run --locked python -m scripts.audit_feed_context_features --itemstats data/features/itemstats-032 --item2item data/features/item2item-032 --cache data/features/feed-context-032 --out runs/feed_context_032_audit.json
+```
+
+## Иерархический и свежий CTR
+
+Сглаженный CTR с глобальным prior уже входит в itemstats. Новая группа
+`bayesian_ctr` содержит 14 признаков. Для всей доступной донорской истории
+и окон 3/7 дней сохраняются CTR категории, CTR товара с prior категории,
+разность CTR товара и категории и `log1p` числа показов товара. Сглаживание
+на обоих уровнях по умолчанию равно 20. Глобальная частота окна задаёт prior
+категории, её posterior задаёт prior товара. Холодный товар получает posterior
+категории. При отсутствии прошлых донорских наблюдений CTR равен 0.
+
+Обучающие шарды исключены из доноров. Используются завершённые UTC-дни
+строго раньше дня запроса. Свежие окна заканчиваются в
+`min(query_day - 1, last_donor_day)`. Это сохраняет последние дни доноров
+для val/test, где даты запроса находятся позже окончания train. Добавлены
+число дней после последнего допустимого донорского дня и флаг наличия
+прошлых наблюдений. По данным соревнования train заканчивается 19.09,
+val охватывает 21–24.09, test — 25–29.09. Даты приведены в UTC.
+
+```powershell
+uv run --locked python -m scripts.build_bayesian_ctr_features --train-parts 8 --out data/features/bayesian-ctr-008 --resume
+uv run --locked python -m scripts.build_bayesian_ctr_features --train-parts 32 --out data/features/bayesian-ctr-032 --resume
+uv run --locked python -m scripts.audit_bayesian_ctr_features --cache data/features/bayesian-ctr-008 --out runs/bayesian_ctr_008_audit.json
+uv run --locked python -m scripts.audit_bayesian_ctr_features --cache data/features/bayesian-ctr-032 --out runs/bayesian_ctr_032_audit.json
+```
+
+Дневные таблицы и lookup-файлы имеют контрольные точки для resume. Аудит
+заново считает общие и категорийные наблюдения всех доноров и дневные
+наблюдения для проверяемых товаров. Posterior и окна пересчитываются
+независимыми суммами. Ключи, диапазоны и отпечатки проверяются полностью.
