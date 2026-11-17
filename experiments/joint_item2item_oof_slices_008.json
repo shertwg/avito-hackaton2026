@@ -1,0 +1,1579 @@
+{
+  "complete": true,
+  "scope": "descriptive fixed feed partitions; no feature or model parameter selection",
+  "inputs": {
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\manifest.json": {
+      "bytes": 334156,
+      "mtime_ns": 1794386331471062200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\manifest.json": {
+      "bytes": 416723,
+      "mtime_ns": 1794465723853607200
+    },
+    "C:\\dev\\avito-hackaton2026\\runs\\dima-joint-item2item-008-cv-001\\run.json": {
+      "bytes": 228310,
+      "mtime_ns": 1794888045969347400
+    },
+    "C:\\dev\\avito-hackaton2026\\runs\\dima-joint-item2item-008-cv-001\\validation_predictions.parquet": {
+      "bytes": 10588314,
+      "mtime_ns": 1794888008733970000
+    },
+    "C:\\dev\\avito-hackaton2026\\runs\\dima-joint-item2item-008-cv-001\\fold_assignments.parquet": {
+      "bytes": 51906,
+      "mtime_ns": 1794840391040581500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00000-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 392759,
+      "mtime_ns": 1794386312441829900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00000-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 400319,
+      "mtime_ns": 1794389488295393300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00001-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 468022,
+      "mtime_ns": 1794386312566074400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00001-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 475953,
+      "mtime_ns": 1794389488489412100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00002-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 426098,
+      "mtime_ns": 1794386312682261900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00002-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 433246,
+      "mtime_ns": 1794389488639364200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00003-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 432140,
+      "mtime_ns": 1794386312789606600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00003-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 441539,
+      "mtime_ns": 1794389488783484400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00004-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 449996,
+      "mtime_ns": 1794386312882070700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00004-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 456178,
+      "mtime_ns": 1794389488935068200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00005-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 443746,
+      "mtime_ns": 1794386312989816200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00005-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 455418,
+      "mtime_ns": 1794389489086301300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00006-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 452160,
+      "mtime_ns": 1794386313082908000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00006-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 461357,
+      "mtime_ns": 1794389489260517800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00007-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 465730,
+      "mtime_ns": 1794386313175128400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00007-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 473622,
+      "mtime_ns": 1794389489414405500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00008-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 430372,
+      "mtime_ns": 1794386313283123200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00008-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 432814,
+      "mtime_ns": 1794389489554676500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00009-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 396369,
+      "mtime_ns": 1794386313375364600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00009-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 402586,
+      "mtime_ns": 1794389489688653000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00010-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 456734,
+      "mtime_ns": 1794386313457486800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00010-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 465740,
+      "mtime_ns": 1794389489840866400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00011-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 464883,
+      "mtime_ns": 1794386313582073300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00011-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 479990,
+      "mtime_ns": 1794389489986459200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00012-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 438417,
+      "mtime_ns": 1794386313683140500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00012-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 451265,
+      "mtime_ns": 1794389490124134100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00013-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 449458,
+      "mtime_ns": 1794386313781913900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00013-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 457654,
+      "mtime_ns": 1794389490273247300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00014-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 456670,
+      "mtime_ns": 1794386313907686400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00014-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 464717,
+      "mtime_ns": 1794389490412601400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00015-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 427989,
+      "mtime_ns": 1794386314015347900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00015-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 435195,
+      "mtime_ns": 1794389490555293700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00016-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 437900,
+      "mtime_ns": 1794386314174038800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00016-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 447156,
+      "mtime_ns": 1794389490725407600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00017-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 487608,
+      "mtime_ns": 1794386314351955700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00017-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 495472,
+      "mtime_ns": 1794389490881894900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00018-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 472532,
+      "mtime_ns": 1794386314506515200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00018-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 480103,
+      "mtime_ns": 1794389491024628400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00019-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 445236,
+      "mtime_ns": 1794386314649243100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00019-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 458653,
+      "mtime_ns": 1794389491167665300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00020-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 455006,
+      "mtime_ns": 1794386314742682400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00020-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 462677,
+      "mtime_ns": 1794389491307205600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00021-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 450291,
+      "mtime_ns": 1794386314865367600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00021-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 454420,
+      "mtime_ns": 1794389491462516100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00022-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 491812,
+      "mtime_ns": 1794386314999133800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00022-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 504448,
+      "mtime_ns": 1794389491627383800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00023-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 507684,
+      "mtime_ns": 1794386315115238000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00023-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 520609,
+      "mtime_ns": 1794389491789563100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00024-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 444310,
+      "mtime_ns": 1794386315219380200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00024-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 454806,
+      "mtime_ns": 1794389491938584400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00025-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 507944,
+      "mtime_ns": 1794386315349240900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00025-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 524014,
+      "mtime_ns": 1794389492088505200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00026-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 445430,
+      "mtime_ns": 1794386315481931700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00026-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 452747,
+      "mtime_ns": 1794389492236040200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00027-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 483415,
+      "mtime_ns": 1794386315616397500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00027-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 493293,
+      "mtime_ns": 1794389492386936000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00028-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 501652,
+      "mtime_ns": 1794386315733547800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00028-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 512586,
+      "mtime_ns": 1794389492541365800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00029-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 484239,
+      "mtime_ns": 1794386315857468100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00029-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 494395,
+      "mtime_ns": 1794389492693897100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00030-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 453444,
+      "mtime_ns": 1794386315949058800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00030-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 465586,
+      "mtime_ns": 1794389492852164000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00031-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 457773,
+      "mtime_ns": 1794386316065954700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00031-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 470982,
+      "mtime_ns": 1794389493012539600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00032-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 504115,
+      "mtime_ns": 1794386316192734700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00032-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 519863,
+      "mtime_ns": 1794389493162755500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00033-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 456936,
+      "mtime_ns": 1794386316307314000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00033-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 464040,
+      "mtime_ns": 1794389493304124500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00034-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 431238,
+      "mtime_ns": 1794386316423933100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00034-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 441304,
+      "mtime_ns": 1794389493453803000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00035-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 497544,
+      "mtime_ns": 1794386316576039200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00035-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 510582,
+      "mtime_ns": 1794389493619622400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00036-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 479115,
+      "mtime_ns": 1794386316705961000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00036-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 481838,
+      "mtime_ns": 1794389493781538500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00037-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 475917,
+      "mtime_ns": 1794386316824919400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00037-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 488497,
+      "mtime_ns": 1794389493975052300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00038-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 434441,
+      "mtime_ns": 1794386316931939500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00038-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 443536,
+      "mtime_ns": 1794389494131197100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00039-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 447859,
+      "mtime_ns": 1794386317048979100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00039-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 457405,
+      "mtime_ns": 1794389494300404600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00040-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 423978,
+      "mtime_ns": 1794386317174083700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00040-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 436022,
+      "mtime_ns": 1794389494483843700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00041-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 444459,
+      "mtime_ns": 1794386317359750800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00041-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 457551,
+      "mtime_ns": 1794389494638117600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00042-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 446349,
+      "mtime_ns": 1794386317481636300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00042-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 458715,
+      "mtime_ns": 1794389494831782800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00043-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 424635,
+      "mtime_ns": 1794386317614127000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00043-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 430859,
+      "mtime_ns": 1794389494991873800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00044-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 446768,
+      "mtime_ns": 1794386317740063900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00044-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 457841,
+      "mtime_ns": 1794389495142308200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00045-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 465649,
+      "mtime_ns": 1794386317849566700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00045-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 475129,
+      "mtime_ns": 1794389495295307000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00046-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 443394,
+      "mtime_ns": 1794386317957795600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00046-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 445926,
+      "mtime_ns": 1794389495437557100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00047-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 431877,
+      "mtime_ns": 1794386318065075500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00047-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 438968,
+      "mtime_ns": 1794389495571957400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00048-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 478847,
+      "mtime_ns": 1794386318173876400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00048-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 484423,
+      "mtime_ns": 1794389495720607700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00049-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 476784,
+      "mtime_ns": 1794386318281561300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00049-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 486990,
+      "mtime_ns": 1794389495869620000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00050-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 427998,
+      "mtime_ns": 1794386318406925400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00050-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 433544,
+      "mtime_ns": 1794389496014078900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00051-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 478007,
+      "mtime_ns": 1794386318515921100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00051-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 491212,
+      "mtime_ns": 1794389496163825500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00052-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 468410,
+      "mtime_ns": 1794386318641330300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00052-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 478194,
+      "mtime_ns": 1794389496307477500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00053-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 474328,
+      "mtime_ns": 1794386318723854600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00053-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 483118,
+      "mtime_ns": 1794389496466374800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00054-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 440894,
+      "mtime_ns": 1794386318815648000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00054-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 447877,
+      "mtime_ns": 1794389496607900300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00055-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 452409,
+      "mtime_ns": 1794386318906925000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00055-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 462583,
+      "mtime_ns": 1794389496750789100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00056-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 446651,
+      "mtime_ns": 1794386318998079100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00056-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 448297,
+      "mtime_ns": 1794389496894075000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00057-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 416794,
+      "mtime_ns": 1794386319081516400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00057-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 422056,
+      "mtime_ns": 1794389497033685700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00058-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 465192,
+      "mtime_ns": 1794386319164774100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00058-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 475239,
+      "mtime_ns": 1794389497178376600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00059-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 454626,
+      "mtime_ns": 1794386319257037800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00059-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 460737,
+      "mtime_ns": 1794389497319118000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00060-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 421170,
+      "mtime_ns": 1794386319381462600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00060-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 433838,
+      "mtime_ns": 1794389497456260500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00061-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 467712,
+      "mtime_ns": 1794386319590658300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00061-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 475531,
+      "mtime_ns": 1794389497604245600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00062-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 487074,
+      "mtime_ns": 1794386319773649400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00062-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 496905,
+      "mtime_ns": 1794389497751639200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\val\\candidates\\part-00063-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 492977,
+      "mtime_ns": 1794386319907022500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\val\\part-00063-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet": {
+      "bytes": 501370,
+      "mtime_ns": 1794389497899840300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00000-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 818094,
+      "mtime_ns": 1794386320206672500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00000-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 868230,
+      "mtime_ns": 1794389498242303900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00001-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 795357,
+      "mtime_ns": 1794386320348055900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00001-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 847407,
+      "mtime_ns": 1794389498550915000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00002-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 831279,
+      "mtime_ns": 1794386320481051700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00002-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 885772,
+      "mtime_ns": 1794389498848378400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00003-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 857512,
+      "mtime_ns": 1794386320629933200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00003-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 910381,
+      "mtime_ns": 1794389499153233200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00004-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 920887,
+      "mtime_ns": 1794386320740548200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00004-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 985634,
+      "mtime_ns": 1794389499477432400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00005-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 916986,
+      "mtime_ns": 1794386320831861100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00005-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 979044,
+      "mtime_ns": 1794389499786580000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00006-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 868944,
+      "mtime_ns": 1794386320956444900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00006-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 924290,
+      "mtime_ns": 1794389500087693600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00007-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 856234,
+      "mtime_ns": 1794386321073784400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00007-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 911407,
+      "mtime_ns": 1794389500373364800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00008-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 875046,
+      "mtime_ns": 1794386321188934600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00008-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 923661,
+      "mtime_ns": 1794389500692562800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00009-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 872478,
+      "mtime_ns": 1794386321281031200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00009-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 931988,
+      "mtime_ns": 1794389500990447800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00010-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 951567,
+      "mtime_ns": 1794386321406261000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00010-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1014275,
+      "mtime_ns": 1794389501294582300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00011-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 921116,
+      "mtime_ns": 1794386321556977300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00011-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 978835,
+      "mtime_ns": 1794389501605623800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00012-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 932710,
+      "mtime_ns": 1794386321688797300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00012-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 997395,
+      "mtime_ns": 1794389501905841000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00013-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 910936,
+      "mtime_ns": 1794386321798910800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00013-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 972450,
+      "mtime_ns": 1794389502202334600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00014-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 918294,
+      "mtime_ns": 1794386321906245300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00014-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 975707,
+      "mtime_ns": 1794389502505609800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00015-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 968388,
+      "mtime_ns": 1794386322006281600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00015-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1040753,
+      "mtime_ns": 1794389502813704600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00016-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 889493,
+      "mtime_ns": 1794386322105914700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00016-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 941214,
+      "mtime_ns": 1794389503112936300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00017-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 886347,
+      "mtime_ns": 1794386322197522400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00017-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 940181,
+      "mtime_ns": 1794389503437671000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00018-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 907635,
+      "mtime_ns": 1794386322280708200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00018-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 970976,
+      "mtime_ns": 1794389503735689500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00019-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 906978,
+      "mtime_ns": 1794386322406323500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00019-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 961451,
+      "mtime_ns": 1794389504037578400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00020-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 930680,
+      "mtime_ns": 1794386322513927100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00020-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 993437,
+      "mtime_ns": 1794389504376006800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00021-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 936054,
+      "mtime_ns": 1794386322664704800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00021-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 994120,
+      "mtime_ns": 1794389504759525900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00022-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 930801,
+      "mtime_ns": 1794386322798947900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00022-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 988939,
+      "mtime_ns": 1794389505080653200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00023-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 907295,
+      "mtime_ns": 1794386322930785200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00023-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 962777,
+      "mtime_ns": 1794389505464667800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00024-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 942617,
+      "mtime_ns": 1794386323014150900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00024-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1007272,
+      "mtime_ns": 1794389505763801500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00025-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 928192,
+      "mtime_ns": 1794386323114115500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00025-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 986212,
+      "mtime_ns": 1794389506145393300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00026-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 934902,
+      "mtime_ns": 1794386323233747200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00026-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 995843,
+      "mtime_ns": 1794389506462749700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00027-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 988208,
+      "mtime_ns": 1794386323380727300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00027-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1054750,
+      "mtime_ns": 1794389506781271100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00028-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1000998,
+      "mtime_ns": 1794386323506107700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00028-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1072774,
+      "mtime_ns": 1794389507100508500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00029-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 930407,
+      "mtime_ns": 1794386323647390200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00029-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 997950,
+      "mtime_ns": 1794389507447338100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00030-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 961928,
+      "mtime_ns": 1794386323840616900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00030-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1018483,
+      "mtime_ns": 1794389507763017000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00031-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 944199,
+      "mtime_ns": 1794386323972798200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00031-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1004379,
+      "mtime_ns": 1794389508077501300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00032-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 897950,
+      "mtime_ns": 1794386324080586000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00032-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 947711,
+      "mtime_ns": 1794389508389503000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00033-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 926605,
+      "mtime_ns": 1794386324180486600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00033-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 976117,
+      "mtime_ns": 1794389508714230400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00034-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 971916,
+      "mtime_ns": 1794386324297257300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00034-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1039701,
+      "mtime_ns": 1794389509022926900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00035-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 957017,
+      "mtime_ns": 1794386324414585700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00035-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1020400,
+      "mtime_ns": 1794389509318322300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00036-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 951865,
+      "mtime_ns": 1794386324513932700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00036-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1022279,
+      "mtime_ns": 1794389509631024200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00037-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 910341,
+      "mtime_ns": 1794386324648269000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00037-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 976675,
+      "mtime_ns": 1794389509929855300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00038-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 873419,
+      "mtime_ns": 1794386324740222400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00038-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 928246,
+      "mtime_ns": 1794389510228219500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00039-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 931031,
+      "mtime_ns": 1794386324831477400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00039-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 989945,
+      "mtime_ns": 1794389510551317700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00040-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 968452,
+      "mtime_ns": 1794386324939249300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00040-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1037506,
+      "mtime_ns": 1794389510877208000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00041-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 933913,
+      "mtime_ns": 1794386325172443700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00041-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 997636,
+      "mtime_ns": 1794389511200798500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00042-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 938609,
+      "mtime_ns": 1794386325256164900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00042-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1001360,
+      "mtime_ns": 1794389511530441600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00043-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 878156,
+      "mtime_ns": 1794386325347184900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00043-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 934309,
+      "mtime_ns": 1794389511826335200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00044-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 917827,
+      "mtime_ns": 1794386325430612200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00044-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 974937,
+      "mtime_ns": 1794389512134042900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00045-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 881986,
+      "mtime_ns": 1794386325513833400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00045-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 945452,
+      "mtime_ns": 1794389512435683600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00046-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 891119,
+      "mtime_ns": 1794386325631258700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00046-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 952902,
+      "mtime_ns": 1794389512728791000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00047-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 904581,
+      "mtime_ns": 1794386325738548500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00047-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 966718,
+      "mtime_ns": 1794389513027674500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00048-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 945108,
+      "mtime_ns": 1794386325848155200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00048-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 1012466,
+      "mtime_ns": 1794389513344255200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00049-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 845812,
+      "mtime_ns": 1794386325940290800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00049-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 894022,
+      "mtime_ns": 1794389513633626800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00050-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 893598,
+      "mtime_ns": 1794386326047283500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00050-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 950247,
+      "mtime_ns": 1794389513946873500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00051-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 930840,
+      "mtime_ns": 1794386326164550300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00051-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 994542,
+      "mtime_ns": 1794389514253383400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00052-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 905127,
+      "mtime_ns": 1794386326272582900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00052-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 969653,
+      "mtime_ns": 1794389514572110700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00053-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 860751,
+      "mtime_ns": 1794386326397621600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00053-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 917065,
+      "mtime_ns": 1794389514884046600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00054-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 875328,
+      "mtime_ns": 1794386326507452200
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00054-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 931582,
+      "mtime_ns": 1794389515195670400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00055-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 934594,
+      "mtime_ns": 1794386326664450100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00055-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 996581,
+      "mtime_ns": 1794389515498746800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00056-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 923756,
+      "mtime_ns": 1794386326797883900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00056-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 986870,
+      "mtime_ns": 1794389515799182800
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00057-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 903261,
+      "mtime_ns": 1794386326893417500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00057-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 963731,
+      "mtime_ns": 1794389516092227900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00058-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 859468,
+      "mtime_ns": 1794386326979952400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00058-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 909783,
+      "mtime_ns": 1794389516385733400
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00059-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 915119,
+      "mtime_ns": 1794386327079962700
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00059-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 986971,
+      "mtime_ns": 1794389516677729600
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00060-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 860157,
+      "mtime_ns": 1794386327205129900
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00060-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 914680,
+      "mtime_ns": 1794389516963382000
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00061-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 913289,
+      "mtime_ns": 1794386327305441300
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00061-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 973125,
+      "mtime_ns": 1794389517260364500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00062-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 824014,
+      "mtime_ns": 1794386327396963500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00062-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 872496,
+      "mtime_ns": 1794389517541861100
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\prepared\\test\\candidates\\part-00063-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 904071,
+      "mtime_ns": 1794386327513550500
+    },
+    "C:\\dev\\avito-hackaton2026\\data\\features\\cosine\\test\\part-00063-91a0162e-5e20-42a2-994f-eaeb4e2fda4b-c000.zstd.parquet": {
+      "bytes": 949806,
+      "mtime_ns": 1794389517840242600
+    }
+  },
+  "implementation_sha256": "1e1d90fcb03c77b721303f7bb2bb451892e6ebc39c74e17d0b9b8d623156515a",
+  "subsets": {
+    "all_val": {
+      "summary": {
+        "feeds": 14423,
+        "candidates": 1389971,
+        "mean_candidates": 96.37183664979547,
+        "empty_history_fraction": 0.013450738403938154,
+        "mean_candidate_embedding_fraction": 0.9998362635653681,
+        "ndcg30": 0.3095012482355634,
+        "no_positive_feeds": 0,
+        "ndcg30_positive_feeds": 0.3095012482355634
+      },
+      "slices": {
+        "history_length": {
+          "0": {
+            "feeds": 194,
+            "candidates": 19440,
+            "mean_candidates": 100.20618556701031,
+            "empty_history_fraction": 1.0,
+            "mean_candidate_embedding_fraction": 0.9998947102384469,
+            "ndcg30": 0.3100618881592735,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.3100618881592735
+          },
+          "1..10": {
+            "feeds": 320,
+            "candidates": 30816,
+            "mean_candidates": 96.3,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9999766761437059,
+            "ndcg30": 0.3577867850827364,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.3577867850827364
+          },
+          "11..50": {
+            "feeds": 1048,
+            "candidates": 98943,
+            "mean_candidates": 94.41125954198473,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9998093359456718,
+            "ndcg30": 0.3180308829891636,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.3180308829891636
+          },
+          "51+": {
+            "feeds": 12861,
+            "candidates": 1240772,
+            "mean_candidates": 96.47554622502139,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9998340825114685,
+            "ndcg30": 0.3075963269107778,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.3075963269107778
+          }
+        },
+        "candidates": {
+          "1..29": {
+            "feeds": 3883,
+            "candidates": 61204,
+            "mean_candidates": 15.762039660056658,
+            "empty_history_fraction": 0.010816379088333763,
+            "mean_candidate_embedding_fraction": 0.9997922067570987,
+            "ndcg30": 0.5304360369987726,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.5304360369987726
+          },
+          "30..59": {
+            "feeds": 2827,
+            "candidates": 121115,
+            "mean_candidates": 42.842235585426245,
+            "empty_history_fraction": 0.014149274849663955,
+            "mean_candidate_embedding_fraction": 0.9998977016888198,
+            "ndcg30": 0.36412011842754655,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.36412011842754655
+          },
+          "60..99": {
+            "feeds": 2365,
+            "candidates": 184557,
+            "mean_candidates": 78.0367864693446,
+            "empty_history_fraction": 0.01522198731501057,
+            "mean_candidate_embedding_fraction": 0.9998221589949368,
+            "ndcg30": 0.24926371219311885,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.24926371219311885
+          },
+          "100..199": {
+            "feeds": 3015,
+            "candidates": 427270,
+            "mean_candidates": 141.71475953565505,
+            "empty_history_fraction": 0.014925373134328358,
+            "mean_candidate_embedding_fraction": 0.9998417198559143,
+            "ndcg30": 0.17317609757169175,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.17317609757169175
+          },
+          "200+": {
+            "feeds": 2333,
+            "candidates": 595825,
+            "mean_candidates": 255.39005572224605,
+            "empty_history_fraction": 0.013287612516073724,
+            "mean_candidate_embedding_fraction": 0.9998423902711489,
+            "ndcg30": 0.11283805543302478,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.11283805543302478
+          }
+        },
+        "embedding_fraction": {
+          "[.5,1)": {
+            "feeds": 207,
+            "candidates": 34964,
+            "mean_candidates": 168.90821256038646,
+            "empty_history_fraction": 0.01932367149758454,
+            "mean_candidate_embedding_fraction": 0.9885914463927781,
+            "ndcg30": 0.1774212201261737,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.1774212201261737
+          },
+          "1": {
+            "feeds": 14216,
+            "candidates": 1355007,
+            "mean_candidates": 95.31563027574563,
+            "empty_history_fraction": 0.013365222284749578,
+            "mean_candidate_embedding_fraction": 1.0,
+            "ndcg30": 0.31142447318060035,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.31142447318060035
+          }
+        }
+      }
+    },
+    "pseudo_public": {
+      "summary": {
+        "feeds": 4328,
+        "candidates": 402023,
+        "mean_candidates": 92.88886321626617,
+        "empty_history_fraction": 0.010628465804066543,
+        "mean_candidate_embedding_fraction": 0.9998447278345799,
+        "ndcg30": 0.31698166332505606,
+        "no_positive_feeds": 0,
+        "ndcg30_positive_feeds": 0.31698166332505606
+      },
+      "slices": {
+        "history_length": {
+          "0": {
+            "feeds": 46,
+            "candidates": 4420,
+            "mean_candidates": 96.08695652173913,
+            "empty_history_fraction": 1.0,
+            "mean_candidate_embedding_fraction": 1.0,
+            "ndcg30": 0.28993556763271167,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.28993556763271167
+          },
+          "1..10": {
+            "feeds": 93,
+            "candidates": 9224,
+            "mean_candidates": 99.18279569892474,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9999603218929742,
+            "ndcg30": 0.37118849641680685,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.37118849641680685
+          },
+          "11..50": {
+            "feeds": 293,
+            "candidates": 25020,
+            "mean_candidates": 85.39249146757679,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9999224201811051,
+            "ndcg30": 0.32939252368448757,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.32939252368448757
+          },
+          "51+": {
+            "feeds": 3896,
+            "candidates": 363359,
+            "mean_candidates": 93.26463039014374,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9998342923559936,
+            "ndcg30": 0.31507368150755133,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.31507368150755133
+          }
+        },
+        "candidates": {
+          "1..29": {
+            "feeds": 1203,
+            "candidates": 18822,
+            "mean_candidates": 15.645885286783042,
+            "empty_history_fraction": 0.010806317539484621,
+            "mean_candidate_embedding_fraction": 0.9999064837806143,
+            "ndcg30": 0.5386487920217062,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.5386487920217062
+          },
+          "30..59": {
+            "feeds": 864,
+            "candidates": 36840,
+            "mean_candidates": 42.638888888888886,
+            "empty_history_fraction": 0.011574074074074073,
+            "mean_candidate_embedding_fraction": 0.999831408193266,
+            "ndcg30": 0.35250746850675985,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.35250746850675985
+          },
+          "60..99": {
+            "feeds": 736,
+            "candidates": 57752,
+            "mean_candidates": 78.46739130434783,
+            "empty_history_fraction": 0.012228260869565218,
+            "mean_candidate_embedding_fraction": 0.9997831340069356,
+            "ndcg30": 0.24850585800154582,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.24850585800154582
+          },
+          "100..199": {
+            "feeds": 880,
+            "candidates": 125892,
+            "mean_candidates": 143.0590909090909,
+            "empty_history_fraction": 0.004545454545454545,
+            "mean_candidate_embedding_fraction": 0.9998505533418872,
+            "ndcg30": 0.18386359927307513,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.18386359927307513
+          },
+          "200+": {
+            "feeds": 645,
+            "candidates": 162717,
+            "mean_candidates": 252.27441860465117,
+            "empty_history_fraction": 0.015503875968992248,
+            "mean_candidate_embedding_fraction": 0.9998097237690474,
+            "ndcg30": 0.11571381461929559,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.11571381461929559
+          }
+        },
+        "embedding_fraction": {
+          "[.5,1)": {
+            "feeds": 63,
+            "candidates": 10138,
+            "mean_candidates": 160.9206349206349,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9893330486993941,
+            "ndcg30": 0.20633087282738138,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.20633087282738138
+          },
+          "1": {
+            "feeds": 4265,
+            "candidates": 391885,
+            "mean_candidates": 91.88393903868699,
+            "empty_history_fraction": 0.01078546307151231,
+            "mean_candidate_embedding_fraction": 1.0,
+            "ndcg30": 0.31861612986699117,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.31861612986699117
+          }
+        }
+      }
+    },
+    "pseudo_private": {
+      "summary": {
+        "feeds": 10095,
+        "candidates": 987948,
+        "mean_candidates": 97.86508172362555,
+        "empty_history_fraction": 0.014660723130262506,
+        "mean_candidate_embedding_fraction": 0.9998326347038379,
+        "ndcg30": 0.30629419162265364,
+        "no_positive_feeds": 0,
+        "ndcg30_positive_feeds": 0.30629419162265364
+      },
+      "slices": {
+        "history_length": {
+          "0": {
+            "feeds": 148,
+            "candidates": 15020,
+            "mean_candidates": 101.48648648648648,
+            "empty_history_fraction": 1.0,
+            "mean_candidate_embedding_fraction": 0.9998619850422885,
+            "ndcg30": 0.31631736616077244,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.31631736616077244
+          },
+          "1..10": {
+            "feeds": 227,
+            "candidates": 21592,
+            "mean_candidates": 95.11894273127753,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9999833763433448,
+            "ndcg30": 0.352296216122082,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.352296216122082
+          },
+          "11..50": {
+            "feeds": 755,
+            "candidates": 73923,
+            "mean_candidates": 97.9112582781457,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9997654502754969,
+            "ndcg30": 0.31362166348753456,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.31362166348753456
+          },
+          "51+": {
+            "feeds": 8965,
+            "candidates": 877413,
+            "mean_candidates": 97.87094255437813,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9998339913174618,
+            "ndcg30": 0.3043468262405012,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.3043468262405012
+          }
+        },
+        "candidates": {
+          "1..29": {
+            "feeds": 2680,
+            "candidates": 42382,
+            "mean_candidates": 15.814179104477612,
+            "empty_history_fraction": 0.01082089552238806,
+            "mean_candidate_embedding_fraction": 0.9997409100185579,
+            "ndcg30": 0.5267494906209408,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.5267494906209408
+          },
+          "30..59": {
+            "feeds": 1963,
+            "candidates": 84275,
+            "mean_candidates": 42.93173713703515,
+            "empty_history_fraction": 0.015282730514518594,
+            "mean_candidate_embedding_fraction": 0.9999268802828893,
+            "ndcg30": 0.3692313408073527,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.3692313408073527
+          },
+          "60..99": {
+            "feeds": 1629,
+            "candidates": 126805,
+            "mean_candidates": 77.84223449969306,
+            "empty_history_fraction": 0.016574585635359115,
+            "mean_candidate_embedding_fraction": 0.9998397909109398,
+            "ndcg30": 0.24960611899790563,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.24960611899790563
+          },
+          "100..199": {
+            "feeds": 2135,
+            "candidates": 301378,
+            "mean_candidates": 141.16065573770493,
+            "empty_history_fraction": 0.01920374707259953,
+            "mean_candidate_embedding_fraction": 0.999838078887457,
+            "ndcg30": 0.16877094464559458,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.16877094464559458
+          },
+          "200+": {
+            "feeds": 1688,
+            "candidates": 433108,
+            "mean_candidates": 256.5805687203791,
+            "empty_history_fraction": 0.012440758293838863,
+            "mean_candidate_embedding_fraction": 0.9998548724357551,
+            "ndcg30": 0.11173920195248888,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.11173920195248888
+          }
+        },
+        "embedding_fraction": {
+          "[.5,1)": {
+            "feeds": 144,
+            "candidates": 24826,
+            "mean_candidates": 172.40277777777777,
+            "empty_history_fraction": 0.027777777777777776,
+            "mean_candidate_embedding_fraction": 0.9882669953836335,
+            "ndcg30": 0.16477324706939536,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.16477324706939536
+          },
+          "1": {
+            "feeds": 9951,
+            "candidates": 963122,
+            "mean_candidates": 96.78645362275148,
+            "empty_history_fraction": 0.01447090744648779,
+            "mean_candidate_embedding_fraction": 1.0,
+            "ndcg30": 0.3083421281130234,
+            "no_positive_feeds": 0,
+            "ndcg30_positive_feeds": 0.3083421281130234
+          }
+        }
+      }
+    },
+    "test": {
+      "summary": {
+        "feeds": 28595,
+        "candidates": 2904806,
+        "mean_candidates": 101.5844028676342,
+        "empty_history_fraction": 0.008567931456548347,
+        "mean_candidate_embedding_fraction": 0.9998508265936035
+      },
+      "slices": {
+        "history_length": {
+          "0": {
+            "feeds": 245,
+            "candidates": 25261,
+            "mean_candidates": 103.10612244897959,
+            "empty_history_fraction": 1.0,
+            "mean_candidate_embedding_fraction": 0.9998857128376863
+          },
+          "1..10": {
+            "feeds": 595,
+            "candidates": 61787,
+            "mean_candidates": 103.8436974789916,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.999916538771461
+          },
+          "11..50": {
+            "feeds": 2096,
+            "candidates": 213112,
+            "mean_candidates": 101.67557251908397,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.999769582434465
+          },
+          "51+": {
+            "feeds": 25659,
+            "candidates": 2604646,
+            "mean_candidates": 101.51003546513894,
+            "empty_history_fraction": 0.0,
+            "mean_candidate_embedding_fraction": 0.9998556062764411
+          }
+        },
+        "candidates": {
+          "1..29": {
+            "feeds": 7083,
+            "candidates": 112300,
+            "mean_candidates": 15.854863758294508,
+            "empty_history_fraction": 0.00917690244246788,
+            "mean_candidate_embedding_fraction": 0.9998525461789731
+          },
+          "30..59": {
+            "feeds": 5631,
+            "candidates": 241094,
+            "mean_candidates": 42.81548570413781,
+            "empty_history_fraction": 0.007636299058781744,
+            "mean_candidate_embedding_fraction": 0.999838986853642
+          },
+          "60..99": {
+            "feeds": 4644,
+            "candidates": 365034,
+            "mean_candidates": 78.60335917312662,
+            "empty_history_fraction": 0.009259259259259259,
+            "mean_candidate_embedding_fraction": 0.9998882205885715
+          },
+          "100..199": {
+            "feeds": 6065,
+            "candidates": 864768,
+            "mean_candidates": 142.5833470733718,
+            "empty_history_fraction": 0.007914262159934049,
+            "mean_candidate_embedding_fraction": 0.999845718551252
+          },
+          "200+": {
+            "feeds": 5172,
+            "candidates": 1321610,
+            "mean_candidates": 255.53170920340293,
+            "empty_history_fraction": 0.008894044856921888,
+            "mean_candidate_embedding_fraction": 0.9998337756107689
+          }
+        },
+        "embedding_fraction": {
+          "[.5,1)": {
+            "feeds": 436,
+            "candidates": 78600,
+            "mean_candidates": 180.27522935779817,
+            "empty_history_fraction": 0.0045871559633027525,
+            "mean_candidate_embedding_fraction": 0.9902164826699353
+          },
+          "1": {
+            "feeds": 28159,
+            "candidates": 2826206,
+            "mean_candidates": 100.3659931105508,
+            "empty_history_fraction": 0.008629567811356938,
+            "mean_candidate_embedding_fraction": 1.0
+          }
+        }
+      }
+    }
+  },
+  "folds": {
+    "0": {
+      "feeds": 3606,
+      "candidates": 334791,
+      "mean_candidates": 92.84276206322795,
+      "empty_history_fraction": 0.010260676650027731,
+      "mean_candidate_embedding_fraction": 0.9998428636766181,
+      "ndcg30": 0.315716385396363,
+      "no_positive_feeds": 0,
+      "ndcg30_positive_feeds": 0.315716385396363
+    },
+    "1": {
+      "feeds": 3606,
+      "candidates": 359445,
+      "mean_candidates": 99.67970049916805,
+      "empty_history_fraction": 0.01691625069328896,
+      "mean_candidate_embedding_fraction": 0.9997475725772708,
+      "ndcg30": 0.30075739389856093,
+      "no_positive_feeds": 0,
+      "ndcg30_positive_feeds": 0.30075739389856093
+    },
+    "2": {
+      "feeds": 3606,
+      "candidates": 346459,
+      "mean_candidates": 96.07848031059345,
+      "empty_history_fraction": 0.013033832501386578,
+      "mean_candidate_embedding_fraction": 0.9998998998174122,
+      "ndcg30": 0.31206211599977124,
+      "no_positive_feeds": 0,
+      "ndcg30_positive_feeds": 0.31206211599977124
+    },
+    "3": {
+      "feeds": 3605,
+      "candidates": 349276,
+      "mean_candidates": 96.8865464632455,
+      "empty_history_fraction": 0.013592233009708738,
+      "mean_candidate_embedding_fraction": 0.9998547233093463,
+      "ndcg30": 0.3094690887292264,
+      "no_positive_feeds": 0,
+      "ndcg30_positive_feeds": 0.3094690887292264
+    }
+  }
+}

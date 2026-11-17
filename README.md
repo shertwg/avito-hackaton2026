@@ -847,6 +847,14 @@ uv run --locked python -m scripts.run_joint_oof --train-parts 8 --folds 4 --iter
 Дополнительно сохраняются ключи вхождений кандидатов и назначение фолдов.
 `test_pred` усредняет четыре предсказания с z-score внутри каждой ленты.
 
+Описательные срезы готового OOF по длине истории, размеру ленты и покрытию
+эмбеддингами можно получить следующей командой. Для test сохраняются
+характеристики покрытия.
+
+```powershell
+uv run --locked python -m scripts.analyse_oof_slices --run runs/dima-joint-item2item-008-cv-001 --out runs/joint_item2item_oof_slices_008.json
+```
+
 ## Item2item с весами истории
 
 Группа `weighted_item2item` использует проверенный индекс `item2item-008`
