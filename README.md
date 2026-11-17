@@ -890,6 +890,17 @@ uv run --locked python -m scripts.audit_weighted_item2item_features --parent dat
 Веса и формулы пересчитываются скалярно через пересечения списков лент,
 ключи и числовые диапазоны проверяются на всех строках нового кеша.
 
+Владелец обучения может проверить группу в исходном joint OOF на 8 шардах,
+121 признак, с отдельной папкой результата:
+
+```powershell
+uv run --locked python -m scripts.run_joint_oof --train-parts 8 --folds 4 --iterations 92 --depth 6 --learning-rate 0.1 --seed 42 --threads 2 --memory-mb 512 --feature-root data/features/cosine --feature-root data/features/infeed --feature-root data/features/history --feature-root data/features/itemstats-008 --feature-root data/features/item2item-008 --feature-root data/features/weighted-item2item-008 --out runs/dima-joint-weighted-item2item-008-cv-001 --resume
+```
+
+Это новый прогон: опубликованный `dima-joint-item2item-008-cv-001` содержит
+109 признаков. Для ансамбля используются `val_pred.parquet` и
+`test_pred.parquet` нового каталога после завершения всех четырёх фолдов.
+
 ## Cosine с затуханием по истории
 
 Группа `recency_cosine` содержит четыре признака. Для исходных окон 10/50
@@ -1051,8 +1062,12 @@ seed=42, 92 итерации. `--only block-000-032` выбирает один �
 Каждый блок выдаёт OOF val и полный test с одинаковыми ключами кандидатов.
 Итоговые модели и предсказания записываются в `runs/dima-blocks-oof`.
 Перед обучением повторно проверяются кеши, входные отпечатки и аудиты.
-Оценка памяти входного квантованного пула приведена в
-[расчёте блоков](experiments/train_block_bagging_feasibility_001.json).
+Предварительная оценка входного квантованного пула для 109 признаков
+приведена в [расчёте блоков](experiments/train_block_bagging_feasibility_001.json).
+Фактический состав кешей с 121 признаком, размеры плотных Float32-матриц
+и результаты всех 12 аудитов приведены в
+[отчёте материализации](experiments/train_block_materialization_001.json).
+Квантование, нативные пулы и модели требуют дополнительной памяти.
 
 После агрегации itemstats сохраняет отсортированные lookup-массивы товаров
 и категорий. Признаки кандидатов извлекаются прямым поиском, значения
