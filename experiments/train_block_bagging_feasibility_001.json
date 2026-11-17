@@ -46,10 +46,10 @@
       "max_timestamp": 1789851648,
       "dense_float32_feature_bytes": 6673887316,
       "cv_quantized_input_bytes_estimate": [
-        1748606637,
-        1751245343,
+        1749996523,
         1749695020,
-        1749996523
+        1748606637,
+        1751245343
       ],
       "cache_coverage": {
         "cosine": {
@@ -139,10 +139,10 @@
       "max_timestamp": 1789851648,
       "dense_float32_feature_bytes": 6688464976,
       "cv_quantized_input_bytes_estimate": [
-        1752185170,
-        1754823876,
+        1753575056,
         1753273553,
-        1753575056
+        1752185170,
+        1754823876
       ],
       "cache_coverage": {
         "cosine": {
@@ -232,10 +232,10 @@
       "max_timestamp": 1789851648,
       "dense_float32_feature_bytes": 6722935572,
       "cv_quantized_input_bytes_estimate": [
-        1760647033,
-        1763285739,
+        1762036918,
         1761735416,
-        1762036918
+        1760647033,
+        1763285739
       ],
       "cache_coverage": {
         "cosine": {
@@ -284,6 +284,7 @@
     }
   ],
   "blocks_disjoint": true,
+  "feed_ids_disjoint": true,
   "memory_policy": "one model/fold active at a time; release it before loading the next block",
   "quantized_reference": {
     "rows": 4905939,
