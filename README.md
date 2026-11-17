@@ -855,6 +855,13 @@ uv run --locked python -m scripts.run_joint_oof --train-parts 8 --folds 4 --iter
 uv run --locked python -m scripts.analyse_oof_slices --run runs/dima-joint-item2item-008-cv-001 --out runs/joint_item2item_oof_slices_008.json
 ```
 
+При готовых item2item-008 и weighted-item2item-008 можно сравнить
+однофакторные сигналы разных нормировок на фиксированной Public-подвыборке.
+
+```powershell
+uv run --locked python -m scripts.analyse_item2item_normalization --out runs/item2item-normalization-diagnostics.json
+```
+
 ## Item2item с весами истории
 
 Группа `weighted_item2item` использует проверенный индекс `item2item-008`
