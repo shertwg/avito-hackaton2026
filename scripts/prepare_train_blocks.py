@@ -137,7 +137,7 @@ def prepare_blocks(prepared, raw, feature_dir, output, *, starts=(0, 32, 64), tr
         verify_cache(prepared, root, entries, exact_train=False)
         shared[name] = {'root': str(root), 'manifest_sha256': digest(root / 'manifest.json')}
     code_paths = ['src/common/train_selection.py', 'src/common/feature_cache.py', 'src/common/history.py',
-                  'src/common/itemstats.py', 'src/common/item2item.py', 'src/common/weighted_item2item.py',
+                  'src/common/itemstats.py', 'src/common/itemstats_lookup.py', 'src/common/item2item.py', 'src/common/weighted_item2item.py',
                   'src/common/similarity.py', 'src/common/infeed.py', 'scripts/feature_audit.py', 'scripts/prepare_train_blocks.py',
                   'scripts/audit_history_features.py', 'scripts/audit_itemstats_features.py',
                   'scripts/audit_item2item_features.py', 'scripts/audit_weighted_item2item_features.py']

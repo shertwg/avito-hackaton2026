@@ -1,4 +1,5 @@
 """Item/category statistics from train shards excluded from model training."""
+import ast
 import hashlib
 import json
 import math
@@ -13,6 +14,7 @@ import pyarrow.parquet as pq
 from src.common.preparation import fingerprint, write_json, write_parquet_atomic
 from src.common.resources import memory_snapshot
 from src.common.train_selection import select_parts
+from src.common import itemstats_lookup
 
 KEY = ['split', 'feed_id', 'candidate_index']
 EVENTS = tuple(range(1, 11))
@@ -46,6 +48,60 @@ def lookup_sql(entity, prior, smoothing):
             f'LEFT JOIN {entity}_exposure e USING ({key}) LEFT JOIN {entity}_history h USING ({key})')
 
 
+# Known SQL readers with the same aggregation and lookup formulas.
+LEGACY_SQL_SIGNATURE = '69f0b30975ecb9b21f51734f456c4f749a2c55870d678dad8da8baa145427568'
+LEGACY_IMPLEMENTATIONS = {
+    'b1785668cf57123ff452c42cd62321f0cf0bd5e91a5dbea4e4b199d22bd13d26': LEGACY_SQL_SIGNATURE,
+    'a0cba9b1c209649c95643e219539d17694cdfcb12408a894cf3fa86e9d4b0910': LEGACY_SQL_SIGNATURE,
+    'f4ffbbbc8dc9f97ee652f0eb3974cbf08cc36a8fa202c623e1e8de0a82ddfcc0': LEGACY_SQL_SIGNATURE,
+    '2622a241994047ba2871ce0aacb7527e6d3be2df142ace0b019279769882264a': LEGACY_SQL_SIGNATURE,
+}
+
+
+def statistics_signature():
+    tree = ast.parse(Path(__file__).read_text(encoding='utf-8'))
+    nodes = []
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id in {'KEY', 'EVENTS', 'FIELDS'} for target in node.targets):
+            nodes.append(node)
+        if isinstance(node, ast.FunctionDef) and node.name in {'feature_names', 'lookup_sql'}:
+            nodes.append(node)
+    builder = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'build_features')
+    prefix = next(node for node in builder.body if isinstance(node, ast.Try)).body
+    for node in prefix:
+        if isinstance(node, ast.Assign) and any(isinstance(target, ast.Subscript) and isinstance(target.slice, ast.Constant)
+                and target.slice.value == 'statistics_fingerprint' for target in node.targets):
+            break
+        nodes.append(node)
+    return hashlib.sha256(ast.dump(ast.Module(body=nodes, type_ignores=[]), include_attributes=False).encode()).hexdigest()
+
+
+def complete_cache_valid(manifest, prepared, output, outputs):
+    if not manifest.get('complete'):
+        return False
+    for relative, stamp in manifest['identity']['input_fingerprints'].items():
+        if fingerprint(prepared / relative) != stamp:
+            raise ValueError('itemstats input changed')
+    if fingerprint(output / '_statistics.duckdb') != manifest['statistics_fingerprint']:
+        raise ValueError('itemstats statistics database changed')
+    for name, stamp in manifest.get('artifacts', {}).items():
+        if not (output / name).exists() or fingerprint(output / name) != stamp:
+            return False
+    for split, entries in outputs.items():
+        saved = manifest['splits'].get(split, {}).get('parts', {})
+        if set(saved) != {entry['source'] for entry in entries}:
+            return False
+        for entry in entries:
+            part = saved[entry['source']]
+            path = output / part['path']
+            if (not path.exists() or part['rows'] != entry['candidates']
+                    or part['source'] != fingerprint(prepared / entry['candidate_path'])
+                    or part['fingerprint'] != fingerprint(path)
+                    or pq.read_metadata(path).num_rows != entry['candidates']):
+                return False
+    return True
+
+
 def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=1024, threads=2, resume=False,
                    train_start=None):
     prepared,output = Path(prepared).resolve(),Path(output).resolve()
@@ -72,6 +128,8 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
                 'smoothing':smoothing,'input_fingerprints':inputs}
     if train_start is not None:
         identity['train_start'] = train_start
+    identity['statistics_value_signature'] = statistics_signature()
+    identity['lookup_implementation_sha256'] = hashlib.sha256(Path(itemstats_lookup.__file__).read_bytes()).hexdigest()
     previous = {}
     manifest_path = output/'manifest.json'
     if not manifest_path.exists() and (output/'_statistics.duckdb').exists():
@@ -80,19 +138,33 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
         if not resume:
             raise FileExistsError('itemstats output exists; use --resume')
         previous = json.loads(manifest_path.read_text(encoding='utf-8'))
-        if previous.get('identity') != identity:
+        old_identity = previous.get('identity', {})
+        legacy_identity = {key: value for key, value in identity.items() if key not in ('statistics_value_signature', 'lookup_implementation_sha256')}
+        legacy_identity['implementation_sha256'] = old_identity.get('implementation_sha256')
+        compatible_legacy = (LEGACY_IMPLEMENTATIONS.get(old_identity.get('implementation_sha256')) == identity['statistics_value_signature']
+                             and old_identity == legacy_identity)
+        if old_identity != identity and not compatible_legacy:
             raise ValueError('itemstats sources or configuration changed; choose a new output directory')
+        if previous.get('features') != feature_names() or previous.get('key') != KEY:
+            raise ValueError('itemstats feature contract changed')
+        if complete_cache_valid(previous, prepared, output, outputs):
+            return previous
     manifest = {'format_version':1,'feature_group':'itemstats','complete':False,'key':KEY,
                 'features':feature_names(),'identity':identity,'excluded_train_sources':sorted(excluded),
                 'target_policy':'train donor shards disjoint from model training; val/test targets unused',
                 'history_policy':'event occurrences in donor histories, including repeated events',
                 'resources_config':{'memory_mb':memory_mb,'threads':threads},
                 'splits':previous.get('splits',{}),'tables':previous.get('tables',{})}
+    previous_producers = previous.get('compatible_producer_implementations', [])
+    if previous:
+        previous_producers = [*previous_producers, previous['identity']['implementation_sha256']]
+    manifest['compatible_producer_implementations'] = sorted(set([*previous_producers, identity['implementation_sha256']]))
     started = time.monotonic()
     output.mkdir(parents=True,exist_ok=True)
     connection = duckdb.connect(str(output/'_statistics.duckdb'),config={
         'memory_limit':f'{memory_mb}MB','threads':str(threads),
         'temp_directory':str(output/'_spill'),'preserve_insertion_order':'false'})
+    reader = None
     try:
         write_json(manifest_path,manifest)
         connection.from_parquet([str(prepared/entry['candidate_path']) for entry in donors]).create_view('donors',replace=True)
@@ -139,6 +211,15 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
                         f'FROM history_events {subset} GROUP BY {key}')
             materialize(f'{entity}_lookup',lookup_sql(entity,prior,smoothing))
         manifest['statistics_fingerprint'] = fingerprint(output/'_statistics.duckdb')
+        saved_artifacts = previous.get('artifacts', {})
+        manifest['artifacts'] = {}
+        for entity in ('item', 'category'):
+            paths = itemstats_lookup.lookup_paths(output, entity)
+            if not all(path.exists() and saved_artifacts.get(path.name) == fingerprint(path) for path in paths):
+                itemstats_lookup.export_lookup(connection, output, entity, FIELDS)
+            manifest['artifacts'].update({path.name: fingerprint(path) for path in paths})
+            write_json(manifest_path, manifest)
+        reader = itemstats_lookup.LookupReader(output, FIELDS)
         for split,entries in outputs.items():
             previous_parts = previous.get('splits',{}).get(split,{}).get('parts',{})
             def reusable(entry):
@@ -156,20 +237,18 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
                 reuse = reusable(entry)
                 if not reuse:
                     candidates = pl.read_parquet(prepared/entry['candidate_path'],columns=[*KEY,'item_id','category_id'])
-                    connection.register('batch',candidates.to_arrow())
-                    query = ('SELECT b.split,b.feed_id,b.candidate_index,b.item_id,'
-                             + ','.join(feature_names())
-                             + ' FROM batch b LEFT JOIN item_lookup USING (item_id) '
-                             'LEFT JOIN category_lookup USING (category_id) ORDER BY b.feed_id,b.candidate_index')
-                    features = pl.from_arrow(connection.execute(query).fetch_arrow_table())
-                    connection.unregister('batch')
+                    features = reader.build_part(candidates, feature_names())
                     validate_features(features,entry['candidates'])
                     if not features.select(*KEY,'item_id').equals(candidates.sort('feed_id','candidate_index').select(*KEY,'item_id')):
                         raise ValueError('itemstats candidate keys changed')
                     write_parquet_atomic(features,path)
+                producer = identity['implementation_sha256']
+                if reuse:
+                    producer = old.get('producer_implementation_sha256', previous.get('identity', {}).get('implementation_sha256'))
                 saved[entry['source']] = {'path':path.relative_to(output).as_posix(),'rows':entry['candidates'],
                     'source':stamp,'fingerprint':fingerprint(path),
-                    'duration_seconds':old.get('duration_seconds',0.) if reuse else round(time.monotonic()-part_started,3)}
+                    'duration_seconds':old.get('duration_seconds',0.) if reuse else round(time.monotonic()-part_started,3),
+                    'producer_implementation_sha256':producer}
                 manifest['splits'][split] = {'parts':saved,'covered_parts':len(saved),
                                              'total_parts':len(source['splits'][split]['parts'])}
                 manifest['stage'] = f'features_{split}'
@@ -185,6 +264,8 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
         write_json(manifest_path,manifest)
         return manifest
     finally:
+        if reader is not None:
+            reader.close()
         connection.close()
 
 

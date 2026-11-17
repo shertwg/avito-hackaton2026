@@ -42,6 +42,9 @@ def audit(prepared,cache,output,*,samples_per_part=3):
     for relative,stamp in identity['input_fingerprints'].items():
         if fingerprint(prepared/relative)!=stamp:
             raise ValueError('itemstats source changed')
+    for name,stamp in manifest.get('artifacts',{}).items():
+        if fingerprint(cache/name)!=stamp:
+            raise ValueError('itemstats lookup artifact changed')
     report={'complete':False,'scope':'all cache rows: keys, schema, finite values, source identities and donor exclusion; independent sampled lookup values from all donor shards',
             'manifest_sha256':hashlib.sha256(manifest_bytes).hexdigest(),'donor_parts':len(donors),
             'excluded_train_parts':len(excluded),'samples_per_part':samples_per_part,

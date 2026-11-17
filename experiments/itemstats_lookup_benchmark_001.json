@@ -1,0 +1,43 @@
+{
+  "complete": true,
+  "started_unix": 1794947612.2655208,
+  "bitwise_equal_rows": 19601858,
+  "features": 32,
+  "sample_materialization_times": [
+    {
+      "split": "train",
+      "rows": 476301,
+      "array_seconds": 3.453,
+      "sql_seconds": 4.438
+    },
+    {
+      "split": "val",
+      "rows": 18461,
+      "array_seconds": 0.156,
+      "sql_seconds": 1.64
+    },
+    {
+      "split": "test",
+      "rows": 40601,
+      "array_seconds": 0.203,
+      "sql_seconds": 1.907
+    }
+  ],
+  "prepared_manifest_sha256": "c41fee4a3d34330e40afbbe660b27ed959f6d56028c002c6cb837cf8deae9874",
+  "cache_manifest_sha256": "841a61e40801de838464b662677a9dca1b62b0c54a66a7a7ba79025e921a69f7",
+  "sql_producer_sha256": "f4ffbbbc8dc9f97ee652f0eb3974cbf08cc36a8fa202c623e1e8de0a82ddfcc0",
+  "statistics_value_signature": "69f0b30975ecb9b21f51734f456c4f749a2c55870d678dad8da8baa145427568",
+  "lookup_reader_sha256": "3f2a45a1f1a6c15c1d0c0945fdc13af9fd12eb40f3d0c43f8ac8b587a402ab3f",
+  "benchmark_sha256": "e50da5b47b7eb1b5151afefcf735ca2d9d7fd67df7b4056fde8d28da09e29189",
+  "memory_mb": 1536,
+  "lookup_export_seconds": 23.594,
+  "database_unchanged": true,
+  "memory": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 6056804352,
+    "working_set_bytes": 189534208,
+    "peak_working_set_bytes": 2007293952
+  },
+  "elapsed_seconds": 173.927,
+  "scope": "all SQL cache rows compared bitwise. Single sample timings exclude cache IO and writes. Memory peak covers the whole benchmark process"
+}

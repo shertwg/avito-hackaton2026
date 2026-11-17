@@ -115,6 +115,11 @@ class ItemstatsTests(unittest.TestCase):
         manifest=build_features(self.prepared,self.root/'features',train_parts=2,memory_mb=256,threads=1,resume=True)
         self.assertTrue(manifest['complete'])
         before={p:p.stat().st_mtime_ns for p in (self.root/'features').glob('*/*.parquet')}
+        saved_bytes=(self.root/'features/manifest.json').read_bytes()
+        build_features(self.prepared,self.root/'features',train_parts=2,memory_mb=256,threads=1,resume=True)
+        self.assertEqual((self.root/'features/manifest.json').read_bytes(),saved_bytes)
+        manifest['complete']=False
+        write_json(self.root/'features/manifest.json',manifest)
         def interrupt_features(path,value):
             write_json(path,value)
             if value.get('stage')=='features_train':
@@ -127,6 +132,57 @@ class ItemstatsTests(unittest.TestCase):
         self.assertEqual(saved['splits']['val']['covered_parts'],1)
         build_features(self.prepared,self.root/'features',train_parts=2,memory_mb=256,threads=1,resume=True)
         self.assertEqual(before,{p:p.stat().st_mtime_ns for p in before})
+
+
+    def test_array_lookup_sql_equivalence_and_legacy_resume(self):
+        import duckdb
+        from src.common.itemstats import LEGACY_IMPLEMENTATIONS
+        output = self.root / 'features'
+        manifest = self.build('features')
+        source = json.loads((self.prepared / 'manifest.json').read_text())
+        connection = duckdb.connect(str(output / '_statistics.duckdb'), read_only=True)
+        try:
+            for split, info in manifest['splits'].items():
+                entries = {entry['source']: entry for entry in source['splits'][split]['parts']}
+                for name, part in info['parts'].items():
+                    candidates = pl.read_parquet(self.prepared / entries[name]['candidate_path'])
+                    connection.register('batch', candidates.to_arrow())
+                    query = ('SELECT b.split,b.feed_id,b.candidate_index,b.item_id,' + ','.join(feature_names())
+                             + ' FROM batch b LEFT JOIN item_lookup USING(item_id) LEFT JOIN category_lookup USING(category_id)'
+                             + ' ORDER BY b.feed_id,b.candidate_index')
+                    sql = pl.from_arrow(connection.execute(query).fetch_arrow_table())
+                    actual = pl.read_parquet(output / part['path'])
+                    self.assertTrue(actual.select('split','feed_id','candidate_index','item_id').equals(
+                        sql.select('split','feed_id','candidate_index','item_id')))
+                    np.testing.assert_array_equal(actual.select(feature_names()).to_numpy().view(np.uint32),
+                                                  sql.select(feature_names()).to_numpy().view(np.uint32))
+        finally:
+            connection.close()
+        self.assertEqual(len(manifest['artifacts']), 4)
+        legacy_hash = next(iter(LEGACY_IMPLEMENTATIONS))
+        manifest['identity']['implementation_sha256'] = legacy_hash
+        for key in ('statistics_value_signature', 'lookup_implementation_sha256'):
+            manifest['identity'].pop(key)
+        manifest.pop('compatible_producer_implementations')
+        manifest.pop('artifacts')
+        for info in manifest['splits'].values():
+            for part in info['parts'].values():
+                part.pop('producer_implementation_sha256')
+        write_json(output / 'manifest.json', manifest)
+        saved = (output / 'manifest.json').read_bytes()
+        build_features(self.prepared, output, train_parts=2, memory_mb=256, threads=1, resume=True)
+        self.assertEqual((output / 'manifest.json').read_bytes(), saved)
+        manifest['complete'] = False
+        missing = output / 'train/part-00000.parquet'
+        missing.unlink()
+        write_json(output / 'manifest.json', manifest)
+        repaired = build_features(self.prepared, output, train_parts=2, memory_mb=256, threads=1, resume=True)
+        current_hash = repaired['identity']['implementation_sha256']
+        self.assertIn(legacy_hash, repaired['compatible_producer_implementations'])
+        self.assertIn(current_hash, repaired['compatible_producer_implementations'])
+        self.assertEqual(repaired['splits']['train']['parts']['part-00000.parquet']['producer_implementation_sha256'], current_hash)
+        self.assertEqual(repaired['splits']['train']['parts']['part-00003.parquet']['producer_implementation_sha256'], legacy_hash)
+        self.assertTrue(audit(self.prepared, output, self.root/'repaired-audit.json')['complete'])
 
 
 if __name__=='__main__':
