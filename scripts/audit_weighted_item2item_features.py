@@ -21,6 +21,7 @@ def audit(prepared, cache, parent, parent_audit, output):
         raise ValueError('matching independent parent item2item audit required')
     source = json.loads((cache / 'manifest.json').read_text())
     train_parts = len(source['excluded_train_sources'])
+    train_start = source['identity'].get('train_start')
     with ItemHistoryIndex(parent) as index:
         postings = {}
 
@@ -54,7 +55,7 @@ def audit(prepared, cache, parent, parent_audit, output):
         report = audit_cache(prepared, cache, output, group='weighted_item2item', names=feature_names(),
             domains=domains(), producer=__file__, reference=reference,
             feed_columns=['history__item_id', 'history__event_type'],
-            verify_extra=lambda: dependency_identity(prepared, parent, train_parts))
+            verify_extra=lambda: dependency_identity(prepared, parent, train_parts, train_start))
     report.update(parent_audit_sha256=hashlib.sha256(Path(parent_audit).read_bytes()).hexdigest(),
         parent_manifest_sha256=evidence['manifest_sha256'],
         reference_policy='scalar event/position weighting and posting-set intersections on the independently audited parent index')

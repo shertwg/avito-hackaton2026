@@ -954,3 +954,63 @@ uv run --locked python -m scripts.audit_bayesian_ctr_features --cache data/featu
 ключи и timestamps. Суммы по окнам и присоединение lookup выполняются по
 одному дню запросов. Это ограничивает объём одновременно агрегируемых
 ключей. Дневные счётчики доноров переиспользуются для всех дат.
+
+## Бэггинг на непересекающихся train-блоках
+
+`--train-start` задаёт начальную позицию в списке train-шардов manifest,
+нумерация начинается с нуля. Вместе с `--train-parts 32` значения 0, 32, 64
+выбирают блоки 0..31, 32..63, 64..95. При отсутствии `--train-start`
+сохраняется выбор linspace. Каждый из этих блоков охватывает временной
+диапазон train. Непересечение источников и feed_id проверяется отдельно.
+
+Параметр поддерживается сборщиками cosine, infeed, history, itemstats,
+item2item, weighted item2item и дисковым OOF-раннером. Для каждого блока
+донорские статистики и индекс используют остальные 480 train-шардов.
+Кеши разных блоков размещаются в отдельных каталогах. Cosine и infeed
+могут использовать общий кеш с покрытием всех выбранных блоков.
+
+Общий раннер `python -m src.gbdt.run_exp` также принимает `--train-start`
+вместе с `--prepared` для CatBoost и LightGBM. Он загружает выбранный блок
+в память. Дисковый `scripts.run_joint_oof` готовит обучающие пулы по файлам.
+
+Если общего cosine/infeed на первые 96 шардов ещё нет, его можно собрать
+следующими командами. Эмбеддинг-каталог и prepared предварительно создаются
+через `scripts.reproduce_data`.
+
+```powershell
+uv run --locked python -m scripts.build_similarity_features --train-start 0 --train-parts 96 --out data/features/cosine-blocks-096 --prefetch-parts 2 --resume
+uv run --locked python -m scripts.build_infeed_features --train-start 0 --train-parts 96 --out data/features/infeed-blocks-096 --resume
+```
+
+Далее выполняется предварительная проверка покрытия и конфигурации.
+В примере используются указанные выше общие кеши. Для уже полного кеша
+можно передать `data/features/cosine` и `data/features/infeed`.
+
+```powershell
+uv run --locked python -m scripts.prepare_train_blocks --cosine data/features/cosine-blocks-096 --infeed data/features/infeed-blocks-096 --out runs/train-blocks-prepare-001 --starts 0 32 64 --train-parts 32 --weighted-item2item --plan-only
+uv run --locked python -m scripts.prepare_train_blocks --cosine data/features/cosine-blocks-096 --infeed data/features/infeed-blocks-096 --out runs/train-blocks-prepare-001 --starts 0 32 64 --train-parts 32 --weighted-item2item --resume
+```
+
+Подготовка последовательно строит history, itemstats, item2item и
+weighted item2item, выполняет независимые аудиты и проверяет загрузку
+реального train/val/test-файла для каждого блока. Конфигурация содержит
+121 признак, при отключении `--weighted-item2item` — 109. Прогресс,
+аудиты и OOF-команды сохраняются в `runs/train-blocks-prepare-001`.
+`--resume` переиспользует проверенные этапы. Повторная проверка полностью
+готового плана сохраняет его содержимое и SHA-256.
+
+Для владельца обучения доступна последовательная команда OOF.
+
+```powershell
+uv run --locked python -m scripts.run_train_blocks_oof --plan runs/train-blocks-prepare-001/run.json
+```
+
+Три блока и четыре фолда дают 12 моделей. Блоки обучаются в отдельных
+последовательных процессах, память процесса освобождается перед следующим
+блоком. Параметры по умолчанию соответствуют joint-008, depth=6, lr=0.1,
+seed=42, 92 итерации. `--only block-000-032` выбирает один готовый блок.
+Каждый блок выдаёт OOF val и полный test с одинаковыми ключами кандидатов.
+Итоговые модели и предсказания записываются в `runs/dima-blocks-oof`.
+Перед обучением повторно проверяются кеши, входные отпечатки и аудиты.
+Оценка памяти входного квантованного пула приведена в
+[расчёте блоков](experiments/train_block_bagging_feasibility_001.json).

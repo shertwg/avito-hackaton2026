@@ -22,7 +22,8 @@ from src.common.preparation import fingerprint, write_json, write_parquet_atomic
 from src.common.resources import memory_snapshot
 from src.common.scores import feed_zscore
 from src.common.similarity import attach_features
-from src.gbdt.prepared import BASE, select_train_parts
+from src.gbdt.prepared import BASE
+from src.common.train_selection import select_parts
 
 
 def digest(path):
@@ -61,7 +62,7 @@ def export_training(flat_paths, assignments, held_fold, features, target, *, mem
 
 def run(prepared, raw, output, roots, *, train_parts=8, folds=4, iterations=92, depth=6,
         learning_rate=.1, seed=42, threads=2, memory_mb=512, resume=False,
-        reference=Path('competition/baseline/calculate_metrics.py')):
+        reference=Path('competition/baseline/calculate_metrics.py'), train_start=None):
     prepared, raw, output = [Path(p).resolve() for p in (prepared, raw, output)]
     roots = [Path(p).resolve() for p in roots]
     if any(output == path or output in path.parents or path in output.parents for path in (prepared, raw, *roots)):
@@ -72,7 +73,7 @@ def run(prepared, raw, output, roots, *, train_parts=8, folds=4, iterations=92, 
     source = json.loads((prepared / 'manifest.json').read_text(encoding='utf-8'))
     if not source.get('complete'):
         raise ValueError('prepared data incomplete')
-    selected = select_train_parts(prepared, train_parts)
+    selected = select_parts(source, train_parts, train_start)
     entries = {'train': selected, 'val': source['splits']['val']['parts'], 'test': source['splits']['test']['parts']}
     features, groups, inputs = list(BASE), [], {}
     for root in roots:
@@ -86,6 +87,8 @@ def run(prepared, raw, output, roots, *, train_parts=8, folds=4, iterations=92, 
         inputs[str(root / 'manifest.json')] = fingerprint(root / 'manifest.json')
         for split, parts in entries.items():
             for part in parts:
+                if part['source'] not in manifest['splits'].get(split, {}).get('parts', {}):
+                    raise ValueError(f'feature group does not cover requested {split} shard: {part["source"]}')
                 cached = manifest['splits'][split]['parts'][part['source']]
                 path = root / cached['path']
                 if fingerprint(path) != cached['fingerprint']:
@@ -104,6 +107,9 @@ def run(prepared, raw, output, roots, *, train_parts=8, folds=4, iterations=92, 
                 'reference_sha256': digest(reference), 'sample_submission': fingerprint(raw / 'sample_submission.parquet'),
                 'code_sha256': {name: digest(name) for name in ('scripts/run_baseline_check.py', 'src/common/cv.py',
                     'src/common/metric.py', 'src/common/scores.py', 'src/common/similarity.py', 'src/gbdt/prepared.py')}}
+    if train_start is not None:
+        identity['train_start'] = train_start
+        identity['train_selection_sha256'] = digest('src/common/train_selection.py')
     metadata = {}
     for split in ('train', 'val'):
         metadata[split] = pl.concat([pl.read_parquet(prepared / p['candidate_path'],
@@ -122,7 +128,13 @@ def run(prepared, raw, output, roots, *, train_parts=8, folds=4, iterations=92, 
         report_path = output / 'run.json'
         if report_path.exists():
             report = json.loads(report_path.read_text(encoding='utf-8'))
-            if not resume or report['identity'] != identity:
+            expected = dict(identity)
+            # A completed run only returns its recorded outputs. Keep its original
+            # code provenance when all data inputs and model parameters match.
+            if report.get('complete'):
+                expected['implementation_sha256'] = report['identity']['implementation_sha256']
+                expected['code_sha256'] = report['identity']['code_sha256']
+            if not resume or report['identity'] != expected:
                 raise ValueError('existing OOF run requires matching identity and --resume')
             if report.get('complete'):
                 for name, stamp in report['outputs'].items():
@@ -272,6 +284,7 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--feature-root', type=Path, action='append', required=True)
     parser.add_argument('--train-parts', type=int, default=8)
+    parser.add_argument('--train-start', type=int, help='zero-based manifest index of a contiguous training block')
     parser.add_argument('--folds', type=int, default=4)
     parser.add_argument('--iterations', type=int, default=92)
     parser.add_argument('--depth', type=int, default=6)
@@ -283,7 +296,7 @@ def main():
     args = parser.parse_args()
     run(args.prepared, args.raw, args.out, args.feature_root, train_parts=args.train_parts,
         folds=args.folds, iterations=args.iterations, depth=args.depth, learning_rate=args.learning_rate,
-        seed=args.seed, threads=args.threads, memory_mb=args.memory_mb, resume=args.resume)
+        seed=args.seed, threads=args.threads, memory_mb=args.memory_mb, resume=args.resume, train_start=args.train_start)
 
 
 if __name__ == '__main__':

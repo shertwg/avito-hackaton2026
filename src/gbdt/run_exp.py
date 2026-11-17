@@ -42,6 +42,7 @@ def get_args(argv=None) -> argparse.Namespace:
     ap.add_argument("--feature-root", action="append", default=[],
                     help="группа признаков Димы (data/features/cosine, data/features/infeed); можно повторять")
     ap.add_argument("--train-parts", type=int, default=1, help="сколько train-шардов брать при --prepared")
+    ap.add_argument("--train-start", type=int, help="начальная позиция непрерывного блока train-шардов при --prepared")
     ap.add_argument("--out", required=True)
     ap.add_argument("--mode", choices=["holdout", "cv", "final"], default="holdout")
     ap.add_argument("--kind", choices=["catboost", "lightgbm"], default="catboost")
@@ -67,7 +68,10 @@ def get_args(argv=None) -> argparse.Namespace:
     ap.add_argument("--no-test", action="store_true")
     ap.add_argument("--note", default="")
     ap.add_argument("--log", action="store_true", help="дописать строку в experiments/log.md (только для реальных данных)")
-    return ap.parse_args(argv)
+    args = ap.parse_args(argv)
+    if args.train_start is not None and not args.prepared:
+        ap.error('--train-start requires --prepared')
+    return args
 
 
 def load_all(a: argparse.Namespace, need_test: bool) -> tuple[dict[str, pl.DataFrame], list[str]]:
@@ -77,7 +81,8 @@ def load_all(a: argparse.Namespace, need_test: bool) -> tuple[dict[str, pl.DataF
     for s in splits:
         if a.prepared:
             from src.gbdt.prepared import load_prepared
-            df, base_feats = load_prepared(a.prepared, s, a.feature_root, a.train_parts)
+            df, base_feats = load_prepared(a.prepared, s, a.feature_root, a.train_parts,
+                                          train_start=getattr(a, 'train_start', None))
         else:
             df = load_split(a.data, s, a.max_parts, a.n_jobs, a.cache)
         df, extra_cols = attach(df, a.features_dir, a.extra, s)

@@ -9,6 +9,8 @@ if __name__ == '__main__':
     parser.add_argument('--parent', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--train-parts', type=int, default=8)
+    parser.add_argument('--train-start', type=int, help='zero-based manifest index of a contiguous training block')
     parser.add_argument('--resume', action='store_true')
     args = parser.parse_args()
-    build_features(args.prepared, args.parent, args.out, train_parts=args.train_parts, resume=args.resume)
+    build_features(args.prepared, args.parent, args.out, train_parts=args.train_parts, resume=args.resume,
+                   train_start=args.train_start)

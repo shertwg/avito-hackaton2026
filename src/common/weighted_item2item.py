@@ -25,10 +25,10 @@ def domains():
     return {name: (0, 1) for name in feature_names()}
 
 
-def dependency_identity(prepared, parent, train_parts):
+def dependency_identity(prepared, parent, train_parts, train_start=None):
     source = json.loads((Path(prepared) / 'manifest.json').read_text())
     manifest = json.loads((Path(parent) / 'manifest.json').read_text())
-    selected = {p['source'] for p in selected_parts(source, train_parts)}
+    selected = {p['source'] for p in selected_parts(source, train_parts, train_start)}
     if not manifest.get('complete') or manifest.get('feature_group') != 'item2item':
         raise ValueError('complete item2item parent required')
     if selected != set(manifest['excluded_train_sources']):
@@ -84,9 +84,9 @@ def build_feature_part(candidates, feeds, index, *, candidate_batch=64):
         pl.Series(name, values[:, i], dtype=pl.Float32) for i, name in enumerate(feature_names())])
 
 
-def build_features(prepared, parent, output, *, train_parts=8, resume=False):
+def build_features(prepared, parent, output, *, train_parts=8, resume=False, train_start=None):
     prepared, parent, output = map(Path, (prepared, parent, output))
-    extra = dependency_identity(prepared, parent, train_parts)
+    extra = dependency_identity(prepared, parent, train_parts, train_start)
     selected = set(json.loads((parent / 'manifest.json').read_text())['excluded_train_sources'])
 
     @contextmanager
@@ -102,4 +102,4 @@ def build_features(prepared, parent, output, *, train_parts=8, resume=False):
     return build_cache(prepared, output, train_parts=train_parts, group='weighted_item2item',
         names=feature_names(), domains=domains(), producer=__file__, extra=extra, build_part=build_part,
         excluded=selected, resume=resume, prepare=prepare,
-        verify_extra=lambda: dependency_identity(prepared, parent, train_parts))
+        verify_extra=lambda: dependency_identity(prepared, parent, train_parts, train_start), train_start=train_start)

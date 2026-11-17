@@ -12,6 +12,7 @@ import pyarrow.parquet as pq
 
 from src.common.preparation import fingerprint, write_json, write_parquet_atomic
 from src.common.resources import memory_snapshot
+from src.common.train_selection import select_parts
 
 KEY = ['split', 'feed_id', 'candidate_index']
 EVENTS = tuple(range(1, 11))
@@ -23,11 +24,11 @@ def feature_names():
     return [f'is_{entity}_{field}' for entity in ('item', 'category') for field in FIELDS]
 
 
-def training_sources(source, train_parts):
+def training_sources(source, train_parts, train_start=None):
     parts = source['splits']['train']['parts']
     if not 1 <= train_parts < len(parts):
         raise ValueError('itemstats requires at least one excluded donor train shard')
-    return [parts[int(index)] for index in np.linspace(0, len(parts)-1, train_parts, dtype=int)]
+    return select_parts(source, train_parts, train_start)
 
 
 def lookup_sql(entity, prior, smoothing):
@@ -45,7 +46,8 @@ def lookup_sql(entity, prior, smoothing):
             f'LEFT JOIN {entity}_exposure e USING ({key}) LEFT JOIN {entity}_history h USING ({key})')
 
 
-def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=1024, threads=2, resume=False):
+def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=1024, threads=2, resume=False,
+                   train_start=None):
     prepared,output = Path(prepared).resolve(),Path(output).resolve()
     if prepared == output or prepared in output.parents or output in prepared.parents:
         raise ValueError('itemstats output must be separate from prepared data')
@@ -55,7 +57,7 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
     source = json.loads(source_bytes)
     if not source.get('complete'):
         raise ValueError('prepared dataset incomplete')
-    selected = training_sources(source,train_parts)
+    selected = training_sources(source,train_parts,train_start)
     excluded = {entry['source'] for entry in selected}
     donors = [entry for entry in source['splits']['train']['parts'] if entry['source'] not in excluded]
     outputs = {'train':selected, **{split:source['splits'][split]['parts'] for split in ('val','test')}}
@@ -68,6 +70,8 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
                 'implementation_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 'excluded_train_sources':sorted(excluded),'donor_sources':[entry['source'] for entry in donors],
                 'smoothing':smoothing,'input_fingerprints':inputs}
+    if train_start is not None:
+        identity['train_start'] = train_start
     previous = {}
     manifest_path = output/'manifest.json'
     if not manifest_path.exists() and (output/'_statistics.duckdb').exists():

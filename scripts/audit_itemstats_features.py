@@ -34,7 +34,7 @@ def audit(prepared,cache,output,*,samples_per_part=3):
     excluded=set(manifest['excluded_train_sources'])
     donors=set(identity['donor_sources'])
     all_train={entry['source']:entry for entry in source['splits']['train']['parts']}
-    expected_excluded={entry['source'] for entry in training_sources(source,len(excluded))}
+    expected_excluded={entry['source'] for entry in training_sources(source,len(excluded),identity.get('train_start'))}
     if excluded!=expected_excluded or donors & excluded or donors|excluded!=set(all_train):
         raise ValueError('invalid donor exclusion contract')
     if manifest['features']!=feature_names() or manifest['key']!=KEY:
