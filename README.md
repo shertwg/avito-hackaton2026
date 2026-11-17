@@ -970,6 +970,30 @@ uv run --locked python -m scripts.audit_bayesian_ctr_features --cache data/featu
 одному дню запросов. Это ограничивает объём одновременно агрегируемых
 ключей. Дневные счётчики доноров переиспользуются для всех дат.
 
+## Новые группы в воспроизводимом пайплайне
+
+`scripts.reproduce_ranking` принимает `--weighted-item2item`,
+`--recency-cosine`, `--feed-context` и `--bayesian-ctr`. Каждая опция
+создаёт соответствующий кеш и подключает его к одиночному проверочному
+обучению. Например, joint с weighted item2item содержит 121 признак:
+
+```powershell
+uv run --locked python -m scripts.reproduce_ranking --train-parts 8 --infeed --history --itemstats --item2item --weighted-item2item --iterations 92 --depth 6 --seed 42 --memory-mb 1536 --resume --out runs/reproduced-joint-weighted-008
+```
+
+Для `--weighted-item2item` автоматически готовится родительский item2item,
+для `--feed-context` — itemstats и item2item. Родительские группы включаются
+в модель своими флагами `--itemstats` и `--item2item`. Это позволяет
+проверять производные признаки отдельно. Остальные параметры кешей,
+донорские исключения и правила расчёта соответствуют отдельным сборщикам.
+Все четыре новые группы остаются опциональными.
+
+На синтетическом наборе проверен полный путь от сырых файлов через все
+14 групп и 210 признаков до валидного test, повторный запуск с `--resume`
+и отдельное подключение weighted item2item + feed context с 61 признаком.
+Для 4-fold OOF используются `scripts.run_joint_oof` и подготовленные корни
+кешей; `reproduce_ranking` выполняет одиночный проверочный прогон.
+
 ## Бэггинг на непересекающихся train-блоках
 
 `--train-start` задаёт начальную позицию в списке train-шардов manifest,
