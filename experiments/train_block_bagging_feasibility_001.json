@@ -1,0 +1,301 @@
+{
+  "complete": true,
+  "prepared_manifest_sha256": "c41fee4a3d34330e40afbbe660b27ed959f6d56028c002c6cb837cf8deae9874",
+  "features_per_model": 109,
+  "blocks": [
+    {
+      "start": 0,
+      "stop_exclusive": 32,
+      "sources": [
+        "part-00000-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00001-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00002-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00003-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00004-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00005-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00006-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00007-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00008-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00009-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00010-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00011-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00012-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00013-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00014-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00015-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00016-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00017-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00018-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00019-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00020-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00021-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00022-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00023-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00024-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00025-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00026-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00027-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00028-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00029-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00030-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00031-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+      ],
+      "candidate_rows": 15307081,
+      "feeds": 196397,
+      "min_timestamp": 1788642048,
+      "max_timestamp": 1789851648,
+      "dense_float32_feature_bytes": 6673887316,
+      "cv_quantized_input_bytes_estimate": [
+        1748606637,
+        1751245343,
+        1749695020,
+        1749996523
+      ],
+      "cache_coverage": {
+        "cosine": {
+          "covered_train_shards": 32,
+          "required_train_shards": 32,
+          "complete_block_available": true,
+          "donor_exclusion_valid": null
+        },
+        "infeed": {
+          "covered_train_shards": 32,
+          "required_train_shards": 32,
+          "complete_block_available": true,
+          "donor_exclusion_valid": null
+        },
+        "history": {
+          "covered_train_shards": 2,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": null
+        },
+        "itemstats-008": {
+          "covered_train_shards": 1,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        },
+        "itemstats-032": {
+          "covered_train_shards": 2,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        },
+        "item2item-008": {
+          "covered_train_shards": 1,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        },
+        "item2item-032": {
+          "covered_train_shards": 2,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        }
+      }
+    },
+    {
+      "start": 32,
+      "stop_exclusive": 64,
+      "sources": [
+        "part-00032-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00033-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00034-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00035-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00036-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00037-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00038-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00039-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00040-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00041-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00042-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00043-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00044-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00045-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00046-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00047-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00048-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00049-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00050-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00051-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00052-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00053-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00054-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00055-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00056-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00057-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00058-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00059-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00060-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00061-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00062-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00063-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+      ],
+      "candidate_rows": 15340516,
+      "feeds": 196641,
+      "min_timestamp": 1788642048,
+      "max_timestamp": 1789851648,
+      "dense_float32_feature_bytes": 6688464976,
+      "cv_quantized_input_bytes_estimate": [
+        1752185170,
+        1754823876,
+        1753273553,
+        1753575056
+      ],
+      "cache_coverage": {
+        "cosine": {
+          "covered_train_shards": 32,
+          "required_train_shards": 32,
+          "complete_block_available": true,
+          "donor_exclusion_valid": null
+        },
+        "infeed": {
+          "covered_train_shards": 32,
+          "required_train_shards": 32,
+          "complete_block_available": true,
+          "donor_exclusion_valid": null
+        },
+        "history": {
+          "covered_train_shards": 2,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": null
+        },
+        "itemstats-008": {
+          "covered_train_shards": 0,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        },
+        "itemstats-032": {
+          "covered_train_shards": 2,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        },
+        "item2item-008": {
+          "covered_train_shards": 0,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        },
+        "item2item-032": {
+          "covered_train_shards": 2,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        }
+      }
+    },
+    {
+      "start": 64,
+      "stop_exclusive": 96,
+      "sources": [
+        "part-00064-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00065-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00066-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00067-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00068-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00069-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00070-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00071-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00072-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00073-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00074-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00075-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00076-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00077-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00078-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00079-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00080-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00081-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00082-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00083-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00084-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00085-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00086-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00087-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00088-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00089-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00090-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00091-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00092-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00093-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00094-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+        "part-00095-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+      ],
+      "candidate_rows": 15419577,
+      "feeds": 196851,
+      "min_timestamp": 1788642048,
+      "max_timestamp": 1789851648,
+      "dense_float32_feature_bytes": 6722935572,
+      "cv_quantized_input_bytes_estimate": [
+        1760647033,
+        1763285739,
+        1761735416,
+        1762036918
+      ],
+      "cache_coverage": {
+        "cosine": {
+          "covered_train_shards": 32,
+          "required_train_shards": 32,
+          "complete_block_available": true,
+          "donor_exclusion_valid": null
+        },
+        "infeed": {
+          "covered_train_shards": 32,
+          "required_train_shards": 32,
+          "complete_block_available": true,
+          "donor_exclusion_valid": null
+        },
+        "history": {
+          "covered_train_shards": 3,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": null
+        },
+        "itemstats-008": {
+          "covered_train_shards": 1,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        },
+        "itemstats-032": {
+          "covered_train_shards": 2,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        },
+        "item2item-008": {
+          "covered_train_shards": 1,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        },
+        "item2item-032": {
+          "covered_train_shards": 2,
+          "required_train_shards": 32,
+          "complete_block_available": false,
+          "donor_exclusion_valid": false
+        }
+      }
+    }
+  ],
+  "blocks_disjoint": true,
+  "memory_policy": "one model/fold active at a time; release it before loading the next block",
+  "quantized_reference": {
+    "rows": 4905939,
+    "bytes": 525080417,
+    "source": "fold-0/train.qbin of current 8-shard OOF"
+  },
+  "estimate_scope": "quantized input only, linearly extrapolated per row; model and preprocessing memory are additional",
+  "donor_options": {
+    "separate_block_exclusion": 480,
+    "shared_union_exclusion": 416
+  },
+  "required_implementation": "explicit source selection in runner and donor cache builders; current train-parts uses linspace",
+  "model_fits_for_three_blocks_four_folds": 12,
+  "ensemble_policy": "produce the same held-out val feeds and full test per block; combine using weights selected on pseudo-public"
+}
