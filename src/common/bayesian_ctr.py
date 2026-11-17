@@ -8,7 +8,7 @@ from pathlib import Path
 import duckdb
 import polars as pl
 
-from src.common.feature_cache import KEY, build_cache, selected_parts
+from src.common.feature_cache import KEY, build_cache, cache_lock, selected_parts
 from src.common.item2item import checkpoint_table
 from src.common.preparation import fingerprint, write_json
 
@@ -98,7 +98,7 @@ def ensure_lookups(prepared, output, donors, queries, days, signature, smoothing
         connection.close()
 
 
-def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=512, threads=1, resume=False):
+def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=1536, threads=1, resume=False):
     prepared, output = Path(prepared).resolve(), Path(output).resolve()
     if not math.isfinite(smoothing) or smoothing <= 0 or memory_mb < 128 or threads < 1:
         raise ValueError('invalid CTR smoothing or resource parameters')
@@ -128,9 +128,16 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
         return frame.join(lookups, on=['item_id', 'category_id', 'day'], how='left', validate='m:1').select(
             *KEY, 'item_id', *feature_names()).sort('feed_id', 'candidate_index')
 
-    return build_cache(prepared, output, train_parts=train_parts, group='bayesian_ctr', names=feature_names(), domains=domains(),
+    manifest = build_cache(prepared, output, train_parts=train_parts, group='bayesian_ctr', names=feature_names(), domains=domains(),
         producer=__file__, extra={'days': days, 'smoothing': smoothing, 'windows': list(WINDOWS),
             'cutoff_policy': 'strictly previous complete UTC days; windows anchored at min(query_day-1,last_donor_day)',
             'prior': 'global window rate -> category -> item; zero when no eligible donor observations'},
         excluded=excluded, prepare=prepare, build_part=build_part, resume=resume,
         artifacts=('_stats.json', *[f'_lookup_{day}.parquet' for day in days]))
+    with cache_lock(output):
+        current = json.loads((output / 'manifest.json').read_text())
+        if current['identity'] != manifest['identity'] or not current.get('complete'):
+            raise ValueError('CTR cache changed before target policy finalization')
+        current['target_policy'] = 'past donor train target counts; query data supplies keys and timestamps'
+        write_json(output / 'manifest.json', current)
+    return current

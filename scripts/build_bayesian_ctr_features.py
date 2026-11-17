@@ -9,7 +9,7 @@ if __name__ == '__main__':
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--train-parts', type=int, default=8)
     parser.add_argument('--smoothing', type=float, default=20.)
-    parser.add_argument('--memory-mb', type=int, default=512)
+    parser.add_argument('--memory-mb', type=int, default=1536)
     parser.add_argument('--threads', type=int, default=1)
     parser.add_argument('--resume', action='store_true')
     args = parser.parse_args()

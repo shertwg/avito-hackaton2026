@@ -45,6 +45,7 @@ class BayesianCtrTests(unittest.TestCase):
             write_json(prepared / 'manifest.json', source)
             output = root / 'features'
             build_features(prepared, output, train_parts=2, smoothing=2., memory_mb=256)
+            self.assertIn('donor train target counts', json.loads((output / 'manifest.json').read_text())['target_policy'])
             early = pl.read_parquet(output / 'train/part-00000.parquet')
             self.assertAlmostEqual(early['bc_category_ctr_all'][0], .6, places=6)
             self.assertAlmostEqual(early['bc_item_ctr_all'][0], .55, places=6)
@@ -60,6 +61,7 @@ class BayesianCtrTests(unittest.TestCase):
             self.assertEqual(len(feature_names()), 14)
             stamp = (output / 'train/part-00000.parquet').stat().st_mtime_ns
             build_features(prepared, output, train_parts=2, smoothing=2., memory_mb=256, resume=True)
+            self.assertIn('donor train target counts', json.loads((output / 'manifest.json').read_text())['target_policy'])
             self.assertEqual((output / 'train/part-00000.parquet').stat().st_mtime_ns, stamp)
             future = prepared / 'train/candidates/part-00002.parquet'
             pl.read_parquet(future).with_columns(pl.lit(1, dtype=pl.Int8).alias('target')).write_parquet(future)
