@@ -4,6 +4,7 @@ from collections import defaultdict
 import json
 import math
 from pathlib import Path
+import time
 
 import numpy as np
 import polars as pl
@@ -12,9 +13,11 @@ from scripts.feature_audit import audit_cache, sample_candidates
 from src.common.bayesian_ctr import WINDOWS, domains, feature_names
 from src.common.feature_cache import KEY
 from src.common.preparation import write_json
+from src.common.resources import memory_snapshot
 
 
 def audit(prepared, cache, output):
+    started = time.monotonic()
     prepared, cache, output = map(Path, (prepared, cache, output))
     source = json.loads((prepared / 'manifest.json').read_text())
     manifest = json.loads((cache / 'manifest.json').read_text())
@@ -23,10 +26,11 @@ def audit(prepared, cache, output):
     for split, info in manifest['splits'].items():
         for entry in source['splits'][split]['parts']:
             if entry['source'] in info['parts']:
-                candidates = pl.read_parquet(prepared / entry['candidate_path'], columns=[*KEY, 'item_id'])
+                candidates = pl.read_parquet(prepared / entry['candidate_path'], columns=[*KEY, 'item_id']).sort('feed_id', 'candidate_index')
                 items.update(sample_candidates(candidates)['item_id'].to_list())
     item_counts, category_counts, global_counts = [defaultdict(lambda: [0, 0]) for _ in range(3)]
     donors = [p for p in source['splits']['train']['parts'] if p['source'] not in excluded]
+    selected_items = list(items)
     for number, entry in enumerate(donors, 1):
         frame = pl.read_parquet(prepared / entry['candidate_path'], columns=['item_id', 'category_id', 'timestamp', 'target'])
         frame = frame.with_columns((pl.col('timestamp').cast(pl.Int64) // 86400).cast(pl.Int32).alias('day'))
@@ -36,7 +40,7 @@ def audit(prepared, cache, output):
             category_counts[category, day][1] += k
             global_counts[day][0] += n
             global_counts[day][1] += k
-        selected = frame.filter((pl.col('item_id') > 0) & pl.col('item_id').is_in(list(items)))
+        selected = frame.filter((pl.col('item_id') > 0) & pl.col('item_id').is_in(selected_items))
         selected = selected.group_by('item_id', 'category_id', 'day').agg(pl.len().alias('n'), pl.col('target').cast(pl.Int64).sum().alias('k'))
         for item, category, day, n, k in selected.iter_rows():
             item_counts[item, category, day][0] += n
@@ -81,7 +85,8 @@ def audit(prepared, cache, output):
     report = audit_cache(prepared, cache, output, group='bayesian_ctr', names=feature_names(), domains=domains(),
         reference=reference, producer=__file__, candidate_columns=['timestamp', 'category_id'])
     report.update(donor_parts=len(donors), donor_impressions=impressions, donor_clicks=clicks,
-                  independently_counted_items=len(items), reference_scope='all donor category/global rows and sampled item/day counts')
+                  independently_counted_items=len(items), reference_scope='all donor category/global rows and sampled item/day counts',
+                  sample_order='feed_id,candidate_index', duration_seconds=round(time.monotonic() - started, 2), memory=memory_snapshot())
     write_json(output, report)
     return report
 

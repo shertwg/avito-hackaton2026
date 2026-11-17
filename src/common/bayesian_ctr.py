@@ -65,7 +65,6 @@ def ensure_lookups(prepared, output, donors, queries, days, signature, smoothing
         checkpoint_table(connection, 'global_day', 'SELECT day,sum(n)::BIGINT n,sum(k)::BIGINT k FROM category_day GROUP BY day')
         last_day = connection.execute('SELECT max(day) FROM global_day').fetchone()[0]
         last_day = int(last_day) if last_day is not None else min(days) - 1
-        checkpoint_table(connection, 'item_sums', aggregate_sql('SELECT * FROM query_keys', 'item_day', ['item_id', 'category_id'], last_day))
         checkpoint_table(connection, 'category_sums', aggregate_sql('SELECT DISTINCT category_id,day FROM query_keys', 'category_day', ['category_id'], last_day))
         checkpoint_table(connection, 'global_sums', aggregate_sql('SELECT DISTINCT day FROM query_keys', 'global_day', [], last_day))
         expressions = []
@@ -82,9 +81,11 @@ def ensure_lookups(prepared, output, donors, queries, days, signature, smoothing
             path = output / name
             if path.exists() and saved['files'].get(name) == fingerprint(path):
                 continue
+            item_query = aggregate_sql(f'SELECT * FROM query_keys WHERE day={int(day)}',
+                                       'item_day', ['item_id', 'category_id'], last_day)
             relation = connection.sql(f'SELECT i.item_id,i.category_id,i.day,{",".join(expressions)} '
-                'FROM item_sums i JOIN category_sums c USING(category_id,day) JOIN global_sums g USING(day) '
-                f'WHERE i.day={int(day)} ORDER BY i.item_id,i.category_id')
+                f'FROM ({item_query}) i JOIN category_sums c USING(category_id,day) JOIN global_sums g USING(day) '
+                'ORDER BY i.item_id,i.category_id')
             temporary = path.with_suffix('.parquet.tmp')
             relation.write_parquet(str(temporary), compression='zstd')
             temporary.replace(path)
@@ -124,12 +125,17 @@ def build_features(prepared, output, *, train_parts=8, smoothing=20., memory_mb=
     def build_part(split, entry, state):
         frame = pl.read_parquet(prepared / entry['candidate_path'], columns=[*KEY, 'item_id', 'category_id', 'timestamp'])
         frame = frame.with_columns((pl.col('timestamp').cast(pl.Int64) // 86400).cast(pl.Int32).alias('day'))
-        lookups = pl.concat([pl.read_parquet(output / f'_lookup_{day}.parquet') for day in frame['day'].unique().to_list()])
-        return frame.join(lookups, on=['item_id', 'category_id', 'day'], how='left', validate='m:1').select(
-            *KEY, 'item_id', *feature_names()).sort('feed_id', 'candidate_index')
+        chunks = []
+        for day in frame['day'].unique().to_list():
+            lookup = pl.read_parquet(output / f'_lookup_{day}.parquet')
+            current = frame.filter(pl.col('day') == day)
+            chunks.append(current.join(lookup, on=['item_id', 'category_id', 'day'], how='left', validate='m:1').select(
+                *KEY, 'item_id', *feature_names()))
+        return pl.concat(chunks).sort('feed_id', 'candidate_index')
 
     manifest = build_cache(prepared, output, train_parts=train_parts, group='bayesian_ctr', names=feature_names(), domains=domains(),
         producer=__file__, extra={'days': days, 'smoothing': smoothing, 'windows': list(WINDOWS),
+            'aggregation': 'query-day batches',
             'cutoff_policy': 'strictly previous complete UTC days; windows anchored at min(query_day-1,last_donor_day)',
             'prior': 'global window rate -> category -> item; zero when no eligible donor observations'},
         excluded=excluded, prepare=prepare, build_part=build_part, resume=resume,

@@ -97,6 +97,19 @@ class BayesianCtrTests(unittest.TestCase):
             self.assertTrue(audit(prepared, interrupted, root / 'resumed-audit.json')['complete'])
             with self.assertRaisesRegex(ValueError, 'separate donor'):
                 build_features(prepared, root / 'no-donors', train_parts=4, smoothing=2., memory_mb=256)
+            val_entry = source['splits']['val']['parts'][0]
+            shuffled = pl.DataFrame({'split': ['val'] * 5, 'feed_id': [500, 100, 400, 200, 300],
+                'candidate_index': [0] * 5, 'item_id': [99, 12, 98, 96, 97], 'category_id': [1] * 5,
+                'timestamp': [14 * 86400 + 3600] * 5, 'target': [0] * 5}, schema_overrides={
+                'feed_id': pl.Int32, 'candidate_index': pl.UInt32, 'item_id': pl.Int32,
+                'category_id': pl.Int8, 'timestamp': pl.Int32, 'target': pl.Int8})
+            shuffled.write_parquet(prepared / val_entry['candidate_path'])
+            shuffled.select('feed_id', 'timestamp').write_parquet(prepared / val_entry['feed_path'])
+            val_entry['candidates'] = shuffled.height
+            write_json(prepared / 'manifest.json', source)
+            ordered_audit = root / 'ordered-audit'
+            build_features(prepared, ordered_audit, train_parts=2, smoothing=2., memory_mb=256)
+            self.assertTrue(audit(prepared, ordered_audit, root / 'ordered-audit.json')['complete'])
 
 
 if __name__ == '__main__':
