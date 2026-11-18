@@ -663,3 +663,13 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s1 (bin63, lr=0.05, seed=1, запущен) | - | - | task-2684 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s5 (bin63, lr=0.05, seed=5, запущен) | - | - | task-2686 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0-i3000 (bin63, s0, 3000 iters, запущен) | - | - | task-2666 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s1 (bin63, lr=0.05, s1) | priv: 0.3654/-/0.3045 | - | pub@30=0.3186; gap=0.0141; blend=0.3250 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s2 (bin63, lr=0.05, s2) | priv: 0.3635/-/0.3026 | - | pub@30=0.3146; gap=0.0120; blend TBD |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s3 (bin63, lr=0.05, s3) | priv: 0.3642/-/0.3043 | - | pub@30=0.3172; gap=0.0129; blend=0.3234 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s4 (bin63, lr=0.05, s4) | priv: 0.3666/-/0.3064 | - | pub@30=0.3155; gap=0.0091; skip blend |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s5 (bin63, lr=0.05, s5) | priv: 0.3654/-/0.3056 | - | pub@30=0.3143; gap=0.0087; blend=0.3228 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s6 (bin63, lr=0.05, s6) | priv: 0.3651/-/0.3046 | - | pub@30=0.3143; gap=0.0097; skip blend |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr01-s0 (bin63, lr=0.1, s0) | priv: 0.3587/-/0.2971 | - | pub@30=0.3068; gap=0.0097; слишком большой lr — модель шумная |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0-i3000 (bin63, s0, 3000 iters) | priv: 0.3665/-/0.3063 | - | pub@30=0.3200; blend=0.3226 — переобучилась, потеряла magic |
+| 2026-11-18 | danya | - | Итог lr sweep: lr=0.05 оптимален; s0 magic (gap=0.0154); gap коррелирует с blend |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin31-lr005-s0 (bin31, lr=0.05, s0, запущен) | - | - | task-2738 |
