@@ -590,3 +590,15 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-18 | danya | - | blend-oof-v18-yeti-seeds: v15-пул с yeti-seeds вместо yeti-cv | priv: -/-/0.3106 | - | out=runs/blend-oof-v18-yeti-seeds; pub@30=0.3226; хуже v15 |
 | 2026-11-18 | danya | - | blend-oof-v18-lgbfi-seeds: v15-пул с lgbfi-seeds вместо lgbfi | priv: -/-/0.3101 | - | out=runs/blend-oof-v18-lgbfi-seeds; pub@30=0.3237; NEW BEST! lgbfi-seeds 0.2857 + nn-oof4 0.2857; validator OK; test_pred на Desktop |
 | 2026-11-18 | danya | - | blend-oof-v18-all-seeds: lgbfi-seeds + yeti-seeds оба заменены | priv: -/-/0.3097 | - | out=runs/blend-oof-v18-all-seeds; pub@30=0.3234; хуже v18-lgbfi-seeds |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s2 (seed=2, 152 feats, 8 parts, CPU LGB, 2000 iters) | priv: 0.3675/-/0.3073 | - | out=runs/lgb8-all-fi-opt2-cv-s2; pub_full=0.3766 pub@30=0.3206; best individual lgb-fi! |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds-s0s2: seed mean s0+s2 | priv: -/-/0.3087 | - | mean 0.3209, weights 0.3211 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds3: seed mean s0+s1+s2 | priv: -/-/0.3088 | - | mean 0.3215, weights 0.3217 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s3 (seed=3, 152 feats, 8 parts, GPU) | priv: 0.3669/-/0.3069 | - | pub_full=0.3756 pub@30=0.3194 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds-s0s3: mean s0+s3 | priv: -/-/0.3073 | - | mean 0.3196 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds-s0s1s3: mean s0+s1+s3 | priv: -/-/0.3077 | - | mean 0.3192, weights 0.3196; s3 вес 0.059 — мало |
+| 2026-11-18 | danya | - | blend-oof-v19-* (cb8 seeds варианты, s2extra, s3extra) | - | - | все 0.3224-0.3227, хуже v18 |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-seeds3: seeds3 (s0+s1+s2) вместо seeds | priv: -/-/0.3107 | - | pub@30=0.3220, хуже v18 |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s0s2: seeds s0+s2 вместо s0+s1 | priv: -/-/0.3102 | - | pub@30=0.3224, хуже v18 |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2only: lgb-fi-s2 alone (не mean) | priv: -/-/0.3106 | - | out=runs/blend-oof-v20-lgbfi-s2only; pub@30=0.3243; NEW BEST! lgbfi-s2 0.296 + nn-oof4 0.296; validator OK; test_pred на Desktop |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2plus-seeds: s2 + seeds оба в пуле (11 моделей) | priv: -/-/0.3110 | - | pub@30=0.3237, хуже v20 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s3 (seed=3, CPU LGB, запущен) | - | - | task-2190 |
