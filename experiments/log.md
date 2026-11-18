@@ -657,3 +657,9 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | 2026-11-18 | danya | - | Итог: max_bin sweep seed=0: bin63=0.3252 > bin31=0.3248 > bin127=0.3232 | - | - | bin63 — оптимум; seed=0 магический для coarse-bin |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s6 (запущен, CPU) | - | - | task-2646 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s0 (bin63, lr=0.05, seed=0, CPU) | - | - | task-2648 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s0 (bin63, lr=0.05, seed=0) | priv: 0.3631/-/0.3024 | - | pub@30=0.3178; ВНИМАНИЕ: большой pub-priv gap 0.0154 |
+| 2026-11-18 | danya | - | blend-oof-v29-bin63-lr005-s0: bin63-lr005-s0 вместо bin63-s0 | priv: -/-/0.3106 | - | pub@30=0.3266 NEW BEST! вес 0.302 — необычный паттерн; validator OK; test_pred на Desktop |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s6 (bin63, seed=6) | priv: 0.3684/-/0.3085 | - | pub@30=0.3201; blend s6=0.3227 (normal) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s1 (bin63, lr=0.05, seed=1, запущен) | - | - | task-2684 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s5 (bin63, lr=0.05, seed=5, запущен) | - | - | task-2686 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0-i3000 (bin63, s0, 3000 iters, запущен) | - | - | task-2666 |
