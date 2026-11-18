@@ -641,3 +641,7 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | 2026-11-18 | danya | - | Итог seeds s0-s15: magic={s2,s3,s5,s12,s13} blend 0.3243-0.3249; normal прочие 0.3219-0.3233 | - | - | s5=0.3249 остаётся лучшим; depth=6 не помогает |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-reg-s0 (lambda_l2=1, min_leaf=50, запущен) | - | - | task-2542; исследование регуляризации |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0 (max_bin=63, запущен) | - | - | task-2544; грубая дискретизация |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0 (max_bin=63, seed=0, CPU) | priv: 0.3675/-/0.3075 | - | pub@30=0.3202 |
+| 2026-11-18 | danya | - | blend-oof-v26-lgbfi-bin63-s0: bin63-s0 вместо lgb-fi-s5 | priv: -/-/0.3112 | - | pub@30=0.3252 NEW BEST! bin63 вес 0.4571 — сверхдиверсификация от nn-oof4; validator OK; test_pred на Desktop |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s5 (max_bin=63, seed=5, запущен) | - | - | task-2565 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s3 (max_bin=63, seed=3, запущен) | - | - | task-2567 |
