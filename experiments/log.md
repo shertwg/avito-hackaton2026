@@ -621,3 +621,12 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s8 (seed=8, CPU, �������) | - | - | task-2347; ETA ~40 ��� |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s9 (seed=9, CPU, ������� ��� � ��� s8) | - | - | � |
 | 2026-11-18 | danya | - | cb32-is-i2i-qsm-cv-s1 (seed=1, GPU 32sh, is+i2i feats, �������) | - | - | task-2301; ETA ~15 ��� |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s8 (seed=8, CPU) | priv: 0.3651/-/0.3047 | - | pub@30=0.3181; blend s8only=0.3228 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s9 (seed=9, CPU) | priv: 0.3657/-/0.3052 | - | pub@30=0.3175; blend s9only=0.3233 |
+| 2026-11-18 | danya | - | cb32-is-i2i-qsm-cv-s1 (seed=1, GPU 32sh) | priv: 0.3678/-/0.3073 | - | pub@30=0.3192 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s5 (seed=5, GPU 8sh) | priv: 0.3666/-/0.3064 | - | pub@30=0.3183 |
+| 2026-11-18 | danya | - | blend-oof-v24-cb8s5: cb8-s5 вместо cb8-seeds | priv: -/-/0.3111 | - | pub@30=0.3221; хуже v22; cb8-s5 вес 0.205 вытесняет lgb-fi-s5 |
+| 2026-11-18 | danya | - | blend-oof-v24-i2i-s1: i2i-s1 вместо i2i-s0 | priv: -/-/0.3102 | - | pub@30=0.3243; хуже v22; i2i-s0 original уникален |
+| 2026-11-18 | danya | - | blend-oof-v24-i2i-seeds: mean(i2i-s0+s1) вместо i2i-s0 | priv: -/-/0.3105 | - | pub@30=0.3235; хуже v22; confirms i2i-s0 original irreplaceable |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s10 (seed=10, CPU, запущен) | - | - | task-2463; ETA ~1h |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s11 (seed=11, CPU, запущен) | - | - | task-2465; ETA ~1h |
