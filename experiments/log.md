@@ -555,3 +555,9 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-17 | danya | - | blend weights 11 OOF (РїСѓР» v9-i2i + dima-i2i-oof4) | priv: -/-/0.3087 | - | out=runs/blend-oof-v13-v9dima-w; pub 0.3227 (mean: pub 0.3211, priv 0.3100); СѓСЃС‚СѓРїР°РµС‚ blend-oof-v9-i2i-w |
 | 2026-11-17 | danya | - | blend weights 11 OOF (РїСѓР» v9-time + dima-i2i-oof4) | priv: -/-/0.3093 | - | out=runs/blend-oof-v13-v9timedima-w; pub 0.3234 (mean: pub 0.3210, priv 0.3100); dima РІРµСЃ 0.0 |
 | 2026-11-17 | danya | - | blend mean 10 OOF (С‚РѕРї GBDT fi2/152/130 + dima-i2i-oof4 + nn-i2i-mean-oof4 + nn-time-mean-oof4) | priv: -/-/0.3096 | - | out=runs/blend-oof-v13-best-mean; pub 0.3213 (weights: pub 0.3226, priv 0.3090) |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-mean: mean 10 OOF (v9-пул, dmylo оптимизатор) | priv: -/-/0.3107 | - | out=runs/dmylo-opt-mean; pub 0.3210; validator OK |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-weights_pub: v9-пул, веса по pub | priv: -/-/0.3098 | - | out=runs/dmylo-opt-weights_pub; pub 0.3213; validator OK |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-weights_priv: v9-пул, веса по priv (?? не использовать) | priv: -/-/0.3107 | - | out=runs/dmylo-opt-weights_priv; pub 0.3216; validator OK; priv-веса — нельзя сабмитить |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-topkmean: topkmean@6 v9-пул | priv: -/-/0.3095 | - | out=runs/dmylo-opt-topkmean; pub 0.3199; хуже mean |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-union51: mean 51 модели | priv: -/-/0.3092 | - | out=runs/dmylo-opt-union51; pub 0.3204; хуже v9-mean |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, --no-test) | - | - | task-1767 запущен; task-1623 убит (завис после fold 2 на 2h+) |
