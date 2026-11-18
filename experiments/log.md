@@ -571,3 +571,6 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-18 | danya | - | blend-oof-v14c: fi-seeds + qsm-seeds | priv: -/-/0.3105 | - | out=runs/blend-oof-v14c; pub@30=0.3219; хуже v14-seeds-fi |
 | 2026-11-18 | danya | - | blend-oof-v14d: fi-seeds + qsm-seeds + qsm-s1 | priv: -/-/0.3104 | - | out=runs/blend-oof-v14d; pub@30=0.3223; хуже v14-seeds-fi |
 | 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s1 (seed=1, 152 feats, 8 parts, 306 iter) | - | - | task-1940 запущен; правильные feature-roots: itemstats-008 item2item-008 category-cooc-008 feature-ranks-008 time-008 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s1 (seed=1, 152 feats, 8 parts, 306 iter, 3 мин!) | priv: 0.3673/-/0.3068 | - | out=runs/cb8-all-fi-qsm-cv-s1; pub_full=0.3753 pub@30=0.3193 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds: seed mean s0+s1 (152 feats, 8 parts) | priv: -/-/0.3076 | - | out=runs/cb8-all-fi-qsm-cv-seeds; pub@30=0.3193 mean, 0.3194 weights; s0 вес 1.0 |
+| 2026-11-18 | danya | - | blend-oof-v15: fi-seeds + cb8-seeds (оба 152-feat seeds) | priv: -/-/0.3104 | - | out=runs/blend-oof-v15; pub@30=0.3228 (mean 0.3208); NEW BEST +0.0003 vs v14-seeds-fi; nn-oof4 вес 0.11 cb8-seeds вес 0.22; validator OK; test_pred на Desktop |
