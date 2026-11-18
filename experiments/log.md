@@ -630,3 +630,14 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | 2026-11-18 | danya | - | blend-oof-v24-i2i-seeds: mean(i2i-s0+s1) вместо i2i-s0 | priv: -/-/0.3105 | - | pub@30=0.3235; хуже v22; confirms i2i-s0 original irreplaceable |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s10 (seed=10, CPU, запущен) | - | - | task-2463; ETA ~1h |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s11 (seed=11, CPU, запущен) | - | - | task-2465; ETA ~1h |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s10 (seed=10, CPU) | priv: 0.3651/-/0.3052 | - | pub@30=0.3200; blend s10only=0.3219 (normal, нет доминации) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s11 (seed=11, CPU) | priv: 0.3642/-/0.3037 | - | pub@30=0.3170; слабый |
+| 2026-11-18 | danya | - | blend-oof-v25-lgbfi-s10: s10 вместо s5 | priv: -/-/0.3107 | - | pub@30=0.3219; normal seed — нет доминации |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s12 (seed=12) | priv: 0.3661/-/0.3059 | - | pub@30=0.3187; blend s12only=0.3243 (magic!) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s13 (seed=13) | priv: 0.3646/-/0.3044 | - | pub@30=0.3193; blend s13only=0.3245 (magic!) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s14 (seed=14) | priv: 0.3650/-/0.3049 | - | pub@30=0.3174; blend s14only=0.3228 (normal) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s15 (seed=15) | priv: 0.3659/-/0.3057 | - | pub@30=0.3162; blend TBD |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-d6 (depth=6, lr=0.01) | priv: 0.3679/-/0.3080 | - | pub@30=0.3176; blend d6=0.3228 (normal, нет магии) |
+| 2026-11-18 | danya | - | Итог seeds s0-s15: magic={s2,s3,s5,s12,s13} blend 0.3243-0.3249; normal прочие 0.3219-0.3233 | - | - | s5=0.3249 остаётся лучшим; depth=6 не помогает |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-reg-s0 (lambda_l2=1, min_leaf=50, запущен) | - | - | task-2542; исследование регуляризации |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0 (max_bin=63, запущен) | - | - | task-2544; грубая дискретизация |
