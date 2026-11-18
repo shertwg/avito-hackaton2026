@@ -561,3 +561,5 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-18 | danya | - | [Bionic] dmylo-opt-topkmean: topkmean@6 v9-пул | priv: -/-/0.3095 | - | out=runs/dmylo-opt-topkmean; pub 0.3199; хуже mean |
 | 2026-11-18 | danya | - | [Bionic] dmylo-opt-union51: mean 51 модели | priv: -/-/0.3092 | - | out=runs/dmylo-opt-union51; pub 0.3204; хуже v9-mean |
 | 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, --no-test) | - | - | task-1767 запущен; task-1623 убит (завис после fold 2 на 2h+) |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, --no-test, llama-server убит) | priv: 0.3684/0.3685/0.3080 | - | out=runs/cb32-all-fi-qsm-cv-s1; pub_full=0.3754 pub@30=0.3190; 4 фолда за 14 мин (было 2h+ из-за llama-server) |
+| 2026-11-18 | danya | - | cb32-all-qsm-cv-s2 (seed=2, 130 feats, 32 parts, 403 iter, --no-test) | priv: 0.3683/0.3685/0.3082 | - | out=runs/cb32-all-qsm-cv-s2; pub_full=0.3743 pub@30=0.3179; 4 фолда за 11 мин |
