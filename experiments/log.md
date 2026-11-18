@@ -1130,3 +1130,15 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 Для weighted-032 ненулевое точное совпадение нашли у 287 412 из
 2 904 806 тестовых кандидатов (9,89%), против 293 885 у weighted-008 (10,12%).
 [Разбивка по train, val и test для 032](weighted_item2item_coverage_032.json).
+
+## Этап 4: Weighted item2item + feed-interactions + LB 0.36426 (Даня + Дима) — 19.11.2026
+
+| дата | ветка | - | модель | pseudo-private NDCG full / idcg30 / @30 | Public | примечание |
+|---|---|---|---|---|---|---|
+| 2026-11-19 | danya | - | cb8-all-wi2i-fi-qsm (holdout, GPU) | priv: 0.3664/-/0.3064 | - | pub@30=0.3192 (+0.0027 к cb8-fi); best_iter=835; wi2i_all_mean_10 top-9 |
+| 2026-11-19 | danya | - | cb8-all-wi2i-fi-qsm-cv (seed=0, 835 iters) | priv: 0.3687/-/0.3090 | - | pub@30=0.3216 |
+| 2026-11-19 | danya | - | cb8-all-wi2i-fi-qsm-cv-s1 (seed=1, 835 iters) | priv: 0.3692/-/0.3092 | - | pub@30=0.3219 |
+| 2026-11-19 | danya | - | cb8-all-wi2i-fi-qsm-cv-seeds (s0+s1) | priv: -/-/0.3092 | - | pub@30=0.3227 (рекорд одиночной модели) |
+| 2026-11-19 | danya | - | lgb8-all-wi2i-fi-opt2-cv-bin63-lr005-s0 | priv: 0.3661/-/0.3058 | - | pub@30=0.3173 (+0.0034 priv к версии без wi2i) |
+| 2026-11-19 | danya | - | blend-oof-v33b-swap-lgbwi2i | priv: -/-/0.3128 | - | pub@30=0.3245; рекорд priv@30 |
+| 2026-11-19 | danya | - | blend-oof-v36-cb8wi2i-seeds | priv: -/-/0.3122 | **0.3642589789** | pub@30=0.3252; +0.0021 к прежнему LB 0.3622; validator OK |
