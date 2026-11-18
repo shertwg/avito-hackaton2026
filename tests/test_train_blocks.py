@@ -8,6 +8,7 @@ import numpy as np
 import polars as pl
 
 from eval.make_synthetic import make_split
+from scripts.bag_train_blocks import bag
 from scripts.prepare_train_blocks import prepare_blocks
 from scripts.reproduce_data import reproduce
 from scripts.run_joint_oof import run
@@ -108,6 +109,21 @@ class TrainBlockPipelineTests(unittest.TestCase):
             queue = run_blocks(root / 'report/run.json', only=['block-001-002'], iterations=2, depth=2, threads=1, memory_mb=256)
             self.assertTrue(queue['complete'])
             self.assertEqual(queue['requested_blocks'], ['block-001-002'])
+            with self.assertRaisesRegex(ValueError, 'all planned blocks'):
+                bag(root / 'report/run.json', root / 'bag')
+            run_blocks(root / 'report/run.json', only=['block-000-001'], iterations=2, depth=2, threads=1, memory_mb=256)
+            bagged = bag(root / 'report/run.json', root / 'bag')
+            self.assertEqual(bagged['submission_validator'], 'passed')
+            self.assertEqual(bagged['weight_per_block'], .5)
+            for split in ('val', 'test'):
+                normalized = []
+                for tag in report['blocks']:
+                    component = pl.read_parquet(root / 'models' / tag / f'{split}_pred.parquet').sort('feed_id', 'item_id')
+                    s = pl.col('score').cast(pl.Float64)
+                    normalized.append(component.select(
+                        ((s - s.mean().over('feed_id')) / (s.std().over('feed_id') + 1e-9)).fill_null(0))[:, 0].to_numpy())
+                actual = pl.read_parquet(root / 'bag' / f'{split}_pred.parquet').sort('feed_id', 'item_id')
+                np.testing.assert_allclose(actual['score'].to_numpy(), np.mean(normalized, axis=0), atol=1e-6)
             result = json.loads((out / 'run.json').read_text())
             self.assertTrue(result['complete'])
             self.assertEqual(result['identity']['train_sources'], ['part-00001.parquet'])

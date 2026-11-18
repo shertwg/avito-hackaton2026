@@ -1107,3 +1107,15 @@ uv run --locked python -m scripts.compare_team_overlay --data competition --base
 исходные оценки бленда. В новом каталоге появятся оба Parquet и `comparison.json`.
 Поля `private_delta` и `paired_feed_bootstrap_ci95` показывают изменение NDCG@30
 на оставшихся лентах и его 95% интервал по 1000 парным бутстреп-выборкам.
+
+### Усреднение OOF по блокам train
+
+После завершения всех моделей из плана можно собрать бэггинг с равными
+весами. Команда читает предсказания по одной модели, нормирует оценки внутри
+каждой ленты и добавляет их к общей сумме. На выходе получаются
+`val_pred.parquet`, `test_pred.parquet` и `report.json` с SHA-256,
+весами и NDCG@30. Выберите новый каталог для результата.
+
+```powershell
+uv run --locked python -m scripts.bag_train_blocks --plan runs/train-blocks-prepare-003/run.json --out runs/train-blocks-mean-001
+```
