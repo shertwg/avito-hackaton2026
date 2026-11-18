@@ -882,11 +882,15 @@ uv run --locked python -m scripts.analyse_item2item_normalization --out runs/ite
 ```powershell
 uv run --locked python -m scripts.build_weighted_item2item_features --parent data/features/item2item-008 --train-parts 8 --out data/features/weighted-item2item-008 --resume
 uv run --locked python -m scripts.build_weighted_item2item_features --parent data/features/item2item-032 --train-parts 32 --out data/features/weighted-item2item-032 --resume
-uv run --locked python -m scripts.audit_weighted_item2item_features --parent data/features/item2item-008 --parent-audit experiments/item2item_008_audit.json --cache data/features/weighted-item2item-008 --out runs/weighted_item2item_008_audit.json
-uv run --locked python -m scripts.audit_weighted_item2item_features --parent data/features/item2item-032 --parent-audit experiments/item2item_032_audit.json --cache data/features/weighted-item2item-032 --out runs/weighted_item2item_032_audit.json
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-008 --out runs/item2item_008_audit.json
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-032 --out runs/item2item_032_audit.json
+uv run --locked python -m scripts.audit_weighted_item2item_features --parent data/features/item2item-008 --parent-audit runs/item2item_008_audit.json --cache data/features/weighted-item2item-008 --out runs/weighted_item2item_008_audit.json
+uv run --locked python -m scripts.audit_weighted_item2item_features --parent data/features/item2item-032 --parent-audit runs/item2item_032_audit.json --cache data/features/weighted-item2item-032 --out runs/weighted_item2item_032_audit.json
 ```
 
 Аудит требует совпадения родительского manifest с его независимым аудитом.
+На другом ПК сначала создаётся локальный аудит item2item: опубликованные
+отчёты содержат отпечатки кешей компьютера, на котором они получены.
 Веса и формулы пересчитываются скалярно через пересечения списков лент,
 ключи и числовые диапазоны проверяются на всех строках нового кеша.
 
