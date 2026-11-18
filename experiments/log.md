@@ -555,72 +555,72 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-17 | danya | - | blend weights 11 OOF (РїСѓР» v9-i2i + dima-i2i-oof4) | priv: -/-/0.3087 | - | out=runs/blend-oof-v13-v9dima-w; pub 0.3227 (mean: pub 0.3211, priv 0.3100); СѓСЃС‚СѓРїР°РµС‚ blend-oof-v9-i2i-w |
 | 2026-11-17 | danya | - | blend weights 11 OOF (РїСѓР» v9-time + dima-i2i-oof4) | priv: -/-/0.3093 | - | out=runs/blend-oof-v13-v9timedima-w; pub 0.3234 (mean: pub 0.3210, priv 0.3100); dima РІРµСЃ 0.0 |
 | 2026-11-17 | danya | - | blend mean 10 OOF (С‚РѕРї GBDT fi2/152/130 + dima-i2i-oof4 + nn-i2i-mean-oof4 + nn-time-mean-oof4) | priv: -/-/0.3096 | - | out=runs/blend-oof-v13-best-mean; pub 0.3213 (weights: pub 0.3226, priv 0.3090) |
-| 2026-11-18 | danya | - | [Bionic] dmylo-opt-mean: mean 10 OOF (v9-пул, dmylo оптимизатор) | priv: -/-/0.3107 | - | out=runs/dmylo-opt-mean; pub 0.3210; validator OK |
-| 2026-11-18 | danya | - | [Bionic] dmylo-opt-weights_pub: v9-пул, веса по pub | priv: -/-/0.3098 | - | out=runs/dmylo-opt-weights_pub; pub 0.3213; validator OK |
-| 2026-11-18 | danya | - | [Bionic] dmylo-opt-weights_priv: v9-пул, веса по priv (?? не использовать) | priv: -/-/0.3107 | - | out=runs/dmylo-opt-weights_priv; pub 0.3216; validator OK; priv-веса — нельзя сабмитить |
-| 2026-11-18 | danya | - | [Bionic] dmylo-opt-topkmean: topkmean@6 v9-пул | priv: -/-/0.3095 | - | out=runs/dmylo-opt-topkmean; pub 0.3199; хуже mean |
-| 2026-11-18 | danya | - | [Bionic] dmylo-opt-union51: mean 51 модели | priv: -/-/0.3092 | - | out=runs/dmylo-opt-union51; pub 0.3204; хуже v9-mean |
-| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, --no-test) | - | - | task-1767 запущен; task-1623 убит (завис после fold 2 на 2h+) |
-| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, --no-test, llama-server убит) | priv: 0.3684/0.3685/0.3080 | - | out=runs/cb32-all-fi-qsm-cv-s1; pub_full=0.3754 pub@30=0.3190; 4 фолда за 14 мин (было 2h+ из-за llama-server) |
-| 2026-11-18 | danya | - | cb32-all-qsm-cv-s2 (seed=2, 130 feats, 32 parts, 403 iter, --no-test) | priv: 0.3683/0.3685/0.3082 | - | out=runs/cb32-all-qsm-cv-s2; pub_full=0.3743 pub@30=0.3179; 4 фолда за 11 мин |
-| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, full val+test, после убийства llama-server) | priv: 0.3684/0.3685/0.3078 | - | out=runs/cb32-all-fi-qsm-cv-s1; pub_full=0.3742 pub@30=0.3176 |
-| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-seeds: seed mean s0+s1 (152 feats) | priv: -/-/0.3078 | - | out=runs/cb32-all-fi-qsm-cv-seeds; pub@30=0.3190 mean, 0.3194 weights; s0 вес 0.89 |
-| 2026-11-18 | danya | - | blend-oof-v14-seeds-fi: v9-пул с cb32-all-fi-qsm-cv-seeds | priv: -/-/0.3102 | - | out=runs/blend-oof-v14-seeds-fi; pub@30=0.3225 (mean: 0.3212); vs blend-oof-v9 pub +0.00058; nn-oof4 вес 0.2286; validator OK; test_pred скопирован на Desktop |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-mean: mean 10 OOF (v9-пїЅпїЅпїЅ, dmylo пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ) | priv: -/-/0.3107 | - | out=runs/dmylo-opt-mean; pub 0.3210; validator OK |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-weights_pub: v9-пїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅ pub | priv: -/-/0.3098 | - | out=runs/dmylo-opt-weights_pub; pub 0.3213; validator OK |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-weights_priv: v9-пїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅ priv (?? пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ) | priv: -/-/0.3107 | - | out=runs/dmylo-opt-weights_priv; pub 0.3216; validator OK; priv-пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-topkmean: topkmean@6 v9-пїЅпїЅпїЅ | priv: -/-/0.3095 | - | out=runs/dmylo-opt-topkmean; pub 0.3199; пїЅпїЅпїЅпїЅ mean |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-union51: mean 51 пїЅпїЅпїЅпїЅпїЅпїЅ | priv: -/-/0.3092 | - | out=runs/dmylo-opt-union51; pub 0.3204; пїЅпїЅпїЅпїЅ v9-mean |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, --no-test) | - | - | task-1767 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ; task-1623 пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ fold 2 пїЅпїЅ 2h+) |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, --no-test, llama-server пїЅпїЅпїЅпїЅ) | priv: 0.3684/0.3685/0.3080 | - | out=runs/cb32-all-fi-qsm-cv-s1; pub_full=0.3754 pub@30=0.3190; 4 пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 14 пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ 2h+ пїЅпїЅ-пїЅпїЅ llama-server) |
+| 2026-11-18 | danya | - | cb32-all-qsm-cv-s2 (seed=2, 130 feats, 32 parts, 403 iter, --no-test) | priv: 0.3683/0.3685/0.3082 | - | out=runs/cb32-all-qsm-cv-s2; pub_full=0.3743 pub@30=0.3179; 4 пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 11 пїЅпїЅпїЅ |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, full val+test, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ llama-server) | priv: 0.3684/0.3685/0.3078 | - | out=runs/cb32-all-fi-qsm-cv-s1; pub_full=0.3742 pub@30=0.3176 |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-seeds: seed mean s0+s1 (152 feats) | priv: -/-/0.3078 | - | out=runs/cb32-all-fi-qsm-cv-seeds; pub@30=0.3190 mean, 0.3194 weights; s0 пїЅпїЅпїЅ 0.89 |
+| 2026-11-18 | danya | - | blend-oof-v14-seeds-fi: v9-пїЅпїЅпїЅ пїЅ cb32-all-fi-qsm-cv-seeds | priv: -/-/0.3102 | - | out=runs/blend-oof-v14-seeds-fi; pub@30=0.3225 (mean: 0.3212); vs blend-oof-v9 pub +0.00058; nn-oof4 пїЅпїЅпїЅ 0.2286; validator OK; test_pred пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ Desktop |
 | 2026-11-18 | danya | - | cb32-all-qsm-cv-s2 (seed=2, 130 feats, 32 parts, 403 iter, full val+test) | priv: 0.3680/0.3685/0.3079 | - | out=runs/cb32-all-qsm-cv-s2; pub_full=0.3748 pub@30=0.3184 |
-| 2026-11-18 | danya | - | cb32-all-qsm-cv-seeds: seed mean s0+s1+s2 (130 feats) | priv: -/-/0.3079 | - | out=runs/cb32-all-qsm-cv-seeds; pub@30=0.3181 mean, 0.3187 weights; s1 вес 0.44 s2 вес 0.44 |
-| 2026-11-18 | danya | - | blend-oof-v14c: fi-seeds + qsm-seeds | priv: -/-/0.3105 | - | out=runs/blend-oof-v14c; pub@30=0.3219; хуже v14-seeds-fi |
-| 2026-11-18 | danya | - | blend-oof-v14d: fi-seeds + qsm-seeds + qsm-s1 | priv: -/-/0.3104 | - | out=runs/blend-oof-v14d; pub@30=0.3223; хуже v14-seeds-fi |
-| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s1 (seed=1, 152 feats, 8 parts, 306 iter) | - | - | task-1940 запущен; правильные feature-roots: itemstats-008 item2item-008 category-cooc-008 feature-ranks-008 time-008 |
-| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s1 (seed=1, 152 feats, 8 parts, 306 iter, 3 мин!) | priv: 0.3673/-/0.3068 | - | out=runs/cb8-all-fi-qsm-cv-s1; pub_full=0.3753 pub@30=0.3193 |
-| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds: seed mean s0+s1 (152 feats, 8 parts) | priv: -/-/0.3076 | - | out=runs/cb8-all-fi-qsm-cv-seeds; pub@30=0.3193 mean, 0.3194 weights; s0 вес 1.0 |
-| 2026-11-18 | danya | - | blend-oof-v15: fi-seeds + cb8-seeds (оба 152-feat seeds) | priv: -/-/0.3104 | - | out=runs/blend-oof-v15; pub@30=0.3228 (mean 0.3208); NEW BEST +0.0003 vs v14-seeds-fi; nn-oof4 вес 0.11 cb8-seeds вес 0.22; validator OK; test_pred на Desktop |
-| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s2 (seed=2, 152 feats, 8 parts, 306 iter) | priv: 0.3672/-/0.3069 | - | out=runs/cb8-all-fi-qsm-cv-s2; pub_full=0.3761 pub@30=0.3200; лучший из s0/s1/s2 |
+| 2026-11-18 | danya | - | cb32-all-qsm-cv-seeds: seed mean s0+s1+s2 (130 feats) | priv: -/-/0.3079 | - | out=runs/cb32-all-qsm-cv-seeds; pub@30=0.3181 mean, 0.3187 weights; s1 пїЅпїЅпїЅ 0.44 s2 пїЅпїЅпїЅ 0.44 |
+| 2026-11-18 | danya | - | blend-oof-v14c: fi-seeds + qsm-seeds | priv: -/-/0.3105 | - | out=runs/blend-oof-v14c; pub@30=0.3219; пїЅпїЅпїЅпїЅ v14-seeds-fi |
+| 2026-11-18 | danya | - | blend-oof-v14d: fi-seeds + qsm-seeds + qsm-s1 | priv: -/-/0.3104 | - | out=runs/blend-oof-v14d; pub@30=0.3223; пїЅпїЅпїЅпїЅ v14-seeds-fi |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s1 (seed=1, 152 feats, 8 parts, 306 iter) | - | - | task-1940 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ; пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ feature-roots: itemstats-008 item2item-008 category-cooc-008 feature-ranks-008 time-008 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s1 (seed=1, 152 feats, 8 parts, 306 iter, 3 пїЅпїЅпїЅ!) | priv: 0.3673/-/0.3068 | - | out=runs/cb8-all-fi-qsm-cv-s1; pub_full=0.3753 pub@30=0.3193 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds: seed mean s0+s1 (152 feats, 8 parts) | priv: -/-/0.3076 | - | out=runs/cb8-all-fi-qsm-cv-seeds; pub@30=0.3193 mean, 0.3194 weights; s0 пїЅпїЅпїЅ 1.0 |
+| 2026-11-18 | danya | - | blend-oof-v15: fi-seeds + cb8-seeds (пїЅпїЅпїЅ 152-feat seeds) | priv: -/-/0.3104 | - | out=runs/blend-oof-v15; pub@30=0.3228 (mean 0.3208); NEW BEST +0.0003 vs v14-seeds-fi; nn-oof4 пїЅпїЅпїЅ 0.11 cb8-seeds пїЅпїЅпїЅ 0.22; validator OK; test_pred пїЅпїЅ Desktop |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s2 (seed=2, 152 feats, 8 parts, 306 iter) | priv: 0.3672/-/0.3069 | - | out=runs/cb8-all-fi-qsm-cv-s2; pub_full=0.3761 pub@30=0.3200; пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ s0/s1/s2 |
 | 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds3: 3-seed mean s0+s1+s2 (8 parts) | priv: -/-/0.3081 | - | out=runs/cb8-all-fi-qsm-cv-seeds3; mean 0.3191, weights 0.3203 |
-| 2026-11-18 | danya | - | blend-oof-v16-s2: v15-пул с cb8-s2 вместо cb8-seeds | priv: -/-/0.3100 | - | out=runs/blend-oof-v16-s2; pub@30=0.3221; хуже v15 — s2 сильнее индивидуально но хуже в блендинге |
-| 2026-11-18 | danya | - | blend-oof-v16-seeds3: v15-пул с cb8-seeds3 вместо cb8-seeds | priv: -/-/0.3101 | - | out=runs/blend-oof-v16-seeds3; pub@30=0.3221; хуже v15 |
+| 2026-11-18 | danya | - | blend-oof-v16-s2: v15-пїЅпїЅпїЅ пїЅ cb8-s2 пїЅпїЅпїЅпїЅпїЅпїЅ cb8-seeds | priv: -/-/0.3100 | - | out=runs/blend-oof-v16-s2; pub@30=0.3221; пїЅпїЅпїЅпїЅ v15 пїЅ s2 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ |
+| 2026-11-18 | danya | - | blend-oof-v16-seeds3: v15-пїЅпїЅпїЅ пїЅ cb8-seeds3 пїЅпїЅпїЅпїЅпїЅпїЅ cb8-seeds | priv: -/-/0.3101 | - | out=runs/blend-oof-v16-seeds3; pub@30=0.3221; пїЅпїЅпїЅпїЅ v15 |
 | 2026-11-18 | danya | - | cb8-is-i2i-qsm-cv-s1 (seed=1, 5 feats, 8 parts, 348 iter) | priv: 0.3662/-/0.3059 | - | out=runs/cb8-is-i2i-qsm-cv-s1; pub@30=0.3186 |
 | 2026-11-18 | danya | - | cb8-is-i2i-qsm-cv-seeds: seed mean s0+s1 | priv: -/-/0.3067 | - | out=runs/cb8-is-i2i-qsm-cv-seeds; pub@30=0.3189 mean, 0.3195 weights |
-| 2026-11-18 | danya | - | blend-oof-v17a: v15-пул с cb8-is-i2i-seeds вместо cb32-is-i2i | priv: -/-/0.3098 | - | pub@30=0.3216; хуже v15 — cb32-is-i2i (32 шарда) важнее |
-| 2026-11-18 | danya | - | blend-oof-v17b: v15-пул + cb8-is-i2i-seeds (11 моделей) | priv: -/-/0.3102 | - | pub@30=0.3220; хуже v15 |
-| 2026-11-18 | danya | - | blend-oof-v17-compact: 8 моделей без нулевых весов из v15 | priv: -/-/0.3104 | - | pub@30=0.3223; хуже v15 |
-| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s1 (seed=1, 152 feats, 8 parts, CPU LGB) | - | - | task-2011 запущен на CPU |
+| 2026-11-18 | danya | - | blend-oof-v17a: v15-пїЅпїЅпїЅ пїЅ cb8-is-i2i-seeds пїЅпїЅпїЅпїЅпїЅпїЅ cb32-is-i2i | priv: -/-/0.3098 | - | pub@30=0.3216; пїЅпїЅпїЅпїЅ v15 пїЅ cb32-is-i2i (32 пїЅпїЅпїЅпїЅпїЅ) пїЅпїЅпїЅпїЅпїЅпїЅ |
+| 2026-11-18 | danya | - | blend-oof-v17b: v15-пїЅпїЅпїЅ + cb8-is-i2i-seeds (11 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ) | priv: -/-/0.3102 | - | pub@30=0.3220; пїЅпїЅпїЅпїЅ v15 |
+| 2026-11-18 | danya | - | blend-oof-v17-compact: 8 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ v15 | priv: -/-/0.3104 | - | pub@30=0.3223; пїЅпїЅпїЅпїЅ v15 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s1 (seed=1, 152 feats, 8 parts, CPU LGB) | - | - | task-2011 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ CPU |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s1 (seed=1, 152 feats, 8 parts, CPU LGB, 2000 iters) | priv: 0.3655/-/0.3051 | - | out=runs/lgb8-all-fi-opt2-cv-s1; pub_full=0.3745 pub@30=0.3183; 167 feats |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds: seed mean s0+s1 (CPU LGB, 152 feats, 8 parts) | priv: -/-/0.3081 | - | out=runs/lgb8-all-fi-opt2-cv-seeds; mean 0.3197, weights 0.3200 |
 | 2026-11-18 | danya | - | cb32-all-yeti-cv-seeds: seed mean s0+s1 (Yeti loss) | priv: -/-/0.3039 | - | out=runs/cb32-all-yeti-cv-seeds; mean 0.3165, weights 0.3168 |
-| 2026-11-18 | danya | - | blend-oof-v18-yeti-seeds: v15-пул с yeti-seeds вместо yeti-cv | priv: -/-/0.3106 | - | out=runs/blend-oof-v18-yeti-seeds; pub@30=0.3226; хуже v15 |
-| 2026-11-18 | danya | - | blend-oof-v18-lgbfi-seeds: v15-пул с lgbfi-seeds вместо lgbfi | priv: -/-/0.3101 | - | out=runs/blend-oof-v18-lgbfi-seeds; pub@30=0.3237; NEW BEST! lgbfi-seeds 0.2857 + nn-oof4 0.2857; validator OK; test_pred на Desktop |
-| 2026-11-18 | danya | - | blend-oof-v18-all-seeds: lgbfi-seeds + yeti-seeds оба заменены | priv: -/-/0.3097 | - | out=runs/blend-oof-v18-all-seeds; pub@30=0.3234; хуже v18-lgbfi-seeds |
+| 2026-11-18 | danya | - | blend-oof-v18-yeti-seeds: v15-пїЅпїЅпїЅ пїЅ yeti-seeds пїЅпїЅпїЅпїЅпїЅпїЅ yeti-cv | priv: -/-/0.3106 | - | out=runs/blend-oof-v18-yeti-seeds; pub@30=0.3226; пїЅпїЅпїЅпїЅ v15 |
+| 2026-11-18 | danya | - | blend-oof-v18-lgbfi-seeds: v15-пїЅпїЅпїЅ пїЅ lgbfi-seeds пїЅпїЅпїЅпїЅпїЅпїЅ lgbfi | priv: -/-/0.3101 | - | out=runs/blend-oof-v18-lgbfi-seeds; pub@30=0.3237; NEW BEST! lgbfi-seeds 0.2857 + nn-oof4 0.2857; validator OK; test_pred пїЅпїЅ Desktop |
+| 2026-11-18 | danya | - | blend-oof-v18-all-seeds: lgbfi-seeds + yeti-seeds пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ | priv: -/-/0.3097 | - | out=runs/blend-oof-v18-all-seeds; pub@30=0.3234; пїЅпїЅпїЅпїЅ v18-lgbfi-seeds |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s2 (seed=2, 152 feats, 8 parts, CPU LGB, 2000 iters) | priv: 0.3675/-/0.3073 | - | out=runs/lgb8-all-fi-opt2-cv-s2; pub_full=0.3766 pub@30=0.3206; best individual lgb-fi! |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds-s0s2: seed mean s0+s2 | priv: -/-/0.3087 | - | mean 0.3209, weights 0.3211 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds3: seed mean s0+s1+s2 | priv: -/-/0.3088 | - | mean 0.3215, weights 0.3217 |
 | 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s3 (seed=3, 152 feats, 8 parts, GPU) | priv: 0.3669/-/0.3069 | - | pub_full=0.3756 pub@30=0.3194 |
 | 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds-s0s3: mean s0+s3 | priv: -/-/0.3073 | - | mean 0.3196 |
-| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds-s0s1s3: mean s0+s1+s3 | priv: -/-/0.3077 | - | mean 0.3192, weights 0.3196; s3 вес 0.059 — мало |
-| 2026-11-18 | danya | - | blend-oof-v19-* (cb8 seeds варианты, s2extra, s3extra) | - | - | все 0.3224-0.3227, хуже v18 |
-| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-seeds3: seeds3 (s0+s1+s2) вместо seeds | priv: -/-/0.3107 | - | pub@30=0.3220, хуже v18 |
-| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s0s2: seeds s0+s2 вместо s0+s1 | priv: -/-/0.3102 | - | pub@30=0.3224, хуже v18 |
-| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2only: lgb-fi-s2 alone (не mean) | priv: -/-/0.3106 | - | out=runs/blend-oof-v20-lgbfi-s2only; pub@30=0.3243; NEW BEST! lgbfi-s2 0.296 + nn-oof4 0.296; validator OK; test_pred на Desktop |
-| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2plus-seeds: s2 + seeds оба в пуле (11 моделей) | priv: -/-/0.3110 | - | pub@30=0.3237, хуже v20 |
-| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s3 (seed=3, CPU LGB, запущен) | - | - | task-2190 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds-s0s1s3: mean s0+s1+s3 | priv: -/-/0.3077 | - | mean 0.3192, weights 0.3196; s3 пїЅпїЅпїЅ 0.059 пїЅ пїЅпїЅпїЅпїЅ |
+| 2026-11-18 | danya | - | blend-oof-v19-* (cb8 seeds пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, s2extra, s3extra) | - | - | пїЅпїЅпїЅ 0.3224-0.3227, пїЅпїЅпїЅпїЅ v18 |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-seeds3: seeds3 (s0+s1+s2) пїЅпїЅпїЅпїЅпїЅпїЅ seeds | priv: -/-/0.3107 | - | pub@30=0.3220, пїЅпїЅпїЅпїЅ v18 |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s0s2: seeds s0+s2 пїЅпїЅпїЅпїЅпїЅпїЅ s0+s1 | priv: -/-/0.3102 | - | pub@30=0.3224, пїЅпїЅпїЅпїЅ v18 |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2only: lgb-fi-s2 alone (пїЅпїЅ mean) | priv: -/-/0.3106 | - | out=runs/blend-oof-v20-lgbfi-s2only; pub@30=0.3243; NEW BEST! lgbfi-s2 0.296 + nn-oof4 0.296; validator OK; test_pred пїЅпїЅ Desktop |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2plus-seeds: s2 + seeds пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ (11 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ) | priv: -/-/0.3110 | - | pub@30=0.3237, пїЅпїЅпїЅпїЅ v20 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s3 (seed=3, CPU LGB, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ) | - | - | task-2190 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s3 (seed=3, 152 feats, 8 parts, CPU LGB) | priv: 0.3663/-/0.3059 | - | out=runs/lgb8-all-fi-opt2-cv-s3; pub_full=0.3754 pub@30=0.3190 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds3: seed mean s0+s1+s2 | priv: -/-/0.3088 | - | mean 0.3215 |
-| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s2 (seed=2, 32 parts, GPU) | priv: 0.3681/-/0.3080 | - | pub_full=0.3741 pub@30=0.3172; слабее s0 и s1 |
-| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s3only: lgbfi-s3 alone вместо lgbfi-seeds | priv: -/-/0.3106 | - | out=runs/blend-oof-v21-lgbfi-s3only; pub@30=0.3246; NEW BEST! s3 вес 0.3478 + cb32-is-i2i 0.1739 + nn-oof4 0.1739; validator OK; test_pred на Desktop |
-| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s2s3: s2+s3 оба в пуле (11м) | priv: -/-/0.3104 | - | pub@30=0.3237; хуже — s3 доминирует 0.32, s2=0.04 |
-| 2026-11-18 | danya | - | blend-oof-v21-cb32fi-s0: cb32-fi-s0 alone вместо seeds | priv: -/-/0.3094 | - | pub@30=0.3240; хуже v21 |
-| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s3-s0extra: +lgbfi-s0 как доп | priv: -/-/0.3099 | - | pub@30=0.3246; то же — s0 получил 0.0 вес |
-| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s4 (seed=4, CPU LGB, запущен) | - | - | task-2218; ETA ~45 мин |
-| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s4 (seed=4, CPU) | priv: 0.3660/-/0.3058 | - | pub@30=0.3173; blend v22 s4only=0.3225 — хуже |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s2 (seed=2, 32 parts, GPU) | priv: 0.3681/-/0.3080 | - | pub_full=0.3741 pub@30=0.3172; пїЅпїЅпїЅпїЅпїЅпїЅ s0 пїЅ s1 |
+| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s3only: lgbfi-s3 alone пїЅпїЅпїЅпїЅпїЅпїЅ lgbfi-seeds | priv: -/-/0.3106 | - | out=runs/blend-oof-v21-lgbfi-s3only; pub@30=0.3246; NEW BEST! s3 пїЅпїЅпїЅ 0.3478 + cb32-is-i2i 0.1739 + nn-oof4 0.1739; validator OK; test_pred пїЅпїЅ Desktop |
+| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s2s3: s2+s3 пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ (11пїЅ) | priv: -/-/0.3104 | - | pub@30=0.3237; пїЅпїЅпїЅпїЅ пїЅ s3 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 0.32, s2=0.04 |
+| 2026-11-18 | danya | - | blend-oof-v21-cb32fi-s0: cb32-fi-s0 alone пїЅпїЅпїЅпїЅпїЅпїЅ seeds | priv: -/-/0.3094 | - | pub@30=0.3240; пїЅпїЅпїЅпїЅ v21 |
+| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s3-s0extra: +lgbfi-s0 пїЅпїЅпїЅ пїЅпїЅпїЅ | priv: -/-/0.3099 | - | pub@30=0.3246; пїЅпїЅ пїЅпїЅ пїЅ s0 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 0.0 пїЅпїЅпїЅ |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s4 (seed=4, CPU LGB, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ) | - | - | task-2218; ETA ~45 пїЅпїЅпїЅ |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s4 (seed=4, CPU) | priv: 0.3660/-/0.3058 | - | pub@30=0.3173; blend v22 s4only=0.3225 пїЅ пїЅпїЅпїЅпїЅ |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s5 (seed=5, CPU) | priv: 0.3657/-/0.3056 | - | pub@30=0.3188 |
-| 2026-11-18 | danya | - | blend-oof-v22-lgbfi-s5only: lgbfi-s5 alone | priv: -/-/0.3102 | - | out=runs/blend-oof-v22-lgbfi-s5only; pub@30=0.3249; NEW BEST! s5=0.2963 nn-oof4=0.2963 cb8-seeds=0.1481; validator OK; test_pred на Desktop |
+| 2026-11-18 | danya | - | blend-oof-v22-lgbfi-s5only: lgbfi-s5 alone | priv: -/-/0.3102 | - | out=runs/blend-oof-v22-lgbfi-s5only; pub@30=0.3249; NEW BEST! s5=0.2963 nn-oof4=0.2963 cb8-seeds=0.1481; validator OK; test_pred пїЅпїЅ Desktop |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s6 (seed=6, CPU) | priv: 0.3660/-/0.3056 | - | pub@30=0.3176; blend s6only=0.3219 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s7 (seed=7, CPU) | priv: 0.3650/-/0.3049 | - | pub@30=0.3184; blend s7only=0.3227 |
 | 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s4 (seed=4, GPU) | priv: 0.3669/-/0.3067 | - | pub@30=0.3174 |
-| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s2 (seed=2, GPU 32sh) | priv: 0.3681/-/0.3080 | - | pub@30=0.3172; слабее s0/s1 |
-| 2026-11-18 | danya | - | Эксперименты v23: meta-blend, s5+s3/s2extra, cb8s2/s3, 2model | - | - | все 0.3217-0.3247; v22-s5only=0.3249 остаётся лучшим |
-| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s8 (seed=8, CPU, запущен) | - | - | task-2347; ETA ~40 мин |
-| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s9 (seed=9, CPU, запущен нет — ждём s8) | - | - | — |
-| 2026-11-18 | danya | - | cb32-is-i2i-qsm-cv-s1 (seed=1, GPU 32sh, is+i2i feats, запущен) | - | - | task-2301; ETA ~15 мин |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s2 (seed=2, GPU 32sh) | priv: 0.3681/-/0.3080 | - | pub@30=0.3172; пїЅпїЅпїЅпїЅпїЅпїЅ s0/s1 |
+| 2026-11-18 | danya | - | пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ v23: meta-blend, s5+s3/s2extra, cb8s2/s3, 2model | - | - | пїЅпїЅпїЅ 0.3217-0.3247; v22-s5only=0.3249 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s8 (seed=8, CPU, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ) | - | - | task-2347; ETA ~40 пїЅпїЅпїЅ |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s9 (seed=9, CPU, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ s8) | - | - | пїЅ |
+| 2026-11-18 | danya | - | cb32-is-i2i-qsm-cv-s1 (seed=1, GPU 32sh, is+i2i feats, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ) | - | - | task-2301; ETA ~15 пїЅпїЅпїЅ |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s8 (seed=8, CPU) | priv: 0.3651/-/0.3047 | - | pub@30=0.3181; blend s8only=0.3228 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s9 (seed=9, CPU) | priv: 0.3657/-/0.3052 | - | pub@30=0.3175; blend s9only=0.3233 |
 | 2026-11-18 | danya | - | cb32-is-i2i-qsm-cv-s1 (seed=1, GPU 32sh) | priv: 0.3678/-/0.3073 | - | pub@30=0.3192 |
@@ -673,3 +673,5 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0-i3000 (bin63, s0, 3000 iters) | priv: 0.3665/-/0.3063 | - | pub@30=0.3200; blend=0.3226 вЂ” РїРµСЂРµРѕР±СѓС‡РёР»Р°СЃСЊ, РїРѕС‚РµСЂСЏР»Р° magic |
 | 2026-11-18 | danya | - | РС‚РѕРі lr sweep: lr=0.05 РѕРїС‚РёРјР°Р»РµРЅ; s0 magic (gap=0.0154); gap РєРѕСЂСЂРµР»РёСЂСѓРµС‚ СЃ blend |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin31-lr005-s0 (bin31, lr=0.05, s0, Р·Р°РїСѓС‰РµРЅ) | - | - | task-2738 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin31-lr005-s0 (bin31, lr=0.05, s0) | priv: 0.3689/-/0.3067 | - | pub@30=0.3169; gap=0.0102; blend v31=0.3239; bin31 С…СѓР¶Рµ bin63 (РјРµРЅСЊС€Рµ gap) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s7 (bin63, lr=0.05, s7) | priv: 0.3729/-/0.3025 | - | pub@30=0.3162; gap=0.0137; blend v31=0.3219 (uniform weights вЂ” РЅРµ magic) |
