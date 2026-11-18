@@ -1091,3 +1091,19 @@ uv run --locked python -m scripts.benchmark_itemstats_lookup --cache data/featur
 Команда сохраняет временные lookup-массивы и отчёт в указанном каталоге.
 Реальный результат проверки 19,6 млн строк опубликован в
 [отчёте](experiments/itemstats_lookup_benchmark_001.json).
+
+### Проверка вклада weighted item2item в blend-oof-v5
+
+В каждом входном каталоге нужны `val_pred.parquet` и `test_pred.parquet`.
+В `--base` укажите сохранённые предсказания командного бленда с исходными весами,
+в `--candidate` — распакованные предсказания нового 4-fold OOF. Запускайте из корня репозитория.
+
+```powershell
+uv run --locked python -m scripts.compare_team_overlay --data competition --base runs/blend-oof-v5 --candidate runs/dima-joint-weighted-item2item-008-cv-001 --out runs/blend-oof-v5-weighted-008
+```
+
+Скрипт сверяет ключи кандидатов, стандартизует оценки внутри каждой ленты и выбирает
+вес новой модели по NDCG@30 на первых 30% лент в порядке времени. Нулевой вес сохраняет
+исходные оценки бленда. В новом каталоге появятся оба Parquet и `comparison.json`.
+Поля `private_delta` и `paired_feed_bootstrap_ci95` показывают изменение NDCG@30
+на оставшихся лентах и его 95% интервал по 1000 парным бутстреп-выборкам.
