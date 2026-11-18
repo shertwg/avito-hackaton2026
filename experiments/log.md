@@ -645,3 +645,15 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | 2026-11-18 | danya | - | blend-oof-v26-lgbfi-bin63-s0: bin63-s0 вместо lgb-fi-s5 | priv: -/-/0.3112 | - | pub@30=0.3252 NEW BEST! bin63 вес 0.4571 — сверхдиверсификация от nn-oof4; validator OK; test_pred на Desktop |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s5 (max_bin=63, seed=5, запущен) | - | - | task-2565 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s3 (max_bin=63, seed=3, запущен) | - | - | task-2567 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s1 (max_bin=63, seed=1) | priv: 0.3683/-/0.3088 | - | pub@30=0.3214 (лучший инд!); blend=0.3240 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s2 (max_bin=63, seed=2) | priv: 0.3686/-/0.3090 | - | pub@30=0.3207; blend=0.3249 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s3 (max_bin=63, seed=3) | priv: 0.3671/-/0.3073 | - | pub@30=0.3215; blend=0.3236 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s4 (max_bin=63, seed=4) | priv: 0.3679/-/0.3081 | - | pub@30=0.3191; blend TBD |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s5 (max_bin=63, seed=5) | priv: 0.3677/-/0.3079 | - | pub@30=0.3197; blend=0.3238 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin31-s0 (max_bin=31, seed=0) | priv: 0.3695/-/0.3101 | - | pub@30=0.3197; blend=0.3248 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin31-s1 (max_bin=31, seed=1) | priv: 0.3693/-/0.3097 | - | pub@30=0.3204; blend=0.3237 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin127-s0 (max_bin=127, seed=0) | priv: 0.3680/-/0.3082 | - | pub@30=0.3181; blend=0.3232 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-reg-s0 (lambda_l2=1, min_leaf=50) | priv: 0.3652/-/0.3052 | - | pub@30=0.3183; blend=0.3246 |
+| 2026-11-18 | danya | - | Итог: max_bin sweep seed=0: bin63=0.3252 > bin31=0.3248 > bin127=0.3232 | - | - | bin63 — оптимум; seed=0 магический для coarse-bin |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s6 (запущен, CPU) | - | - | task-2646 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s0 (bin63, lr=0.05, seed=0, CPU) | - | - | task-2648 |
