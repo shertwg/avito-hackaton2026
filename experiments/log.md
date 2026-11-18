@@ -584,3 +584,9 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-18 | danya | - | blend-oof-v17b: v15-пул + cb8-is-i2i-seeds (11 моделей) | priv: -/-/0.3102 | - | pub@30=0.3220; хуже v15 |
 | 2026-11-18 | danya | - | blend-oof-v17-compact: 8 моделей без нулевых весов из v15 | priv: -/-/0.3104 | - | pub@30=0.3223; хуже v15 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s1 (seed=1, 152 feats, 8 parts, CPU LGB) | - | - | task-2011 запущен на CPU |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s1 (seed=1, 152 feats, 8 parts, CPU LGB, 2000 iters) | priv: 0.3655/-/0.3051 | - | out=runs/lgb8-all-fi-opt2-cv-s1; pub_full=0.3745 pub@30=0.3183; 167 feats |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds: seed mean s0+s1 (CPU LGB, 152 feats, 8 parts) | priv: -/-/0.3081 | - | out=runs/lgb8-all-fi-opt2-cv-seeds; mean 0.3197, weights 0.3200 |
+| 2026-11-18 | danya | - | cb32-all-yeti-cv-seeds: seed mean s0+s1 (Yeti loss) | priv: -/-/0.3039 | - | out=runs/cb32-all-yeti-cv-seeds; mean 0.3165, weights 0.3168 |
+| 2026-11-18 | danya | - | blend-oof-v18-yeti-seeds: v15-пул с yeti-seeds вместо yeti-cv | priv: -/-/0.3106 | - | out=runs/blend-oof-v18-yeti-seeds; pub@30=0.3226; хуже v15 |
+| 2026-11-18 | danya | - | blend-oof-v18-lgbfi-seeds: v15-пул с lgbfi-seeds вместо lgbfi | priv: -/-/0.3101 | - | out=runs/blend-oof-v18-lgbfi-seeds; pub@30=0.3237; NEW BEST! lgbfi-seeds 0.2857 + nn-oof4 0.2857; validator OK; test_pred на Desktop |
+| 2026-11-18 | danya | - | blend-oof-v18-all-seeds: lgbfi-seeds + yeti-seeds оба заменены | priv: -/-/0.3097 | - | out=runs/blend-oof-v18-all-seeds; pub@30=0.3234; хуже v18-lgbfi-seeds |
