@@ -1,0 +1,362 @@
+{
+  "complete": true,
+  "scope": "univariate diagnostics on a fixed pseudo-Public sample",
+  "normalization": "Cij / (candidate_popularity^alpha * history_popularity^(1-alpha))",
+  "recency": "half-life 10 history positions, weighted mean or weighted maximum",
+  "sample_feeds": 512,
+  "sample_rows": 49590,
+  "seed": 42,
+  "alphas": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "prepared_manifest_sha256": "c41fee4a3d34330e40afbbe660b27ed959f6d56028c002c6cb837cf8deae9874",
+  "parent_manifest_sha256": "94efeaaacd817dfb0ece5de82b8457b79eb4472a658cd43094fdea297a6aee55",
+  "weighted_manifest_sha256": "e94bbfc5e3e81a763f666b56e652625d56efb46a60798b066555641081a290f8",
+  "sample_feed_ids_sha256": "76a6590534b845a1294bf14ae468aa790eb133380801a536757e8215052c831a",
+  "implementation_sha256": "2a22deb56d2fbd3b85ce32c856b37dd8a1326b2b2fb255d8aac2bcd26e24b781",
+  "input_fingerprints_sha256": "8df5a84a01f4d7b80a69639ceab7de8b6b168e27a893893371788b8ccf770f24",
+  "reference_bits_verified": [
+    "i2i_sum_10",
+    "i2i_max_10",
+    "i2i_sum_50",
+    "i2i_max_50",
+    "wi2i_all_mean_10",
+    "wi2i_all_max_10",
+    "wi2i_all_mean_50",
+    "wi2i_all_max_50"
+  ],
+  "f1_ndcg30": 0.2702960649304942,
+  "variants": [
+    {
+      "name": "a050_plain_sum_50",
+      "alpha": 0.5,
+      "recency": false,
+      "operation": "sum",
+      "window": 50,
+      "ndcg30": 0.19638672405505098
+    },
+    {
+      "name": "a075_plain_sum_50",
+      "alpha": 0.75,
+      "recency": false,
+      "operation": "sum",
+      "window": 50,
+      "ndcg30": 0.19469287800130214
+    },
+    {
+      "name": "a025_plain_sum_50",
+      "alpha": 0.25,
+      "recency": false,
+      "operation": "sum",
+      "window": 50,
+      "ndcg30": 0.1937020762337962
+    },
+    {
+      "name": "a025_recency_mean_50",
+      "alpha": 0.25,
+      "recency": true,
+      "operation": "mean",
+      "window": 50,
+      "ndcg30": 0.19254053608323618
+    },
+    {
+      "name": "a050_recency_mean_50",
+      "alpha": 0.5,
+      "recency": true,
+      "operation": "mean",
+      "window": 50,
+      "ndcg30": 0.19201277651214055
+    },
+    {
+      "name": "a025_plain_max_50",
+      "alpha": 0.25,
+      "recency": false,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.1911595025992608
+    },
+    {
+      "name": "a075_recency_mean_50",
+      "alpha": 0.75,
+      "recency": true,
+      "operation": "mean",
+      "window": 50,
+      "ndcg30": 0.1911108560666721
+    },
+    {
+      "name": "a000_plain_sum_50",
+      "alpha": 0.0,
+      "recency": false,
+      "operation": "sum",
+      "window": 50,
+      "ndcg30": 0.19089438266951247
+    },
+    {
+      "name": "a000_recency_mean_50",
+      "alpha": 0.0,
+      "recency": true,
+      "operation": "mean",
+      "window": 50,
+      "ndcg30": 0.19080381066743812
+    },
+    {
+      "name": "a050_plain_max_50",
+      "alpha": 0.5,
+      "recency": false,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.19051846575758624
+    },
+    {
+      "name": "a025_recency_max_50",
+      "alpha": 0.25,
+      "recency": true,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.18977073144486942
+    },
+    {
+      "name": "a100_plain_sum_50",
+      "alpha": 1.0,
+      "recency": false,
+      "operation": "sum",
+      "window": 50,
+      "ndcg30": 0.18820549250157353
+    },
+    {
+      "name": "a050_recency_max_50",
+      "alpha": 0.5,
+      "recency": true,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.18752512812656744
+    },
+    {
+      "name": "a000_recency_max_50",
+      "alpha": 0.0,
+      "recency": true,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.18749346182194204
+    },
+    {
+      "name": "a075_plain_max_50",
+      "alpha": 0.75,
+      "recency": false,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.18747746285314243
+    },
+    {
+      "name": "a000_plain_max_50",
+      "alpha": 0.0,
+      "recency": false,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.18688813245158184
+    },
+    {
+      "name": "a100_recency_mean_50",
+      "alpha": 1.0,
+      "recency": true,
+      "operation": "mean",
+      "window": 50,
+      "ndcg30": 0.18572540446099853
+    },
+    {
+      "name": "a100_plain_max_50",
+      "alpha": 1.0,
+      "recency": false,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.18511556686742114
+    },
+    {
+      "name": "a100_recency_max_50",
+      "alpha": 1.0,
+      "recency": true,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.18449426290658694
+    },
+    {
+      "name": "a075_recency_max_50",
+      "alpha": 0.75,
+      "recency": true,
+      "operation": "max",
+      "window": 50,
+      "ndcg30": 0.18202798524306182
+    },
+    {
+      "name": "a050_plain_max_10",
+      "alpha": 0.5,
+      "recency": false,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.13944447363394008
+    },
+    {
+      "name": "a050_recency_mean_10",
+      "alpha": 0.5,
+      "recency": true,
+      "operation": "mean",
+      "window": 10,
+      "ndcg30": 0.13936617117554803
+    },
+    {
+      "name": "a100_plain_max_10",
+      "alpha": 1.0,
+      "recency": false,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.13906134107900722
+    },
+    {
+      "name": "a050_recency_max_10",
+      "alpha": 0.5,
+      "recency": true,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.13889459990781117
+    },
+    {
+      "name": "a100_recency_max_10",
+      "alpha": 1.0,
+      "recency": true,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.13887490019674914
+    },
+    {
+      "name": "a050_plain_sum_10",
+      "alpha": 0.5,
+      "recency": false,
+      "operation": "sum",
+      "window": 10,
+      "ndcg30": 0.13858063724251107
+    },
+    {
+      "name": "a075_plain_max_10",
+      "alpha": 0.75,
+      "recency": false,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.1382435377221573
+    },
+    {
+      "name": "a000_plain_sum_10",
+      "alpha": 0.0,
+      "recency": false,
+      "operation": "sum",
+      "window": 10,
+      "ndcg30": 0.13795002526509936
+    },
+    {
+      "name": "a025_recency_max_10",
+      "alpha": 0.25,
+      "recency": true,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.13782494921656446
+    },
+    {
+      "name": "a100_recency_mean_10",
+      "alpha": 1.0,
+      "recency": true,
+      "operation": "mean",
+      "window": 10,
+      "ndcg30": 0.13780909282642428
+    },
+    {
+      "name": "a075_recency_max_10",
+      "alpha": 0.75,
+      "recency": true,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.1376024528647078
+    },
+    {
+      "name": "a025_plain_max_10",
+      "alpha": 0.25,
+      "recency": false,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.1375092343781332
+    },
+    {
+      "name": "a025_recency_mean_10",
+      "alpha": 0.25,
+      "recency": true,
+      "operation": "mean",
+      "window": 10,
+      "ndcg30": 0.13749253210709136
+    },
+    {
+      "name": "a100_plain_sum_10",
+      "alpha": 1.0,
+      "recency": false,
+      "operation": "sum",
+      "window": 10,
+      "ndcg30": 0.1374529823480624
+    },
+    {
+      "name": "a025_plain_sum_10",
+      "alpha": 0.25,
+      "recency": false,
+      "operation": "sum",
+      "window": 10,
+      "ndcg30": 0.13727998167641986
+    },
+    {
+      "name": "a075_plain_sum_10",
+      "alpha": 0.75,
+      "recency": false,
+      "operation": "sum",
+      "window": 10,
+      "ndcg30": 0.13727083650352484
+    },
+    {
+      "name": "a075_recency_mean_10",
+      "alpha": 0.75,
+      "recency": true,
+      "operation": "mean",
+      "window": 10,
+      "ndcg30": 0.13702924832393842
+    },
+    {
+      "name": "a000_recency_mean_10",
+      "alpha": 0.0,
+      "recency": true,
+      "operation": "mean",
+      "window": 10,
+      "ndcg30": 0.13655448297838269
+    },
+    {
+      "name": "a000_plain_max_10",
+      "alpha": 0.0,
+      "recency": false,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.13591533158002866
+    },
+    {
+      "name": "a000_recency_max_10",
+      "alpha": 0.0,
+      "recency": true,
+      "operation": "max",
+      "window": 10,
+      "ndcg30": 0.1355468553677168
+    }
+  ],
+  "duration_seconds": 11.047,
+  "memory": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 3384848384,
+    "working_set_bytes": 122777600,
+    "peak_working_set_bytes": 331063296
+  }
+}

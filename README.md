@@ -823,3 +823,300 @@ uv run --locked python scripts/validate_submission.py competition/sample_submiss
 каждой ленты. Для ансамбля используются эти два Parquet, веса выбираются
 по pseudo-Public. Метрики и статус Public платформы заносятся владельцем
 прогона в `experiments/log.md`.
+
+### Последовательный OOF с дисковыми пулами
+
+`scripts.run_joint_oof` обрабатывает те же временные фолды последовательно.
+Объединённые признаки сохраняются по шардам, обучающий TSV сортируется через
+DuckDB с ограничением памяти. Для каждого фолда CatBoost читает один
+обучающий набор, квантует и сохраняет его на диск. Предсказания val/test
+считаются по шардам. Чтение исходного пула и обучение расходуют дополнительную
+память сверх лимита менеджера DuckDB.
+
+Сохраняются модель каждого фолда, контрольные точки CatBoost и промежуточные
+предсказания. `--resume` проверяет источники и переиспользует законченные
+фолды. При прерывании после сохранения модели повторяется расчёт её
+предсказаний. Число итераций фиксировано, held-out блок исключается при
+подготовке обучающего пула. Метрики сверяются с эталоном, итоговый test
+проверяется валидатором. Параметры и отпечатки входят в `run.json`.
+
+```powershell
+uv run --locked python -m scripts.run_joint_oof --train-parts 8 --folds 4 --iterations 92 --depth 6 --learning-rate 0.1 --seed 42 --threads 2 --memory-mb 512 --feature-root data/features/cosine --feature-root data/features/infeed --feature-root data/features/history --feature-root data/features/itemstats-008 --feature-root data/features/item2item-008 --out runs/dima-joint-item2item-008-cv-001 --resume
+```
+
+Итоговые `val_pred.parquet` и `test_pred.parquet` имеют командный формат.
+Дополнительно сохраняются ключи вхождений кандидатов и назначение фолдов.
+`test_pred` усредняет четыре предсказания с z-score внутри каждой ленты.
+
+Описательные срезы готового OOF по длине истории, размеру ленты и покрытию
+эмбеддингами можно получить следующей командой. Для test сохраняются
+характеристики покрытия.
+
+```powershell
+uv run --locked python -m scripts.analyse_oof_slices --run runs/dima-joint-item2item-008-cv-001 --out runs/joint_item2item_oof_slices_008.json
+```
+
+При готовых item2item-008 и weighted-item2item-008 можно сравнить
+однофакторные сигналы разных нормировок на фиксированной Public-подвыборке.
+
+```powershell
+uv run --locked python -m scripts.analyse_item2item_normalization --out runs/item2item-normalization-diagnostics.json
+```
+
+## Item2item с весами истории
+
+Группа `weighted_item2item` использует проверенный индекс `item2item-008`
+или `item2item-032`. Для окон 10/50 рассчитываются среднее и максимум
+сходства с весами `2^(-position/10)`. Три канала используют всю историю,
+только события типа 2 и только события типа 10, всего 12 признаков.
+Веса событий заданы индикаторами принадлежности каналу. Среднее делится
+на сумму весов всей истории соответствующего канала, включая неизвестные
+товары. Это нормирует сигнал на взвешенную длину истории. Нормировка на
+популярность кандидата и товара истории сохраняется из исходного индекса.
+
+Индивидуальные timestamps событий в данных отсутствуют. Давность здесь
+определяется позицией события, период полураспада равен десяти позициям.
+Веса применяются к истории запроса, донорские совместные встречаемости
+берутся из родительского индекса. Повторы и исходный порядок сохраняются.
+Неизвестные товары и пустые каналы дают 0.
+
+```powershell
+uv run --locked python -m scripts.build_weighted_item2item_features --parent data/features/item2item-008 --train-parts 8 --out data/features/weighted-item2item-008 --resume
+uv run --locked python -m scripts.build_weighted_item2item_features --parent data/features/item2item-032 --train-parts 32 --out data/features/weighted-item2item-032 --resume
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-008 --out runs/item2item_008_audit.json
+uv run --locked python -m scripts.audit_item2item_features --cache data/features/item2item-032 --out runs/item2item_032_audit.json
+uv run --locked python -m scripts.audit_weighted_item2item_features --parent data/features/item2item-008 --parent-audit runs/item2item_008_audit.json --cache data/features/weighted-item2item-008 --out runs/weighted_item2item_008_audit.json
+uv run --locked python -m scripts.audit_weighted_item2item_features --parent data/features/item2item-032 --parent-audit runs/item2item_032_audit.json --cache data/features/weighted-item2item-032 --out runs/weighted_item2item_032_audit.json
+```
+
+Аудит требует совпадения родительского manifest с его независимым аудитом.
+На другом ПК сначала создаётся локальный аудит item2item: опубликованные
+отчёты содержат отпечатки кешей компьютера, на котором они получены.
+Веса и формулы пересчитываются скалярно через пересечения списков лент,
+ключи и числовые диапазоны проверяются на всех строках нового кеша.
+
+Владелец обучения может проверить группу в исходном joint OOF на 8 шардах,
+121 признак, с отдельной папкой результата:
+
+```powershell
+uv run --locked python -m scripts.run_joint_oof --train-parts 8 --folds 4 --iterations 92 --depth 6 --learning-rate 0.1 --seed 42 --threads 2 --memory-mb 512 --feature-root data/features/cosine --feature-root data/features/infeed --feature-root data/features/history --feature-root data/features/itemstats-008 --feature-root data/features/item2item-008 --feature-root data/features/weighted-item2item-008 --out runs/dima-joint-weighted-item2item-008-cv-001 --resume
+```
+
+Это новый прогон: опубликованный `dima-joint-item2item-008-cv-001` содержит
+109 признаков. Для ансамбля используются `val_pred.parquet` и
+`test_pred.parquet` нового каталога после завершения всех четырёх фолдов.
+
+## Cosine с затуханием по истории
+
+Группа `recency_cosine` содержит четыре признака. Для исходных окон 10/50
+вычисляются взвешенный средний cosine и cosine с нормированным взвешенным
+профилем истории. Веса равны `2^(-position/10)`. Профиль собирается из
+единичных векторов товаров истории. Среднее делится на сумму весов
+доступных векторов. Пропуски сохраняют исходные позиции, повторы учитываются
+повторно. Нулевые профили и недоступные векторы кандидатов дают 0.
+Используются исходные версии векторов каждого split.
+
+```powershell
+uv run --locked python -m scripts.build_recency_cosine_features --train-parts 8 --resume
+uv run --locked python -m scripts.build_recency_cosine_features --train-parts 32 --resume
+uv run --locked python -m scripts.audit_recency_cosine_features --train-parts 8 --out runs/recency_cosine_008_audit.json
+uv run --locked python -m scripts.audit_recency_cosine_features --train-parts 32 --out runs/recency_cosine_032_audit.json
+```
+
+Кеш объединяет нужные train-шарды и содержит весь val/test.
+`--prefetch-parts` по умолчанию равен 2. Аудит независимо пересчитывает
+формулы в Float64 по исходным векторам на трёх лентах каждого файла,
+структурные проверки охватывают все строки.
+
+## Расширенный контекст ленты
+
+Группа `feed_context` содержит 34 признака. Для f1–f5 добавлены отклонения
+от максимума и среднего ленты. Для `cos_user`, `is_item_ctr` и четырёх
+item2item-сигналов добавлены отклонения и z-score с выборочным стандартным
+отклонением. Для item2item также добавлены средние ранги, делённые на размер
+ленты. Ранги cosine/CTR уже доступны в `feature_ranks`, z-score и ранги
+f1–f5 доступны в `infeed`. Два взаимодействия равны `cos_user * is_item_ctr`
+и `cos_hist_max_50 * is_item_ctr`.
+
+При постоянном признаке и в ленте из одного кандидата z-score равен 0.
+Вычисления используют Float64, результат сохраняется в Float32 с насыщением
+диапазона для экстремальных значений. Донорские когорты itemstats и item2item
+должны совпадать с выбранными train-шардами.
+
+```powershell
+uv run --locked python -m scripts.build_feed_context_features --itemstats data/features/itemstats-008 --item2item data/features/item2item-008 --train-parts 8 --out data/features/feed-context-008 --resume
+uv run --locked python -m scripts.build_feed_context_features --itemstats data/features/itemstats-032 --item2item data/features/item2item-032 --train-parts 32 --out data/features/feed-context-032 --resume
+uv run --locked python -m scripts.audit_feed_context_features --itemstats data/features/itemstats-008 --item2item data/features/item2item-008 --cache data/features/feed-context-008 --out runs/feed_context_008_audit.json
+uv run --locked python -m scripts.audit_feed_context_features --itemstats data/features/itemstats-032 --item2item data/features/item2item-032 --cache data/features/feed-context-032 --out runs/feed_context_032_audit.json
+```
+
+## Иерархический и свежий CTR
+
+Сглаженный CTR с глобальным prior уже входит в itemstats. Новая группа
+`bayesian_ctr` содержит 14 признаков. Для всей доступной донорской истории
+и окон 3/7 дней сохраняются CTR категории, CTR товара с prior категории,
+разность CTR товара и категории и `log1p` числа показов товара. Сглаживание
+на обоих уровнях по умолчанию равно 20. Глобальная частота окна задаёт prior
+категории, её posterior задаёт prior товара. Холодный товар получает posterior
+категории. При отсутствии прошлых донорских наблюдений CTR равен 0.
+
+Обучающие шарды исключены из доноров. Используются завершённые UTC-дни
+строго раньше дня запроса. Свежие окна заканчиваются в
+`min(query_day - 1, last_donor_day)`. Это сохраняет последние дни доноров
+для val/test, где даты запроса находятся позже окончания train. Добавлены
+число дней после последнего допустимого донорского дня и флаг наличия
+прошлых наблюдений. По данным соревнования train заканчивается 19.09,
+val охватывает 21–24.09, test — 25–29.09. Даты приведены в UTC.
+
+```powershell
+uv run --locked python -m scripts.build_bayesian_ctr_features --train-parts 8 --out data/features/bayesian-ctr-008 --resume
+uv run --locked python -m scripts.build_bayesian_ctr_features --train-parts 32 --out data/features/bayesian-ctr-032 --resume
+uv run --locked python -m scripts.audit_bayesian_ctr_features --cache data/features/bayesian-ctr-008 --out runs/bayesian_ctr_008_audit.json
+uv run --locked python -m scripts.audit_bayesian_ctr_features --cache data/features/bayesian-ctr-032 --out runs/bayesian_ctr_032_audit.json
+```
+
+Дневные таблицы и lookup-файлы имеют контрольные точки для resume. Аудит
+заново считает общие и категорийные наблюдения всех доноров и дневные
+наблюдения для проверяемых товаров. Posterior и окна пересчитываются
+независимыми суммами. Ключи, диапазоны и отпечатки проверяются полностью.
+
+Для этой группы `--memory-mb` по умолчанию равен 1536. Manifest явно
+фиксирует использование прошлых донорских target, данные запроса задают
+ключи и timestamps. Суммы по окнам и присоединение lookup выполняются по
+одному дню запросов. Это ограничивает объём одновременно агрегируемых
+ключей. Дневные счётчики доноров переиспользуются для всех дат.
+
+## Новые группы в воспроизводимом пайплайне
+
+`scripts.reproduce_ranking` принимает `--weighted-item2item`,
+`--recency-cosine`, `--feed-context` и `--bayesian-ctr`. Каждая опция
+создаёт соответствующий кеш и подключает его к одиночному проверочному
+обучению. Например, joint с weighted item2item содержит 121 признак:
+
+```powershell
+uv run --locked python -m scripts.reproduce_ranking --train-parts 8 --infeed --history --itemstats --item2item --weighted-item2item --iterations 92 --depth 6 --seed 42 --memory-mb 1536 --resume --out runs/reproduced-joint-weighted-008
+```
+
+Для `--weighted-item2item` автоматически готовится родительский item2item,
+для `--feed-context` — itemstats и item2item. Родительские группы включаются
+в модель своими флагами `--itemstats` и `--item2item`. Это позволяет
+проверять производные признаки отдельно. Остальные параметры кешей,
+донорские исключения и правила расчёта соответствуют отдельным сборщикам.
+Все четыре новые группы остаются опциональными.
+
+На синтетическом наборе проверен полный путь от сырых файлов через все
+14 групп и 210 признаков до валидного test, повторный запуск с `--resume`
+и отдельное подключение weighted item2item + feed context с 61 признаком.
+Для 4-fold OOF используются `scripts.run_joint_oof` и подготовленные корни
+кешей; `reproduce_ranking` выполняет одиночный проверочный прогон.
+
+## Бэггинг на непересекающихся train-блоках
+
+`--train-start` задаёт начальную позицию в списке train-шардов manifest,
+нумерация начинается с нуля. Вместе с `--train-parts 32` значения 0, 32, 64
+выбирают блоки 0..31, 32..63, 64..95. При отсутствии `--train-start`
+сохраняется выбор linspace. Каждый из этих блоков охватывает временной
+диапазон train. Непересечение источников и feed_id проверяется отдельно.
+
+Параметр поддерживается сборщиками cosine, infeed, history, itemstats,
+item2item, weighted item2item и дисковым OOF-раннером. Для каждого блока
+донорские статистики и индекс используют остальные 480 train-шардов.
+Кеши разных блоков размещаются в отдельных каталогах. Cosine и infeed
+могут использовать общий кеш с покрытием всех выбранных блоков.
+
+Общий раннер `python -m src.gbdt.run_exp` также принимает `--train-start`
+вместе с `--prepared` для CatBoost и LightGBM. Он загружает выбранный блок
+в память. Дисковый `scripts.run_joint_oof` готовит обучающие пулы по файлам.
+
+Если общего cosine/infeed на первые 96 шардов ещё нет, его можно собрать
+следующими командами. Эмбеддинг-каталог и prepared предварительно создаются
+через `scripts.reproduce_data`.
+
+```powershell
+uv run --locked python -m scripts.build_similarity_features --train-start 0 --train-parts 96 --out data/features/cosine-blocks-096 --prefetch-parts 2 --resume
+uv run --locked python -m scripts.build_infeed_features --train-start 0 --train-parts 96 --out data/features/infeed-blocks-096 --resume
+```
+
+Далее выполняется предварительная проверка покрытия и конфигурации.
+В примере используются указанные выше общие кеши. Для уже полного кеша
+можно передать `data/features/cosine` и `data/features/infeed`.
+
+```powershell
+uv run --locked python -m scripts.prepare_train_blocks --cosine data/features/cosine-blocks-096 --infeed data/features/infeed-blocks-096 --out runs/train-blocks-prepare-001 --starts 0 32 64 --train-parts 32 --weighted-item2item --plan-only
+uv run --locked python -m scripts.prepare_train_blocks --cosine data/features/cosine-blocks-096 --infeed data/features/infeed-blocks-096 --out runs/train-blocks-prepare-001 --starts 0 32 64 --train-parts 32 --weighted-item2item --resume
+```
+
+Подготовка последовательно строит history, itemstats, item2item и
+weighted item2item, выполняет независимые аудиты и проверяет загрузку
+реального train/val/test-файла для каждого блока. Конфигурация содержит
+121 признак, при отключении `--weighted-item2item` — 109. Прогресс,
+аудиты и OOF-команды сохраняются в `runs/train-blocks-prepare-001`.
+`--resume` переиспользует проверенные этапы. Повторная проверка полностью
+готового плана сохраняет его содержимое и SHA-256.
+
+Для владельца обучения доступна последовательная команда OOF.
+
+```powershell
+uv run --locked python -m scripts.run_train_blocks_oof --plan runs/train-blocks-prepare-001/run.json
+```
+
+Три блока и четыре фолда дают 12 моделей. Блоки обучаются в отдельных
+последовательных процессах, память процесса освобождается перед следующим
+блоком. Параметры по умолчанию соответствуют joint-008, depth=6, lr=0.1,
+seed=42, 92 итерации. `--only block-000-032` выбирает один готовый блок.
+Каждый блок выдаёт OOF val и полный test с одинаковыми ключами кандидатов.
+Итоговые модели и предсказания записываются в `runs/dima-blocks-oof`.
+Перед обучением повторно проверяются кеши, входные отпечатки и аудиты.
+Предварительная оценка входного квантованного пула для 109 признаков
+приведена в [расчёте блоков](experiments/train_block_bagging_feasibility_001.json).
+Фактический состав кешей с 121 признаком, размеры плотных Float32-матриц
+и результаты всех 12 аудитов приведены в
+[отчёте материализации](experiments/train_block_materialization_001.json).
+Квантование, нативные пулы и модели требуют дополнительной памяти.
+
+После агрегации itemstats сохраняет отсортированные lookup-массивы товаров
+и категорий. Признаки кандидатов извлекаются прямым поиском, значения
+сохраняются в Float32. Массивы входят в отпечатки артефактов кеша.
+Готовый `--resume` проверяет входы и выходы и возвращает исходный manifest.
+Поддерживаются известные SQL-реализации с совпадающими формулами агрегации
+и lookup. При восстановлении частичного кеша для каждого Parquet
+сохраняется SHA-256 реализации, которая его произвела.
+
+Побитовое сопоставление со всеми строками готового SQL-кеша и замеры
+материализации выполняются следующей командой.
+
+```powershell
+uv run --locked python -m scripts.benchmark_itemstats_lookup --cache data/features/train-blocks/block-000-032/itemstats --out runs/itemstats-lookup-check
+```
+
+Команда сохраняет временные lookup-массивы и отчёт в указанном каталоге.
+Реальный результат проверки 19,6 млн строк опубликован в
+[отчёте](experiments/itemstats_lookup_benchmark_001.json).
+
+### Проверка вклада weighted item2item в blend-oof-v5
+
+В каждом входном каталоге нужны `val_pred.parquet` и `test_pred.parquet`.
+В `--base` укажите сохранённые предсказания командного бленда с исходными весами,
+в `--candidate` — распакованные предсказания нового 4-fold OOF. Запускайте из корня репозитория.
+
+```powershell
+uv run --locked python -m scripts.compare_team_overlay --data competition --base runs/blend-oof-v5 --candidate runs/dima-joint-weighted-item2item-008-cv-001 --out runs/blend-oof-v5-weighted-008
+```
+
+Скрипт сверяет ключи кандидатов, стандартизует оценки внутри каждой ленты и выбирает
+вес новой модели по NDCG@30 на первых 30% лент в порядке времени. Нулевой вес сохраняет
+исходные оценки бленда. В новом каталоге появятся оба Parquet и `comparison.json`.
+Поля `private_delta` и `paired_feed_bootstrap_ci95` показывают изменение NDCG@30
+на оставшихся лентах и его 95% интервал по 1000 парным бутстреп-выборкам.
+
+### Усреднение OOF по блокам train
+
+После завершения всех моделей из плана можно собрать бэггинг с равными
+весами. Команда читает предсказания по одной модели, нормирует оценки внутри
+каждой ленты и добавляет их к общей сумме. На выходе получаются
+`val_pred.parquet`, `test_pred.parquet` и `report.json` с SHA-256,
+весами и NDCG@30. Выберите новый каталог для результата.
+
+```powershell
+uv run --locked python -m scripts.bag_train_blocks --plan runs/train-blocks-prepare-003/run.json --out runs/train-blocks-mean-001
+```

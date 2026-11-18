@@ -1,0 +1,61 @@
+{
+  "model": "dima-joint-item2item-008-cv-001",
+  "prediction_sha256": "1a916c874578f36a0536eb301efc11362f448f5288aadcc8966f0ad3265bb7f9",
+  "train_sources": [
+    "part-00000-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00073-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00146-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00219-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00292-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00365-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00438-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00511-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+  ],
+  "train_feeds": 49200,
+  "training_feeds_used": 49199,
+  "early_feeds": 2169,
+  "late_feeds": 2159,
+  "weights": [
+    0.0,
+    0.05,
+    0.15,
+    0.3,
+    0.6
+  ],
+  "metrics": {
+    "ridge": {
+      "selection_ndcg30": [
+        0.3106204872573503,
+        0.3107223890615398,
+        0.3104637800040397,
+        0.3094935220081586,
+        0.3034090668958092
+      ],
+      "weight": 0.05,
+      "late_base": 0.3233723029224872,
+      "late_adjusted": 0.32385796565243474,
+      "delta": 0.00048566272994753106,
+      "paired_ci95": [
+        -0.001500847375666189,
+        0.002423277847591113
+      ]
+    },
+    "neighbors": {
+      "selection_ndcg30": [
+        0.3106204872573503,
+        0.31011543993362867,
+        0.3097929023826907,
+        0.30478851807869395,
+        0.2999940370778029
+      ],
+      "weight": 0.0,
+      "late_base": 0.3233723029224872,
+      "late_adjusted": 0.3233723029224872,
+      "delta": 0.0,
+      "paired_ci95": [
+        0.0,
+        0.0
+      ]
+    }
+  }
+}

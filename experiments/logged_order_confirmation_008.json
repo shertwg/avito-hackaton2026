@@ -1,0 +1,13 @@
+{
+  "selection_report_sha256": "14098d7e9e82ccdd2362794de5594952544024d65dbd5d3d4b8c5e8306906245",
+  "model_sha256": "a0284fcb70eaf65e9d0395373acda554dd754e68e8451ef937cd366283c4f540",
+  "fixed_weight": 0.15,
+  "feeds": 10095,
+  "private_baseline": 0.30629419162265364,
+  "private_adjusted": 0.3058713466378923,
+  "delta": -0.00042284498476137565,
+  "paired_feed_ci95": [
+    -0.002340486611044981,
+    0.0014484500692418484
+  ]
+}

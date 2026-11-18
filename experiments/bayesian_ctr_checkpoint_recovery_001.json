@@ -1,0 +1,25 @@
+{
+  "complete": true,
+  "cohort": 8,
+  "from_implementation_sha256": "14f0d340d777d42e0ce1daa34eea03747482d31ae1299329e66259e442d56a1e",
+  "to_implementation_sha256": "4febb76cae98deafef724b829b166a79cd1165262e26eb494288caf9ef3a11ca",
+  "prepared_manifest_sha256": "c41fee4a3d34330e40afbbe660b27ed959f6d56028c002c6cb837cf8deae9874",
+  "verified_prefix_sql_sha256": {
+    "query_keys": "96dfda81af053f89eaca82d4f0a571d77996dbdbcf7f474bf1fbc25d2ab93062",
+    "item_day": "12423b0d43ab3370aea91a598e4674b998cbbc339af31474ba67cd1cd96fa22b",
+    "category_day": "bfb992bd3bb554ac4398c7498496cb03f77d4eef25c8a0534b27e81f89262d00",
+    "global_day": "9eacdb34d9ff16f9f690fe984e5b48d7810c2015342bdd529ed9e4c22f4ab9e3"
+  },
+  "reused_table_rows": {
+    "query_keys": 7529742,
+    "item_day": 20800492,
+    "category_day": 728,
+    "global_day": 14
+  },
+  "donor_impressions_verified": 242895077,
+  "donor_clicks_verified": 5362045,
+  "input_fingerprints_verified": 1280,
+  "feature_files_before_migration": 0,
+  "old_partial_manifest_sha256": "b0dc62bdc7a25627aae542856efceb09d5a75c1d07b1d1a0d0dc6af3b4a4f361",
+  "policy": "reuse identical donor/query prefix SQL under unchanged source fingerprints; compute final features with per-day aggregation"
+}

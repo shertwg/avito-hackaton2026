@@ -1,0 +1,93 @@
+{
+  "run": "dima-joint-item2item-008-cv-001",
+  "fields": [
+    "f1",
+    "f1_rank",
+    "f1_z",
+    "f2",
+    "f2_rank",
+    "f2_z",
+    "f3",
+    "f3_rank",
+    "f3_z",
+    "f4",
+    "f4_rank",
+    "f4_z",
+    "f5",
+    "f5_rank",
+    "f5_z",
+    "cos_user",
+    "cos_hist_max_10",
+    "cos_hist_max_50",
+    "h_cat_wshare",
+    "h_cat_rank",
+    "i2i_sum_10",
+    "i2i_sum_50",
+    "h_item_cnt",
+    "cat_share_feed",
+    "feed_size"
+  ],
+  "proxy_params": {
+    "objective": "regression",
+    "learning_rate": 0.07,
+    "num_leaves": 31,
+    "min_data_in_leaf": 100,
+    "verbosity": -1,
+    "num_threads": 1,
+    "seed": 42,
+    "deterministic": true,
+    "force_col_wise": true
+  },
+  "rounds": 100,
+  "train_rows": 218976,
+  "train_feeds": 2721,
+  "train_sources": [
+    "part-00000-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00073-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00146-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00219-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00292-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00365-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00438-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+  ],
+  "held_source": "part-00511-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+  "held_rows": 30150,
+  "held_feeds": 377,
+  "held_mean_within_feed_spearman": {
+    "proxy": 0.16330146244346938,
+    "f1": 0.08094913371371801
+  },
+  "early_feeds": 2169,
+  "late_feeds": 2159,
+  "public_early_grid": [
+    [
+      0.0,
+      0.3106204872573503
+    ],
+    [
+      0.05,
+      0.3108256602343848
+    ],
+    [
+      0.15,
+      0.3126311038715385
+    ],
+    [
+      0.3,
+      0.30886139548444397
+    ],
+    [
+      0.6,
+      0.29734910003452847
+    ]
+  ],
+  "selected_weight": 0.15,
+  "late_baseline": 0.3233723029224872,
+  "late_adjusted": 0.32448325238658393,
+  "late_delta": 0.001110949464096735,
+  "paired_feed_ci95": [
+    -0.0035288991115924925,
+    0.005547939356057589
+  ],
+  "pseudo_private_evaluated": false
+}

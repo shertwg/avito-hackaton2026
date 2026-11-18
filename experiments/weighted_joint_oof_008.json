@@ -1,0 +1,72 @@
+{
+  "complete": true,
+  "baseline": "dima-joint-item2item-008-cv-001",
+  "weighted": "dima-joint-weighted-item2item-008-cv-001",
+  "val_rows": 1389971,
+  "fold_assignment_check": "passed",
+  "paired_on": "validation feed",
+  "bootstrap_seed": 42,
+  "bootstrap_replicates": 1000,
+  "ndcg@30": {
+    "all": {
+      "feeds": 14423,
+      "baseline_ndcg30": 0.3095012482355634,
+      "weighted_ndcg30": 0.3098435693394022,
+      "delta": 0.0003423211038387757,
+      "delta_95_ci": [
+        -0.000822284282565356,
+        0.0015238923222097166
+      ],
+      "fraction_bootstrap_positive": 0.718
+    },
+    "pseudo_public": {
+      "feeds": 4328,
+      "baseline_ndcg30": 0.31698166332505606,
+      "weighted_ndcg30": 0.3171222898408136,
+      "delta": 0.00014062651575751087,
+      "delta_95_ci": [
+        -0.002039642693633043,
+        0.0022057619802603426
+      ],
+      "fraction_bootstrap_positive": 0.56
+    },
+    "pseudo_private": {
+      "feeds": 10095,
+      "baseline_ndcg30": 0.30629419162265364,
+      "weighted_ndcg30": 0.3067229846608377,
+      "delta": 0.0004287930381840667,
+      "delta_95_ci": [
+        -0.0009146605988979969,
+        0.001853361991585254
+      ],
+      "fraction_bootstrap_positive": 0.723
+    }
+  },
+  "base_feature_payload_check": [
+    {
+      "group": "cosine",
+      "identical_parquets": 136,
+      "manifest_match": true
+    },
+    {
+      "group": "infeed",
+      "identical_parquets": 136,
+      "manifest_match": true
+    },
+    {
+      "group": "history",
+      "identical_parquets": 136,
+      "manifest_match": true
+    },
+    {
+      "group": "itemstats-008",
+      "identical_parquets": 136,
+      "manifest_match": true
+    },
+    {
+      "group": "item2item-008",
+      "identical_parquets": 136,
+      "manifest_match": true
+    }
+  ]
+}
