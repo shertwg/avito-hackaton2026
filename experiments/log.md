@@ -578,3 +578,9 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds3: 3-seed mean s0+s1+s2 (8 parts) | priv: -/-/0.3081 | - | out=runs/cb8-all-fi-qsm-cv-seeds3; mean 0.3191, weights 0.3203 |
 | 2026-11-18 | danya | - | blend-oof-v16-s2: v15-пул с cb8-s2 вместо cb8-seeds | priv: -/-/0.3100 | - | out=runs/blend-oof-v16-s2; pub@30=0.3221; хуже v15 — s2 сильнее индивидуально но хуже в блендинге |
 | 2026-11-18 | danya | - | blend-oof-v16-seeds3: v15-пул с cb8-seeds3 вместо cb8-seeds | priv: -/-/0.3101 | - | out=runs/blend-oof-v16-seeds3; pub@30=0.3221; хуже v15 |
+| 2026-11-18 | danya | - | cb8-is-i2i-qsm-cv-s1 (seed=1, 5 feats, 8 parts, 348 iter) | priv: 0.3662/-/0.3059 | - | out=runs/cb8-is-i2i-qsm-cv-s1; pub@30=0.3186 |
+| 2026-11-18 | danya | - | cb8-is-i2i-qsm-cv-seeds: seed mean s0+s1 | priv: -/-/0.3067 | - | out=runs/cb8-is-i2i-qsm-cv-seeds; pub@30=0.3189 mean, 0.3195 weights |
+| 2026-11-18 | danya | - | blend-oof-v17a: v15-пул с cb8-is-i2i-seeds вместо cb32-is-i2i | priv: -/-/0.3098 | - | pub@30=0.3216; хуже v15 — cb32-is-i2i (32 шарда) важнее |
+| 2026-11-18 | danya | - | blend-oof-v17b: v15-пул + cb8-is-i2i-seeds (11 моделей) | priv: -/-/0.3102 | - | pub@30=0.3220; хуже v15 |
+| 2026-11-18 | danya | - | blend-oof-v17-compact: 8 моделей без нулевых весов из v15 | priv: -/-/0.3104 | - | pub@30=0.3223; хуже v15 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s1 (seed=1, 152 feats, 8 parts, CPU LGB) | - | - | task-2011 запущен на CPU |
