@@ -602,3 +602,11 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2only: lgb-fi-s2 alone (не mean) | priv: -/-/0.3106 | - | out=runs/blend-oof-v20-lgbfi-s2only; pub@30=0.3243; NEW BEST! lgbfi-s2 0.296 + nn-oof4 0.296; validator OK; test_pred на Desktop |
 | 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2plus-seeds: s2 + seeds оба в пуле (11 моделей) | priv: -/-/0.3110 | - | pub@30=0.3237, хуже v20 |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s3 (seed=3, CPU LGB, запущен) | - | - | task-2190 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s3 (seed=3, 152 feats, 8 parts, CPU LGB) | priv: 0.3663/-/0.3059 | - | out=runs/lgb8-all-fi-opt2-cv-s3; pub_full=0.3754 pub@30=0.3190 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds3: seed mean s0+s1+s2 | priv: -/-/0.3088 | - | mean 0.3215 |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s2 (seed=2, 32 parts, GPU) | priv: 0.3681/-/0.3080 | - | pub_full=0.3741 pub@30=0.3172; слабее s0 и s1 |
+| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s3only: lgbfi-s3 alone вместо lgbfi-seeds | priv: -/-/0.3106 | - | out=runs/blend-oof-v21-lgbfi-s3only; pub@30=0.3246; NEW BEST! s3 вес 0.3478 + cb32-is-i2i 0.1739 + nn-oof4 0.1739; validator OK; test_pred на Desktop |
+| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s2s3: s2+s3 оба в пуле (11м) | priv: -/-/0.3104 | - | pub@30=0.3237; хуже — s3 доминирует 0.32, s2=0.04 |
+| 2026-11-18 | danya | - | blend-oof-v21-cb32fi-s0: cb32-fi-s0 alone вместо seeds | priv: -/-/0.3094 | - | pub@30=0.3240; хуже v21 |
+| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s3-s0extra: +lgbfi-s0 как доп | priv: -/-/0.3099 | - | pub@30=0.3246; то же — s0 получил 0.0 вес |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s4 (seed=4, CPU LGB, запущен) | - | - | task-2218; ETA ~45 мин |
