@@ -62,6 +62,54 @@
     -0.003050030394253879,
     0.003392034143550394
   ],
+  "late_feed_slices": {
+    "candidate_count": {
+      "1-30": {
+        "feeds": 674,
+        "mean_delta": -0.0006697145212133813,
+        "improved": 136,
+        "worsened": 126,
+        "unchanged": 412
+      },
+      "31-99": {
+        "feeds": 741,
+        "mean_delta": 0.0002863813364640565,
+        "improved": 225,
+        "worsened": 236,
+        "unchanged": 280
+      },
+      "100+": {
+        "feeds": 744,
+        "mean_delta": 0.0005700075002616236,
+        "improved": 167,
+        "worsened": 142,
+        "unchanged": 435
+      }
+    },
+    "category_count": {
+      "1": {
+        "feeds": 3,
+        "mean_delta": 0.007362350004283776,
+        "improved": 1,
+        "worsened": 0,
+        "unchanged": 2
+      },
+      "2-5": {
+        "feeds": 300,
+        "mean_delta": 0.0005212940839405377,
+        "improved": 52,
+        "worsened": 43,
+        "unchanged": 205
+      },
+      "6+": {
+        "feeds": 1856,
+        "mean_delta": 3.4651336323720195e-06,
+        "improved": 475,
+        "worsened": 461,
+        "unchanged": 920
+      }
+    }
+  },
   "explanatory_controls_after_selection": {
     "whole_feed_f1_rank": {
       "weight": 0.1,

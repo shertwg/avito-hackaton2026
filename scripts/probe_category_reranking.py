@@ -12,6 +12,38 @@ from src.common.preparation import write_json
 from src.common.scores import feed_zscore
 
 
+def category_rank():
+    group = ['feed_id', 'category_id']
+    return (pl.col('f1').rank('average').over(group) - .5) / pl.len().over(group)
+
+
+def summarize_late_feeds(frame, ids, deltas):
+    dimensions = frame.group_by('feed_id').agg(
+        pl.len().alias('size'), pl.col('category_id').n_unique().alias('categories'))
+    changes = pl.DataFrame({'feed_id': ids, 'delta': deltas}, schema_overrides={'feed_id': frame.schema['feed_id']})
+    feeds = changes.join(dimensions, on='feed_id', validate='1:1')
+    if feeds.height != len(ids):
+        raise ValueError('missing feed dimensions')
+    bands = {
+        'candidate_count': [('1-30', pl.col('size') <= 30), ('31-99', pl.col('size').is_between(31, 99)),
+                            ('100+', pl.col('size') >= 100)],
+        'category_count': [('1', pl.col('categories') == 1), ('2-5', pl.col('categories').is_between(2, 5)),
+                           ('6+', pl.col('categories') >= 6)]}
+    result = {}
+    for dimension, groups in bands.items():
+        slices = {}
+        for label, mask in groups:
+            delta = feeds.filter(mask)['delta'].to_numpy()
+            if len(delta):
+                slices[label] = {'feeds': len(delta), 'mean_delta': float(delta.mean()),
+                                 'improved': int((delta > 0).sum()), 'worsened': int((delta < 0).sum()),
+                                 'unchanged': int((delta == 0).sum())}
+        if sum(row['feeds'] for row in slices.values()) != len(ids):
+            raise ValueError('incomplete slice coverage')
+        result[dimension] = slices
+    return result
+
+
 def probe(run, output):
     report = json.loads((run / 'run.json').read_text())
     if not report['complete'] or report['identity']['folds'] != 4:
@@ -30,7 +62,7 @@ def probe(run, output):
         raise ValueError('OOF coverage or targets differ')
     group = ['feed_id', 'category_id']
     frame = frame.with_columns(
-        ((pl.col('f1').rank('average').over(group) - .5) / pl.len().over(group)).alias('within_category_rank'),
+        category_rank().alias('within_category_rank'),
         pl.col('f1').top_k(3).mean().over(group).alias('category_top3_mean'),
         ((pl.col('h_cat_wshare') + .01) / (pl.col('cat_share_feed') + .01)).log().alias('history_to_supply'))
     feed, target = frame['feed_id'].to_numpy(), frame['target'].to_numpy()
@@ -54,7 +86,8 @@ def probe(run, output):
             grid.append({'signal': name, 'weight': weight, 'early_ndcg30': mean})
             if mean > best:
                 best, selected_score, chosen = mean, adjusted, {'signal': name, 'weight': weight}
-    delta = evaluate(selected_score, late_mask) - second
+    late_ids, late_adjusted = per_feed_ndcg(feed[late_mask], target[late_mask], selected_score[late_mask], cutoff=30)
+    delta = late_adjusted - second
     rng = np.random.default_rng(42)
     bootstrap = [float(rng.choice(delta, size=len(delta), replace=True).mean()) for _ in range(1000)]
     # Explanatory controls at the fixed weight, outside the selection grid.
@@ -70,6 +103,7 @@ def probe(run, output):
               'grid': grid, 'chosen': chosen, 'late_baseline': float(second.mean()),
               'late_adjusted': float((second + delta).mean()), 'late_delta': float(delta.mean()),
               'paired_feed_bootstrap_ci95': np.quantile(bootstrap, [.025, .975]).tolist(),
+              'late_feed_slices': summarize_late_feeds(frame, late_ids, delta),
               'explanatory_controls_after_selection': controls, 'pseudo_private_evaluated': False}
     write_json(output, result)
     print(json.dumps(result, indent=2))
