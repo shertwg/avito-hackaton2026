@@ -15,6 +15,7 @@ from src.common.embedding_catalogue import EmbeddingCatalogue, catalogue_signatu
 from src.common.data import load_embeddings
 from src.common.preparation import fingerprint, flat_values, write_json, write_parquet_atomic
 from src.common.resources import memory_snapshot
+from src.common.train_selection import select_parts
 
 
 RECENT = (10, 50)
@@ -195,7 +196,8 @@ def build_prefetched_part(frame, split, vectors, vector_rows, *, batch_size=16):
     ])
 
 
-def build_features(raw, prepared, catalogue_root, output, *, train_parts=None, batch_size=16, resume=False, reader='auto', prefetch_parts=1):
+def build_features(raw, prepared, catalogue_root, output, *, train_parts=None, batch_size=16, resume=False, reader='auto', prefetch_parts=1,
+                   train_start=None):
     raw, prepared, catalogue_root, output = (Path(path).resolve() for path in (raw, prepared, catalogue_root, output))
     if raw == output or raw in output.parents or output in raw.parents:
         raise ValueError('feature output must be separate from raw data')
@@ -211,6 +213,7 @@ def build_features(raw, prepared, catalogue_root, output, *, train_parts=None, b
         raise ValueError('prefetch_parts must be between 1 and 16')
     if train_parts is not None and not 1 <= train_parts <= len(source['splits']['train']['parts']):
         raise ValueError('train_parts outside source range')
+    requested_train = select_parts(source, train_parts or len(source['splits']['train']['parts']), train_start)
     store = EmbeddingCatalogue(catalogue_root)
     if store.raw != raw:
         raise ValueError('catalogue references different raw data')
@@ -239,10 +242,8 @@ def build_features(raw, prepared, catalogue_root, output, *, train_parts=None, b
     for split in ('train', 'val', 'test'):
         all_entries = source['splits'][split]['parts']
         entries = all_entries
-        if split == 'train' and train_parts is not None:
-            if not 1 <= train_parts <= len(entries):
-                raise ValueError('train_parts outside source range')
-            entries = [entries[int(i)] for i in np.linspace(0, len(entries) - 1, train_parts, dtype=int)]
+        if split == 'train':
+            entries = requested_train
         requested = {entry['source'] for entry in entries}
         old_parts = previous.get('splits',{}).get(split,{}).get('parts',{})
         def reusable(entry):

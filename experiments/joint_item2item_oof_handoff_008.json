@@ -1,0 +1,110 @@
+{
+  "complete": true,
+  "model": "dima-joint-item2item-008-cv-001",
+  "files": {
+    "val_pred.parquet": {
+      "rows": 1389971,
+      "sha256": "1a916c874578f36a0536eb301efc11362f448f5288aadcc8966f0ad3265bb7f9",
+      "bytes": 10466934
+    },
+    "test_pred.parquet": {
+      "rows": 2904806,
+      "sha256": "2af106e2d862bf89d16c542ea8e5f39d27ba92e446e45b8a8e300571d58f65ba",
+      "bytes": 21735137
+    }
+  },
+  "metadata": {
+    "model": "dima-joint-item2item-008-cv-001",
+    "features": 109,
+    "train_parts": 8,
+    "mode": "4-fold time-block OOF",
+    "git": {
+      "commit": "047ae5f3d909881d874c9bc651caf08d388a4452",
+      "dirty": false
+    },
+    "metrics": {
+      "all": {
+        "feeds": 14423,
+        "ndcg_full": 0.3688006041606066,
+        "ndcg_idcg30": 0.3689380878547831,
+        "ndcg@10": 0.2416692231883376,
+        "ndcg@30": 0.3095012482355634,
+        "reference_check": "passed"
+      },
+      "pseudo_public": {
+        "feeds": 4328,
+        "ndcg_full": 0.3735696404967814,
+        "ndcg_idcg30": 0.37392034175628813,
+        "ndcg@10": 0.2484377017977646,
+        "ndcg@30": 0.31698166332505606,
+        "reference_check": "passed"
+      },
+      "pseudo_private": {
+        "feeds": 10095,
+        "ndcg_full": 0.3667559890775987,
+        "ndcg_idcg30": 0.36680206062489557,
+        "ndcg@10": 0.2387673930326566,
+        "ndcg@30": 0.30629419162265364,
+        "reference_check": "passed"
+      }
+    },
+    "files": {
+      "val_pred.parquet": {
+        "rows": 1389971,
+        "sha256": "1a916c874578f36a0536eb301efc11362f448f5288aadcc8966f0ad3265bb7f9",
+        "bytes": 10466934
+      },
+      "test_pred.parquet": {
+        "rows": 2904806,
+        "sha256": "2af106e2d862bf89d16c542ea8e5f39d27ba92e446e45b8a8e300571d58f65ba",
+        "bytes": 21735137
+      }
+    },
+    "parameters": {
+      "folds": 4,
+      "iterations": 92,
+      "depth": 6,
+      "learning_rate": 0.1,
+      "seed": 42,
+      "threads": 2
+    },
+    "prediction_policy": "raw Float32 OOF val scores; test is mean of four within-feed z-score predictions; targets only in val",
+    "prepared_manifest_sha256": "c41fee4a3d34330e40afbbe660b27ed959f6d56028c002c6cb837cf8deae9874",
+    "folds": [
+      {
+        "fold": 0,
+        "held_feeds": 3606,
+        "train_rows": 4905939
+      },
+      {
+        "fold": 1,
+        "held_feeds": 3606,
+        "train_rows": 4881285
+      },
+      {
+        "fold": 2,
+        "held_feeds": 3606,
+        "train_rows": 4894271
+      },
+      {
+        "fold": 3,
+        "held_feeds": 3605,
+        "train_rows": 4891454
+      }
+    ],
+    "feature_groups": [
+      "cosine",
+      "infeed",
+      "history",
+      "itemstats-008",
+      "item2item-008"
+    ]
+  },
+  "archive": {
+    "filename": "dima_joint_item2item_oof4_2026-11-17.zip",
+    "bytes": 32203488,
+    "sha256": "2596bf94e15649736b5b86cf5f240179240f6959d62dae4aca75ed97351965e4"
+  },
+  "submission_validator": "passed",
+  "delivery": "user reports archive sent to Danya on 2026-11-17"
+}

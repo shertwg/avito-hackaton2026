@@ -11,6 +11,7 @@ import polars as pl
 import pyarrow.parquet as pq
 
 from src.common.preparation import fingerprint, write_json, write_parquet_atomic
+from src.common.train_selection import select_parts
 
 
 FLOAT_COLUMNS = ['f1', 'f2', 'f3', 'f4', 'f5']
@@ -59,7 +60,7 @@ def build_feature_part(frame):
     return result
 
 
-def build_features(prepared, output, *, train_parts=None, resume=False):
+def build_features(prepared, output, *, train_parts=None, resume=False, train_start=None):
     prepared, output = Path(prepared).resolve(), Path(output).resolve()
     if prepared == output or prepared in output.parents or output in prepared.parents:
         raise ValueError('feature output and prepared input must be separate directories')
@@ -72,6 +73,8 @@ def build_features(prepared, output, *, train_parts=None, resume=False):
     source = json.loads(source_path.read_text(encoding='utf-8'))
     if not source.get('complete'):
         raise ValueError('prepared dataset incomplete')
+    count = len(source['splits']['train']['parts']) if train_parts is None else train_parts
+    requested_train = select_parts(source, count, train_start)
     implementation = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     source_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
     manifest = {'format_version': 1, 'feature_group': 'infeed', 'complete': False, 'key': KEY,
@@ -87,10 +90,8 @@ def build_features(prepared, output, *, train_parts=None, resume=False):
     for split in ('train', 'val', 'test'):
         all_entries = source['splits'][split]['parts']
         entries = all_entries
-        if split == 'train' and train_parts is not None:
-            if not 1 <= train_parts <= len(entries):
-                raise ValueError('train_parts outside source range')
-            entries = [entries[int(i)] for i in np.linspace(0, len(entries) - 1, train_parts, dtype=int)]
+        if split == 'train':
+            entries = requested_train
         saved = {}
         for number, entry in enumerate(entries):
             input_path = prepared / entry['candidate_path']

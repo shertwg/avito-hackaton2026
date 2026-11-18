@@ -12,6 +12,7 @@ def reproduce_ranking(raw=Path('competition'), output=Path('runs/reproduced-rank
                       catalogue=Path('data/embedding_catalogue'),
                       train_parts=8, infeed=False, history=False, itemstats=False, userstats=False,
                       category_cooc=False, event_cosine=False, feature_ranks=False, time_features=False, item2item=False,
+                      weighted_item2item=False, recency_cosine=False, feed_context=False, bayesian_ctr=False,
                       iterations=100, depth=6, seed=42, threads=2, memory_mb=2048, resume=False):
     output = Path(output).resolve()
     if output.exists():
@@ -24,7 +25,9 @@ def reproduce_ranking(raw=Path('competition'), output=Path('runs/reproduced-rank
     available_parts = len(list_parts(raw, 'train'))
     if train_parts > available_parts:
         raise ValueError('requested training size exceeds the source shard count')
-    if (itemstats or userstats or category_cooc or feature_ranks or time_features or item2item) and train_parts == available_parts:
+    needs_itemstats = itemstats or feature_ranks or feed_context
+    needs_item2item = item2item or weighted_item2item or feed_context
+    if (needs_itemstats or needs_item2item or userstats or category_cooc or time_features or bayesian_ctr) and train_parts == available_parts:
         raise ValueError('statistics require at least one donor shard outside model training')
     reproduce(raw, prepared, output.parent / 'eda', catalogue=Path(catalogue), features=feature_dir / 'cosine',
               feature_train_parts=train_parts, infeed=feature_dir / 'infeed' if infeed else None,
@@ -37,7 +40,7 @@ def reproduce_ranking(raw=Path('competition'), output=Path('runs/reproduced-rank
         root = feature_dir / 'history'
         build_features(prepared, root, train_parts=train_parts, resume=resume)
         roots.append(root)
-    for enabled, name in ((itemstats or feature_ranks, 'itemstats'), (userstats, 'userstats')):
+    for enabled, name in ((needs_itemstats, 'itemstats'), (userstats, 'userstats')):
         if enabled:
             if name == 'itemstats':
                 from src.common.itemstats import build_features
@@ -69,10 +72,33 @@ def reproduce_ranking(raw=Path('competition'), output=Path('runs/reproduced-rank
         root = feature_dir / f'time-{train_parts:03d}'
         build_features(prepared, root, train_parts=train_parts, memory_mb=memory_mb, resume=resume)
         roots.append(root)
-    if item2item:
+    if needs_item2item:
         from src.common.item2item import build_features
         root = feature_dir / f'item2item-{train_parts:03d}'
         build_features(prepared, root, train_parts=train_parts, memory_mb=memory_mb, resume=resume)
+        if item2item:
+            roots.append(root)
+    if weighted_item2item:
+        from src.common.weighted_item2item import build_features
+        root = feature_dir / f'weighted-item2item-{train_parts:03d}'
+        build_features(prepared, feature_dir / f'item2item-{train_parts:03d}', root,
+                       train_parts=train_parts, resume=resume)
+        roots.append(root)
+    if recency_cosine:
+        from src.common.recency_cosine import build_features
+        root = feature_dir / 'recency-cosine'
+        build_features(raw, prepared, root, train_parts=train_parts, resume=resume)
+        roots.append(root)
+    if feed_context:
+        from src.common.feed_context import build_features
+        root = feature_dir / f'feed-context-{train_parts:03d}'
+        build_features(prepared, feature_dir / 'cosine', feature_dir / f'itemstats-{train_parts:03d}',
+                       feature_dir / f'item2item-{train_parts:03d}', root, train_parts=train_parts, resume=resume)
+        roots.append(root)
+    if bayesian_ctr:
+        from src.common.bayesian_ctr import build_features
+        root = feature_dir / f'bayesian-ctr-{train_parts:03d}'
+        build_features(prepared, root, train_parts=train_parts, memory_mb=memory_mb, threads=1, resume=resume)
         roots.append(root)
     from scripts.run_baseline_check import run
     report = run(prepared, raw, output, train_parts=train_parts, iterations=iterations,
@@ -113,6 +139,10 @@ def main():
     parser.add_argument('--feature-ranks', action='store_true')
     parser.add_argument('--time-features', action='store_true')
     parser.add_argument('--item2item', action='store_true')
+    parser.add_argument('--weighted-item2item', action='store_true')
+    parser.add_argument('--recency-cosine', action='store_true')
+    parser.add_argument('--feed-context', action='store_true')
+    parser.add_argument('--bayesian-ctr', action='store_true')
     parser.add_argument('--iterations', type=int, default=100)
     parser.add_argument('--depth', type=int, default=6)
     parser.add_argument('--seed', type=int, default=42)
@@ -127,6 +157,8 @@ def main():
                       category_cooc=args.category_cooc, event_cosine=args.event_cosine,
                       feature_ranks=args.feature_ranks, time_features=args.time_features,
                       item2item=args.item2item,
+                      weighted_item2item=args.weighted_item2item, recency_cosine=args.recency_cosine,
+                      feed_context=args.feed_context, bayesian_ctr=args.bayesian_ctr,
                       depth=args.depth, seed=args.seed, threads=args.threads,
                       memory_mb=args.memory_mb, resume=args.resume)
 

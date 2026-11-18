@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "folds": [
+    {
+      "fold": 0,
+      "training_rows": 4905939,
+      "held_feeds": 3606,
+      "training_group_order_and_labels": "exact match to selected train and other val blocks",
+      "held_out_training_rows": 0
+    },
+    {
+      "fold": 1,
+      "training_rows": 4881285,
+      "held_feeds": 3606,
+      "training_group_order_and_labels": "exact match to selected train and other val blocks",
+      "held_out_training_rows": 0
+    },
+    {
+      "fold": 2,
+      "training_rows": 4894271,
+      "held_feeds": 3606,
+      "training_group_order_and_labels": "exact match to selected train and other val blocks",
+      "held_out_training_rows": 0
+    },
+    {
+      "fold": 3,
+      "training_rows": 4891454,
+      "held_feeds": 3605,
+      "training_group_order_and_labels": "exact match to selected train and other val blocks",
+      "held_out_training_rows": 0
+    }
+  ],
+  "scope": "all quantized training rows, CatBoost group-ID hashes, target labels and held-out feed exclusion",
+  "group_hash_policy": "expected source feed IDs encoded by the same installed CatBoost Pool interface",
+  "label_policy": "file-reader labels converted to Float32 before exact binary-target comparison"
+}

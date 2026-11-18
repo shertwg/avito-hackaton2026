@@ -1,0 +1,28 @@
+{
+  "complete": true,
+  "entry_point": "src.gbdt.prepared.load_prepared",
+  "cohorts": {
+    "008": {
+      "coverage_verified": 8,
+      "train_rows_loaded": 476301,
+      "feature_groups": 14,
+      "model_features": 210,
+      "partwise_val_test_rows": {
+        "val": 18461,
+        "test": 40601
+      },
+      "incompatible_new_donor_cohorts_rejected": true
+    },
+    "032": {
+      "coverage_verified": 32,
+      "train_rows_loaded": 476301,
+      "feature_groups": 14,
+      "model_features": 210,
+      "partwise_val_test_rows": {
+        "val": 18461,
+        "test": 40601
+      },
+      "incompatible_new_donor_cohorts_rejected": true
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "complete": true,
+  "group": "weighted_item2item",
+  "manifest_sha256": "e94bbfc5e3e81a763f666b56e652625d56efb46a60798b066555641081a290f8",
+  "sampled_feeds": 408,
+  "sampled_candidate_rows": 40695,
+  "bytes": 63680900,
+  "splits": {
+    "train": {
+      "parts": 8,
+      "rows": 3850759
+    },
+    "val": {
+      "parts": 64,
+      "rows": 1389971
+    },
+    "test": {
+      "parts": 64,
+      "rows": 2904806
+    }
+  },
+  "scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+  "formula_atol": 2e-06,
+  "formula_rtol": 2e-06,
+  "duration_seconds": 34.47,
+  "memory": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 3698622464,
+    "working_set_bytes": 406319104,
+    "peak_working_set_bytes": 761278464
+  },
+  "audit_sha256": "88e5e1d89b43dacd888895cc7de3d16bb95b92a4292b2c5a52d0314f0a60ea89",
+  "shared_audit_sha256": "f94b54e1a565085a5a0789ace01ba0a91ea1785c3de2f14a416ff4877ad4e9fe",
+  "parent_audit_sha256": "64baa03c1f4188cd72140065c8f1fef1ecfae3d280b8663c7eb20ba06da7572a",
+  "parent_manifest_sha256": "94efeaaacd817dfb0ece5de82b8457b79eb4472a658cd43094fdea297a6aee55",
+  "reference_policy": "scalar event/position weighting and posting-set intersections on the independently audited parent index"
+}

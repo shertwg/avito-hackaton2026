@@ -7,15 +7,15 @@
 Ключ строки — (feed_id, candidate_index); группы присоединяются строго 1:1 (attach_features Димы).
 
 Train огромен (512 шардов, ~247 млн кандидатов), поэтому берём --train-parts N шардов,
-равномерно по времени (как run_baseline_check). Кеш группы признаков должен покрывать эти шарды.
+равномерно по индексам или блоком с --train-start. Кеш группы признаков должен покрывать эти шарды.
 """
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-import numpy as np
 import polars as pl
+from src.common.train_selection import select_parts
 
 BASE = ["f1", "f2", "f3", "f4", "f5", "category_id"]
 
@@ -27,21 +27,18 @@ def _manifest(root: Path) -> dict:
     return m
 
 
-def select_train_parts(prepared: Path, n_parts: int) -> list[dict]:
-    parts = _manifest(prepared)["splits"]["train"]["parts"]
-    if not 1 <= n_parts <= len(parts):
-        raise ValueError(f"--train-parts должен быть от 1 до {len(parts)}")
-    return [parts[int(i)] for i in np.linspace(0, len(parts) - 1, n_parts, dtype=int)]
+def select_train_parts(prepared: Path, n_parts: int, train_start: int | None = None) -> list[dict]:
+    return select_parts(_manifest(prepared), n_parts, train_start)
 
 
 def load_prepared(prepared: str | Path, split: str, feature_roots: list[str | Path], train_parts: int = 1,
-                  ) -> tuple[pl.DataFrame, list[str]]:
+                  train_start: int | None = None) -> tuple[pl.DataFrame, list[str]]:
     """Таблица кандидатов split с признаками групп. Возвращает (frame, имена признаков модели)."""
     from src.common.similarity import attach_features  # код Димы
 
     prepared = Path(prepared)
     man = _manifest(prepared)
-    parts = select_train_parts(prepared, train_parts) if split == "train" else man["splits"][split]["parts"]
+    parts = select_train_parts(prepared, train_parts, train_start) if split == "train" else man["splits"][split]["parts"]
     schema = pl.read_parquet_schema(prepared / parts[0]["candidate_path"])
     cols = ["feed_id", "timestamp", "candidate_index", "item_id", *BASE]
     cols += [c for c in ("target", "pos") if c in schema]

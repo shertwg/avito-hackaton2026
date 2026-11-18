@@ -1,0 +1,867 @@
+{
+  "complete": true,
+  "prepared_manifest_sha256": "c41fee4a3d34330e40afbbe660b27ed959f6d56028c002c6cb837cf8deae9874",
+  "preparation_plan_sha256": "489dca9f5e2438d5543a28236f5c96d927b909ab49964b76271d5794d921cdea",
+  "preparation_code_sha256": {
+    "src/common/train_selection.py": "76a30eecbd7d76687aa9a6268a7ecb287df97bc7ec0cd1329e8da5d6d19332da",
+    "src/common/feature_cache.py": "8d6cbb0fd179a778076bb5f2a245c3da0bd052a737fd8390cceee73711876d8a",
+    "src/common/history.py": "78fae3e60feec1b305671d4aa584deb70e010f27e3dadbb3af53f74f9c5424ee",
+    "src/common/itemstats.py": "1493a0e2f7c4b7f83292d330c67a4ecf07e49c29165581a873f9ca525157e8e0",
+    "src/common/itemstats_lookup.py": "3f2a45a1f1a6c15c1d0c0945fdc13af9fd12eb40f3d0c43f8ac8b587a402ab3f",
+    "src/common/item2item.py": "02af7baee289b9755676779c227a88ebcde2eba43240375d77cc3ee178e1ff37",
+    "src/common/weighted_item2item.py": "c7b708876c04e063dcb0af2b3a4fc05a11447dc85abf59bc4ab0fd08a3909ec7",
+    "src/common/similarity.py": "50162ae3eb768be8c06e800399ccc5a70d09fc4ed4c5fc63005be3195f3814c8",
+    "src/common/infeed.py": "0a2afb8ebd3976e014e6116f1d003bb540620b5cc8823a3d7b7acaf8d69d349c",
+    "scripts/feature_audit.py": "f94b54e1a565085a5a0789ace01ba0a91ea1785c3de2f14a416ff4877ad4e9fe",
+    "scripts/prepare_train_blocks.py": "7ab9ee538c509ede48290dde3f7fafa883ece9b700b08e22aec47b339690e07a",
+    "scripts/audit_history_features.py": "83421b7bf9e9a1f9e8334f9ad0e7f9c7e575cb5a4a71b7d7d60cc765cf3fcbb5",
+    "scripts/audit_itemstats_features.py": "5c6034f265582a5a61929833fd34f6f0ba9865f02512410f4b1a57184c1283a5",
+    "scripts/audit_item2item_features.py": "42903bd7146f291164f6a264ea34ea63d6c34fe35c676fa9e0c25bf5631ae3bf",
+    "scripts/audit_weighted_item2item_features.py": "4456993daf5985909c48e5f39765ecfdef48c688741f340b5614ba230d92ffc1"
+  },
+  "blocks": {
+    "block-000-032": {
+      "cohort": {
+        "start": 0,
+        "stop_exclusive": 32,
+        "sources": [
+          "part-00000-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00001-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00002-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00003-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00004-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00005-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00006-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00007-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00008-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00009-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00010-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00011-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00012-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00013-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00014-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00015-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00016-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00017-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00018-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00019-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00020-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00021-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00022-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00023-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00024-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00025-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00026-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00027-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00028-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00029-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00030-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00031-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+        ],
+        "feeds": 196397,
+        "candidate_rows": 15307081
+      },
+      "donor_parts": 480,
+      "model_features": 121,
+      "feature_groups": 6,
+      "integration_rows": {
+        "train": 476301,
+        "val": 18461,
+        "test": 40601
+      },
+      "dense_float32_feature_bytes": 7408627204,
+      "caches": {
+        "cosine": {
+          "shared": true,
+          "manifest_sha256": "884fd290a6e29a004f9df68c2903fea3ffa9e8be788c71108ee51b1265dcaa69",
+          "features": 9
+        },
+        "infeed": {
+          "shared": true,
+          "manifest_sha256": "c663b47905ae31db7027a961ffcc70cf89d161127c88695f90584e44f75dac87",
+          "features": 12
+        },
+        "history": {
+          "shared": false,
+          "features": 46,
+          "manifest_sha256": "80c7cb55b7d89d9fe76af8a9c13d4e6bfe4ce2723204e16667d15855b97b63cb",
+          "implementation_sha256": "78fae3e60feec1b305671d4aa584deb70e010f27e3dadbb3af53f74f9c5424ee",
+          "identity_sha256": null,
+          "last_build_call_seconds": 8.0,
+          "recorded_process_peak_working_set_bytes": 171220992,
+          "audit": "train_block_000_032_history_audit.json",
+          "audit_duration_seconds": 96.09,
+          "audit_scope": "all covered rows: keys, schema, finite values and both source fingerprints; independent formulas sampled per shard",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15307081,
+              "bytes": 235325451
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 22559099
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 41837066
+            }
+          },
+          "artifacts": {},
+          "directory_bytes": 299821402,
+          "data_fingerprints_sha256": "af1d52a2f3c0b2462da46a2e2f882d5221bcd8f086b89a0ec88e60afa5e4672e"
+        },
+        "itemstats": {
+          "shared": false,
+          "features": 32,
+          "manifest_sha256": "841a61e40801de838464b662677a9dca1b62b0c54a66a7a7ba79025e921a69f7",
+          "implementation_sha256": "f4ffbbbc8dc9f97ee652f0eb3974cbf08cc36a8fa202c623e1e8de0a82ddfcc0",
+          "identity_sha256": "7db64d098689b8dd6490340a1d4f1d10d7d7d4c9c29c86f0ad176e32c455aaf5",
+          "last_build_call_seconds": 1640.8,
+          "recorded_process_peak_working_set_bytes": 1927651328,
+          "audit": "train_block_000_032_itemstats_audit.json",
+          "audit_duration_seconds": 279.64,
+          "audit_scope": "all cache rows: keys, schema, finite values, source identities and donor exclusion; independent sampled lookup values from all donor shards",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15307081,
+              "bytes": 544539384
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 45684306
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 85643306
+            }
+          },
+          "artifacts": {},
+          "directory_bytes": 1128457554,
+          "data_fingerprints_sha256": "3ae07170fb4a055de11398312daadc44305ce422f7ea2fe14a84320f8b696859"
+        },
+        "item2item": {
+          "shared": false,
+          "features": 4,
+          "manifest_sha256": "361dd414c5a26acb115f530249708bad534ef418a31720176bce829257ceb467",
+          "implementation_sha256": "02af7baee289b9755676779c227a88ebcde2eba43240375d77cc3ee178e1ff37",
+          "identity_sha256": "eaf069e42e35ec871047e9810b401cb35e19a6e4ab9f81d41494b27ff2f4e155",
+          "last_build_call_seconds": 10.45,
+          "recorded_process_peak_working_set_bytes": 502771712,
+          "audit": "train_block_000_032_item2item_audit.json",
+          "audit_duration_seconds": 111.3,
+          "audit_scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15307081,
+              "bytes": 128517332
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 8009250
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 15462875
+            }
+          },
+          "artifacts": {
+            "_index.json": {
+              "bytes": 553,
+              "mtime_ns": 1794939311553961600
+            },
+            "_items.npy": {
+              "bytes": 43661636,
+              "mtime_ns": 1794939144045301300
+            },
+            "_offsets.npy": {
+              "bytes": 87323152,
+              "mtime_ns": 1794939144076990500
+            },
+            "_feeds.npy": {
+              "bytes": 571948176,
+              "mtime_ns": 1794939151525352200
+            }
+          },
+          "directory_bytes": 1888926925,
+          "data_fingerprints_sha256": "914bace14b222acba0586acb79b0bd82a1daaee5e98f949b53775d8e74d60e21"
+        },
+        "weighted-item2item": {
+          "shared": false,
+          "features": 12,
+          "manifest_sha256": "1ec26bb9c6c85bc0df5729eca00e020c45d6d5ce6d8dc2fe3670945627a15da2",
+          "implementation_sha256": "c7b708876c04e063dcb0af2b3a4fc05a11447dc85abf59bc4ab0fd08a3909ec7",
+          "identity_sha256": "e2c1d46879c1fce82ade86b796a0570fcc1761c0e7204341154a5e2648fcf055",
+          "last_build_call_seconds": 13.91,
+          "recorded_process_peak_working_set_bytes": 961945600,
+          "audit": "train_block_000_032_weighted_item2item_audit.json",
+          "audit_duration_seconds": 47.8,
+          "audit_scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15307081,
+              "bytes": 150133123
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 8747199
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 16643933
+            }
+          },
+          "artifacts": {},
+          "directory_bytes": 176126908,
+          "data_fingerprints_sha256": "d2bae5283f0edd0c85fdeceba6ae4680b451b251b51acfe8f8c006a1387e0230"
+        }
+      },
+      "oof_argv": [
+        "uv",
+        "run",
+        "--locked",
+        "python",
+        "-m",
+        "scripts.run_joint_oof",
+        "--prepared",
+        "C:\\dev\\avito-hackaton2026\\data\\prepared",
+        "--raw",
+        "C:\\dev\\avito-hackaton2026\\competition",
+        "--train-parts",
+        "32",
+        "--train-start",
+        "0",
+        "--folds",
+        "4",
+        "--iterations",
+        "92",
+        "--depth",
+        "6",
+        "--learning-rate",
+        "0.1",
+        "--seed",
+        "42",
+        "--threads",
+        "2",
+        "--memory-mb",
+        "512",
+        "--out",
+        "C:\\dev\\avito-hackaton2026\\runs\\dima-blocks-oof\\block-000-032",
+        "--resume",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\cosine",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\infeed",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-000-032\\history",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-000-032\\itemstats",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-000-032\\item2item",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-000-032\\weighted-item2item"
+      ]
+    },
+    "block-032-064": {
+      "cohort": {
+        "start": 32,
+        "stop_exclusive": 64,
+        "sources": [
+          "part-00032-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00033-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00034-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00035-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00036-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00037-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00038-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00039-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00040-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00041-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00042-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00043-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00044-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00045-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00046-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00047-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00048-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00049-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00050-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00051-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00052-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00053-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00054-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00055-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00056-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00057-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00058-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00059-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00060-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00061-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00062-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00063-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+        ],
+        "feeds": 196641,
+        "candidate_rows": 15340516
+      },
+      "donor_parts": 480,
+      "model_features": 121,
+      "feature_groups": 6,
+      "integration_rows": {
+        "train": 474394,
+        "val": 18461,
+        "test": 40601
+      },
+      "dense_float32_feature_bytes": 7424809744,
+      "caches": {
+        "cosine": {
+          "shared": true,
+          "manifest_sha256": "884fd290a6e29a004f9df68c2903fea3ffa9e8be788c71108ee51b1265dcaa69",
+          "features": 9
+        },
+        "infeed": {
+          "shared": true,
+          "manifest_sha256": "c663b47905ae31db7027a961ffcc70cf89d161127c88695f90584e44f75dac87",
+          "features": 12
+        },
+        "history": {
+          "shared": false,
+          "features": 46,
+          "manifest_sha256": "3dfbd359abcf6134cc2ef97a3ff6a543615125b86dbfdd305afc12ff216a9b02",
+          "implementation_sha256": "78fae3e60feec1b305671d4aa584deb70e010f27e3dadbb3af53f74f9c5424ee",
+          "identity_sha256": null,
+          "last_build_call_seconds": 7.91,
+          "recorded_process_peak_working_set_bytes": 961945600,
+          "audit": "train_block_032_064_history_audit.json",
+          "audit_duration_seconds": 90.7,
+          "audit_scope": "all covered rows: keys, schema, finite values and both source fingerprints; independent formulas sampled per shard",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15340516,
+              "bytes": 235624982
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 22559099
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 41837066
+            }
+          },
+          "artifacts": {},
+          "directory_bytes": 300120935,
+          "data_fingerprints_sha256": "1999d611b023c4b3c5c26b39253ebc233bda39921071b05562a73eae0f379546"
+        },
+        "itemstats": {
+          "shared": false,
+          "features": 32,
+          "manifest_sha256": "c7dfd6b89b73c22fe391e770d1c060ee5c164f041efc8b6c7d9e4a4a9a34e97a",
+          "implementation_sha256": "1493a0e2f7c4b7f83292d330c67a4ecf07e49c29165581a873f9ca525157e8e0",
+          "identity_sha256": "0353d9064a1a23571c28e4eae5bb3471c4b0286703c0a34e3a68160df1850e4d",
+          "last_build_call_seconds": 1428.95,
+          "recorded_process_peak_working_set_bytes": 2365603840,
+          "audit": "train_block_032_064_itemstats_audit.json",
+          "audit_duration_seconds": 251.53,
+          "audit_scope": "all cache rows: keys, schema, finite values, source identities and donor exclusion; independent sampled lookup values from all donor shards",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15340516,
+              "bytes": 545723958
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 45670310
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 85617468
+            }
+          },
+          "artifacts": {
+            "_item_lookup_keys.npy": {
+              "bytes": 43765948,
+              "mtime_ns": 1794940579933179700
+            },
+            "_item_lookup_values.npy": {
+              "bytes": 700253248,
+              "mtime_ns": 1794940579964834600
+            },
+            "_category_lookup_keys.npy": {
+              "bytes": 336,
+              "mtime_ns": 1794940609174609300
+            },
+            "_category_lookup_values.npy": {
+              "bytes": 3456,
+              "mtime_ns": 1794940609191239300
+            }
+          },
+          "directory_bytes": 1873906293,
+          "data_fingerprints_sha256": "1eaa3fa48dfb5222880039532f6bc3d6ddb3ac30a6f57813d1dc5ed2a9b75263"
+        },
+        "item2item": {
+          "shared": false,
+          "features": 4,
+          "manifest_sha256": "3216cafdceb675498536669de5125ab62bd6de56ac47417fd8cddb88662bd1da",
+          "implementation_sha256": "02af7baee289b9755676779c227a88ebcde2eba43240375d77cc3ee178e1ff37",
+          "identity_sha256": "172e7e0ab72b6b896f9c69198065981a541d85a47dd2e3023de11bb7027251cc",
+          "last_build_call_seconds": 3018.02,
+          "recorded_process_peak_working_set_bytes": 4079599616,
+          "audit": "train_block_032_064_item2item_audit.json",
+          "audit_duration_seconds": 129.39,
+          "audit_scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15340516,
+              "bytes": 129008322
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 8008262
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 15462917
+            }
+          },
+          "artifacts": {
+            "_index.json": {
+              "bytes": 553,
+              "mtime_ns": 1794950808117185000
+            },
+            "_items.npy": {
+              "bytes": 43648116,
+              "mtime_ns": 1794950658993069700
+            },
+            "_offsets.npy": {
+              "bytes": 87296112,
+              "mtime_ns": 1794950659008911500
+            },
+            "_feeds.npy": {
+              "bytes": 571966564,
+              "mtime_ns": 1794950666442854800
+            }
+          },
+          "directory_bytes": 1889394795,
+          "data_fingerprints_sha256": "39308b759bf6061cf6ed2ed55599768a47187fc0fa99ea3ce0cab8a03f44cb25"
+        },
+        "weighted-item2item": {
+          "shared": false,
+          "features": 12,
+          "manifest_sha256": "b269134a85ce2a79d7a580210f12aa0104b947cd41138a2cf355eac1e44cd8cb",
+          "implementation_sha256": "c7b708876c04e063dcb0af2b3a4fc05a11447dc85abf59bc4ab0fd08a3909ec7",
+          "identity_sha256": "edef2b960dbeaa2d3aabf6a92bbe77bc92f62f485d177b17d306e72b13503dcb",
+          "last_build_call_seconds": 2232.67,
+          "recorded_process_peak_working_set_bytes": 4079599616,
+          "audit": "train_block_032_064_weighted_item2item_audit.json",
+          "audit_duration_seconds": 55.27,
+          "audit_scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15340516,
+              "bytes": 150695464
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 8745748
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 16643009
+            }
+          },
+          "artifacts": {},
+          "directory_bytes": 176686875,
+          "data_fingerprints_sha256": "a2b1a71c555ee590bb950b5ad3ca9bd6da020848459b73db42e4654c48a143f5"
+        }
+      },
+      "oof_argv": [
+        "uv",
+        "run",
+        "--locked",
+        "python",
+        "-m",
+        "scripts.run_joint_oof",
+        "--prepared",
+        "C:\\dev\\avito-hackaton2026\\data\\prepared",
+        "--raw",
+        "C:\\dev\\avito-hackaton2026\\competition",
+        "--train-parts",
+        "32",
+        "--train-start",
+        "32",
+        "--folds",
+        "4",
+        "--iterations",
+        "92",
+        "--depth",
+        "6",
+        "--learning-rate",
+        "0.1",
+        "--seed",
+        "42",
+        "--threads",
+        "2",
+        "--memory-mb",
+        "512",
+        "--out",
+        "C:\\dev\\avito-hackaton2026\\runs\\dima-blocks-oof\\block-032-064",
+        "--resume",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\cosine",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\infeed",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-032-064\\history",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-032-064\\itemstats",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-032-064\\item2item",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-032-064\\weighted-item2item"
+      ]
+    },
+    "block-064-096": {
+      "cohort": {
+        "start": 64,
+        "stop_exclusive": 96,
+        "sources": [
+          "part-00064-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00065-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00066-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00067-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00068-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00069-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00070-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00071-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00072-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00073-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00074-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00075-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00076-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00077-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00078-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00079-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00080-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00081-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00082-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00083-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00084-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00085-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00086-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00087-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00088-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00089-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00090-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00091-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00092-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00093-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00094-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+          "part-00095-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+        ],
+        "feeds": 196851,
+        "candidate_rows": 15419577
+      },
+      "donor_parts": 480,
+      "model_features": 121,
+      "feature_groups": 6,
+      "integration_rows": {
+        "train": 485095,
+        "val": 18461,
+        "test": 40601
+      },
+      "dense_float32_feature_bytes": 7463075268,
+      "caches": {
+        "cosine": {
+          "shared": true,
+          "manifest_sha256": "884fd290a6e29a004f9df68c2903fea3ffa9e8be788c71108ee51b1265dcaa69",
+          "features": 9
+        },
+        "infeed": {
+          "shared": true,
+          "manifest_sha256": "c663b47905ae31db7027a961ffcc70cf89d161127c88695f90584e44f75dac87",
+          "features": 12
+        },
+        "history": {
+          "shared": false,
+          "features": 46,
+          "manifest_sha256": "952057d47432251c8421397def953a07c02ed9a434d028ccaf855ca758cd0712",
+          "implementation_sha256": "78fae3e60feec1b305671d4aa584deb70e010f27e3dadbb3af53f74f9c5424ee",
+          "identity_sha256": null,
+          "last_build_call_seconds": 8.26,
+          "recorded_process_peak_working_set_bytes": 4079599616,
+          "audit": "train_block_064_096_history_audit.json",
+          "audit_duration_seconds": 91.45,
+          "audit_scope": "all covered rows: keys, schema, finite values and both source fingerprints; independent formulas sampled per shard",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15419577,
+              "bytes": 236649835
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 22559099
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 41837066
+            }
+          },
+          "artifacts": {},
+          "directory_bytes": 301145800,
+          "data_fingerprints_sha256": "f60d37416fb6052787773c7249e16cef137666e8c082f326f8090e0eaa188dd9"
+        },
+        "itemstats": {
+          "shared": false,
+          "features": 32,
+          "manifest_sha256": "b0ece7b427a0dd2691f44aec77e32ce60aef5feff343b29029cbc1a542211731",
+          "implementation_sha256": "1493a0e2f7c4b7f83292d330c67a4ecf07e49c29165581a873f9ca525157e8e0",
+          "identity_sha256": "0452fb0275c2b5f3ea5b02b4b42d8e2bcfc052d5bf8a1a9a91a341fc0fc32238",
+          "last_build_call_seconds": 1480.33,
+          "recorded_process_peak_working_set_bytes": 2433150976,
+          "audit": "train_block_064_096_itemstats_audit.json",
+          "audit_duration_seconds": 286.92,
+          "audit_scope": "all cache rows: keys, schema, finite values, source identities and donor exclusion; independent sampled lookup values from all donor shards",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15419577,
+              "bytes": 547786561
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 45640181
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 85463938
+            }
+          },
+          "artifacts": {
+            "_item_lookup_keys.npy": {
+              "bytes": 43905364,
+              "mtime_ns": 1794942060527038900
+            },
+            "_item_lookup_values.npy": {
+              "bytes": 702483904,
+              "mtime_ns": 1794942060542850400
+            },
+            "_category_lookup_keys.npy": {
+              "bytes": 336,
+              "mtime_ns": 1794942088705467200
+            },
+            "_category_lookup_values.npy": {
+              "bytes": 3456,
+              "mtime_ns": 1794942088728839700
+            }
+          },
+          "directory_bytes": 1880776748,
+          "data_fingerprints_sha256": "078fe02026ad2949b593562998999b83c4e8266678a9a2c4c36a81e8058d26c8"
+        },
+        "item2item": {
+          "shared": false,
+          "features": 4,
+          "manifest_sha256": "5ea65bf3b8ef6d21aeb8914e6711144df28b52c41c466471308940403a03227c",
+          "implementation_sha256": "02af7baee289b9755676779c227a88ebcde2eba43240375d77cc3ee178e1ff37",
+          "identity_sha256": "f4e20b119a43bbfbd0501196d5a6694afe1b689e27d93ed362a12d8531710e16",
+          "last_build_call_seconds": 10.7,
+          "recorded_process_peak_working_set_bytes": 4079599616,
+          "audit": "train_block_064_096_item2item_audit.json",
+          "audit_duration_seconds": 116.67,
+          "audit_scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15419577,
+              "bytes": 129317098
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 8010530
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 15464047
+            }
+          },
+          "artifacts": {
+            "_index.json": {
+              "bytes": 553,
+              "mtime_ns": 1794951908917314600
+            },
+            "_items.npy": {
+              "bytes": 43765932,
+              "mtime_ns": 1794951742087089900
+            },
+            "_offsets.npy": {
+              "bytes": 87531744,
+              "mtime_ns": 1794951742118779500
+            },
+            "_feeds.npy": {
+              "bytes": 572528992,
+              "mtime_ns": 1794951752138221600
+            }
+          },
+          "directory_bytes": 1891671419,
+          "data_fingerprints_sha256": "9c25157c99c551de67b3e2adf134555aab705b21925de10483e4447f8706c2de"
+        },
+        "weighted-item2item": {
+          "shared": false,
+          "features": 12,
+          "manifest_sha256": "285c7a5b4359e80d1c6c976de29c9670d8aa028a897f9c9106f5f36dd7812df5",
+          "implementation_sha256": "c7b708876c04e063dcb0af2b3a4fc05a11447dc85abf59bc4ab0fd08a3909ec7",
+          "identity_sha256": "1628410aec8772974ad73e56c80361f80566bb78316a7b14fab7bb329427dda4",
+          "last_build_call_seconds": 14.88,
+          "recorded_process_peak_working_set_bytes": 4079599616,
+          "audit": "train_block_064_096_weighted_item2item_audit.json",
+          "audit_duration_seconds": 49.78,
+          "audit_scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+          "splits": {
+            "train": {
+              "parts": 32,
+              "rows": 15419577,
+              "bytes": 150976697
+            },
+            "val": {
+              "parts": 64,
+              "rows": 1389971,
+              "bytes": 8748127
+            },
+            "test": {
+              "parts": 64,
+              "rows": 2904806,
+              "bytes": 16643052
+            }
+          },
+          "artifacts": {},
+          "directory_bytes": 176970522,
+          "data_fingerprints_sha256": "adcb0aa1a58e2feccb81c68a1d5c8c993992f57ac78e7947f3a4aa5a9fcb7105"
+        }
+      },
+      "oof_argv": [
+        "uv",
+        "run",
+        "--locked",
+        "python",
+        "-m",
+        "scripts.run_joint_oof",
+        "--prepared",
+        "C:\\dev\\avito-hackaton2026\\data\\prepared",
+        "--raw",
+        "C:\\dev\\avito-hackaton2026\\competition",
+        "--train-parts",
+        "32",
+        "--train-start",
+        "64",
+        "--folds",
+        "4",
+        "--iterations",
+        "92",
+        "--depth",
+        "6",
+        "--learning-rate",
+        "0.1",
+        "--seed",
+        "42",
+        "--threads",
+        "2",
+        "--memory-mb",
+        "512",
+        "--out",
+        "C:\\dev\\avito-hackaton2026\\runs\\dima-blocks-oof\\block-064-096",
+        "--resume",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\cosine",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\infeed",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-064-096\\history",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-064-096\\itemstats",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-064-096\\item2item",
+        "--feature-root",
+        "C:\\dev\\avito-hackaton2026\\data\\features\\train-blocks\\block-064-096\\weighted-item2item"
+      ]
+    }
+  },
+  "retained_cache_payloads": {
+    "data/features/train-blocks/block-000-032/history": {
+      "parts": 160,
+      "fingerprints_unchanged": true
+    },
+    "data/features/train-blocks/block-000-032/itemstats": {
+      "parts": 160,
+      "fingerprints_unchanged": true
+    },
+    "data/features/train-blocks/block-000-032/item2item": {
+      "parts": 160,
+      "fingerprints_unchanged": true
+    },
+    "data/features/train-blocks/block-000-032/weighted-item2item": {
+      "parts": 160,
+      "fingerprints_unchanged": true
+    },
+    "data/features/train-blocks/block-032-064/history": {
+      "parts": 160,
+      "fingerprints_unchanged": true
+    },
+    "data/features/train-blocks/block-032-064/itemstats": {
+      "parts": 160,
+      "fingerprints_unchanged": true
+    },
+    "data/features/train-blocks/block-064-096/history": {
+      "parts": 160,
+      "fingerprints_unchanged": true
+    },
+    "data/features/train-blocks/block-064-096/itemstats": {
+      "parts": 160,
+      "fingerprints_unchanged": true
+    }
+  },
+  "model_fits_for_all_blocks_four_folds": 12,
+  "training_owner": "Danya and August",
+  "resource_scope": "recorded peaks cover worker lifetimes. Build calls may reuse data and include system standby",
+  "timing_note": "the first cohort was generated across Modern Standby. Current-run elapsed time includes validation of reused groups",
+  "model_memory_scope": "dense feature bytes describe the train-only Float32 matrix. CV adds three validation blocks. Native pools, quantization and model structures require additional memory",
+  "total_unique_train_candidate_rows": 46067174,
+  "total_unique_train_feeds": 589889,
+  "current_preparation_run_elapsed_seconds": 7859.07,
+  "all_blocks_disjoint": true,
+  "all_group_audits_passed": 12,
+  "completed_plan_resume_check": {
+    "entrypoint": "scripts.prepare_train_blocks --out runs/train-blocks-prepare-003 --starts 0 32 64 --train-parts 32 --weighted-item2item --resume --plan-only",
+    "bytewise_unchanged": true,
+    "plan_sha256_before_and_after": "489dca9f5e2438d5543a28236f5c96d927b909ab49964b76271d5794d921cdea",
+    "model_training_performed": false
+  }
+}

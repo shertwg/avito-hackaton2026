@@ -1,0 +1,34 @@
+{
+  "complete": true,
+  "group": "recency_cosine",
+  "manifest_sha256": "9fbcb7401399ff56d6d553750c1918ddb84714dc21c950eb41b28c5eda8a36f5",
+  "sampled_feeds": 408,
+  "sampled_candidate_rows": 40695,
+  "bytes": 144739663,
+  "splits": {
+    "train": {
+      "parts": 8,
+      "rows": 3850759
+    },
+    "val": {
+      "parts": 64,
+      "rows": 1389971
+    },
+    "test": {
+      "parts": 64,
+      "rows": 2904806
+    }
+  },
+  "scope": "all audited rows: keys, schema, domains and fingerprints; independent formulas on three feeds per part",
+  "formula_atol": 2e-06,
+  "formula_rtol": 2e-06,
+  "duration_seconds": 343.09,
+  "memory": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 2655182848,
+    "working_set_bytes": 222580736,
+    "peak_working_set_bytes": 507674624
+  },
+  "audit_sha256": "3294414f503c16f065b57f9aea5f467b989cbc7dea0b75d336c353620ef03512",
+  "shared_audit_sha256": "f94b54e1a565085a5a0789ace01ba0a91ea1785c3de2f14a416ff4877ad4e9fe"
+}
