@@ -566,3 +566,8 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, full val+test, после убийства llama-server) | priv: 0.3684/0.3685/0.3078 | - | out=runs/cb32-all-fi-qsm-cv-s1; pub_full=0.3742 pub@30=0.3176 |
 | 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-seeds: seed mean s0+s1 (152 feats) | priv: -/-/0.3078 | - | out=runs/cb32-all-fi-qsm-cv-seeds; pub@30=0.3190 mean, 0.3194 weights; s0 вес 0.89 |
 | 2026-11-18 | danya | - | blend-oof-v14-seeds-fi: v9-пул с cb32-all-fi-qsm-cv-seeds | priv: -/-/0.3102 | - | out=runs/blend-oof-v14-seeds-fi; pub@30=0.3225 (mean: 0.3212); vs blend-oof-v9 pub +0.00058; nn-oof4 вес 0.2286; validator OK; test_pred скопирован на Desktop |
+| 2026-11-18 | danya | - | cb32-all-qsm-cv-s2 (seed=2, 130 feats, 32 parts, 403 iter, full val+test) | priv: 0.3680/0.3685/0.3079 | - | out=runs/cb32-all-qsm-cv-s2; pub_full=0.3748 pub@30=0.3184 |
+| 2026-11-18 | danya | - | cb32-all-qsm-cv-seeds: seed mean s0+s1+s2 (130 feats) | priv: -/-/0.3079 | - | out=runs/cb32-all-qsm-cv-seeds; pub@30=0.3181 mean, 0.3187 weights; s1 вес 0.44 s2 вес 0.44 |
+| 2026-11-18 | danya | - | blend-oof-v14c: fi-seeds + qsm-seeds | priv: -/-/0.3105 | - | out=runs/blend-oof-v14c; pub@30=0.3219; хуже v14-seeds-fi |
+| 2026-11-18 | danya | - | blend-oof-v14d: fi-seeds + qsm-seeds + qsm-s1 | priv: -/-/0.3104 | - | out=runs/blend-oof-v14d; pub@30=0.3223; хуже v14-seeds-fi |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s1 (seed=1, 152 feats, 8 parts, 306 iter) | - | - | task-1940 запущен; правильные feature-roots: itemstats-008 item2item-008 category-cooc-008 feature-ranks-008 time-008 |
