@@ -610,3 +610,14 @@ cosine, infeed, history, itemstats-008, item2item-008, РІСЃРµРіРѕ 109 РїСЂРёР·РЅ
 | 2026-11-18 | danya | - | blend-oof-v21-cb32fi-s0: cb32-fi-s0 alone вместо seeds | priv: -/-/0.3094 | - | pub@30=0.3240; хуже v21 |
 | 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s3-s0extra: +lgbfi-s0 как доп | priv: -/-/0.3099 | - | pub@30=0.3246; то же — s0 получил 0.0 вес |
 | 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s4 (seed=4, CPU LGB, запущен) | - | - | task-2218; ETA ~45 мин |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s4 (seed=4, CPU) | priv: 0.3660/-/0.3058 | - | pub@30=0.3173; blend v22 s4only=0.3225 — хуже |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s5 (seed=5, CPU) | priv: 0.3657/-/0.3056 | - | pub@30=0.3188 |
+| 2026-11-18 | danya | - | blend-oof-v22-lgbfi-s5only: lgbfi-s5 alone | priv: -/-/0.3102 | - | out=runs/blend-oof-v22-lgbfi-s5only; pub@30=0.3249; NEW BEST! s5=0.2963 nn-oof4=0.2963 cb8-seeds=0.1481; validator OK; test_pred на Desktop |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s6 (seed=6, CPU) | priv: 0.3660/-/0.3056 | - | pub@30=0.3176; blend s6only=0.3219 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s7 (seed=7, CPU) | priv: 0.3650/-/0.3049 | - | pub@30=0.3184; blend s7only=0.3227 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s4 (seed=4, GPU) | priv: 0.3669/-/0.3067 | - | pub@30=0.3174 |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s2 (seed=2, GPU 32sh) | priv: 0.3681/-/0.3080 | - | pub@30=0.3172; слабее s0/s1 |
+| 2026-11-18 | danya | - | Эксперименты v23: meta-blend, s5+s3/s2extra, cb8s2/s3, 2model | - | - | все 0.3217-0.3247; v22-s5only=0.3249 остаётся лучшим |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s8 (seed=8, CPU, запущен) | - | - | task-2347; ETA ~40 мин |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s9 (seed=9, CPU, запущен нет — ждём s8) | - | - | — |
+| 2026-11-18 | danya | - | cb32-is-i2i-qsm-cv-s1 (seed=1, GPU 32sh, is+i2i feats, запущен) | - | - | task-2301; ETA ~15 мин |
