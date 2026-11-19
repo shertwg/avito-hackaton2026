@@ -7,6 +7,12 @@ NORM_COLS = [
     "i2i_sum_50",
     "i2i_sum_10",
     "i2i_max_50",
+    "wi2i_all_mean_10",
+    "wi2i_all_max_10",
+    "wi2i_evt2_mean_50",
+    "wi2i_all_mean_50",
+    "rc_cos_profile_10",
+    "rc_cos_profile_50",
     "is_item_history_evt1",
     "is_item_ctr",
     "item_train_age_days",
@@ -19,6 +25,10 @@ RANK_COLS = [
     "i2i_sum_50",
     "i2i_sum_10",
     "i2i_max_50",
+    "wi2i_all_mean_10",
+    "wi2i_all_max_10",
+    "wi2i_evt2_mean_50",
+    "rc_cos_profile_10",
     "is_item_history_evt1",
     "item_train_age_days",
     "cos_hist_mean_50",
@@ -70,6 +80,11 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         ("fi_i2i_max_ratio", "i2i_max_10", "i2i_max_50", lambda a, b: a / (b + pl.lit(1e-3, dtype=pl.Float32))),
         ("fi_f3z_x_cos10", "f3_z", "cos_hist_max_10", lambda a, b: a * b),
         ("fi_f1z_x_i2i50", "f1_z", "i2i_sum_50", lambda a, b: a * b),
+        ("fi_wi2i10_x_cos", "wi2i_all_mean_10", "cos_user", lambda a, b: a * b),
+        ("fi_wi2i10_x_ctr", "wi2i_all_mean_10", "is_item_ctr", lambda a, b: a * b),
+        ("fi_wi2i10_x_cos10", "wi2i_all_max_10", "cos_hist_max_10", lambda a, b: a * b),
+        ("fi_wi2i_ratio_10_50", "wi2i_all_mean_10", "wi2i_all_mean_50", lambda a, b: a / (b + pl.lit(1e-4, dtype=pl.Float32))),
+        ("fi_wi2i_evt2_ratio", "wi2i_evt2_mean_50", "wi2i_all_mean_50", lambda a, b: a / (b + pl.lit(1e-4, dtype=pl.Float32))),
     ]
     for name, c1, c2, fn in pairs:
         if c1 in df.columns and c2 in df.columns:
@@ -78,6 +93,18 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
                 .fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(name)
             )
             cols.append(name)
+
+    if "category_id" in df.columns:
+        cat_n = pl.len().over(["feed_id", "category_id"]).cast(pl.Float32)
+        exprs.append(cat_n.alias("fi_incat_count"))
+        exprs.append((cat_n / feed_n).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias("fi_incat_share"))
+        cols.extend(["fi_incat_count", "fi_incat_share"])
+        for c in ("cos_user", "is_item_ctr", "wi2i_all_mean_10"):
+            if c in df.columns:
+                col_f = pl.col(c).cast(pl.Float32)
+                cname = f"fi_incat_{c}_dmax"
+                exprs.append((col_f - col_f.max().over(["feed_id", "category_id"])).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(cname))
+                cols.append(cname)
 
     for c in ["i2i_sum_50", "is_item_history_evt1", "item_train_age_days"]:
         if c in df.columns:

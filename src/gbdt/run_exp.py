@@ -59,6 +59,10 @@ def get_args(argv=None) -> argparse.Namespace:
     ap.add_argument("--topn", type=int, default=50)
     ap.add_argument("--ipw-max", type=float, default=10.0)
     ap.add_argument("--val-weight", type=float, default=1.0, help="вес строк val при обучении на train+val")
+    ap.add_argument("--time-decay", type=float, default=0.0,
+                    help="экспоненциальное затухание веса train по дням: exp(-decay * age_days)")
+    ap.add_argument("--drop-zero-grad-feeds", action="store_true",
+                    help="отбросить на train ленты без кликов (или со всеми кликами): нулевой градиент для ранкеров, ~3x меньше RAM")
     ap.add_argument("--folds", type=int, default=4, help="число временных блоков для режима cv")
     ap.add_argument("--model-params", default=None, help="JSON-файл с доп. параметрами модели (пишет tune.py)")
     ap.add_argument("--features-dir", default=None, help="папка с внешними признаками (extra_features.py)")
@@ -76,10 +80,18 @@ def get_args(argv=None) -> argparse.Namespace:
     return args
 
 
+def _filter_zero_grad(df: pl.DataFrame) -> pl.DataFrame:
+    """Оставляет только ленты с хотя бы одним кликом и одним не-кликом (ненулевой градиент для listwise/pairwise)."""
+    s = pl.col("target").sum().over("feed_id")
+    n = pl.len().over("feed_id")
+    return df.filter((s > 0) & (s < n))
+
+
 def load_all(a: argparse.Namespace, need_test: bool) -> tuple[dict[str, pl.DataFrame], list[str]]:
     frames, extra_cols = {}, []
     splits = ["train", "val"] + (["test"] if need_test else [])
     base_feats = MODEL_FEATURES
+    drop_zg = getattr(a, "drop_zero_grad_feeds", False)
     for s in splits:
         if a.prepared:
             from src.gbdt.prepared import load_prepared
@@ -87,6 +99,11 @@ def load_all(a: argparse.Namespace, need_test: bool) -> tuple[dict[str, pl.DataF
                                           train_start=getattr(a, 'train_start', None))
         else:
             df = load_split(a.data, s, a.max_parts, a.n_jobs, a.cache)
+        if s == "train" and drop_zg and "target" in df.columns:
+            before = df.height
+            df = _filter_zero_grad(df)
+            print(f"[drop-zero-grad] train rows: {before:,} -> {df.height:,} ({100.0 * df.height / max(before, 1):.1f}%)",
+                  flush=True)
         df, extra_cols = attach(df, a.features_dir, a.extra, s)
         fi_cols: list[str] = []
         if getattr(a, "feed_interactions", False):
@@ -119,8 +136,15 @@ def train_frame(frames: dict[str, pl.DataFrame], a: argparse.Namespace, val_rows
         ctr = position_ctr(frames["train"]["pos"].to_numpy(), frames["train"]["target"].to_numpy())
         w = ipw_weights(tr["pos"].to_numpy(), tr["target"].to_numpy(), ctr, a.ipw_max)
     tr = apply_pos(tr, a, True)
+    decay = getattr(a, "time_decay", 0.0)
+    if decay > 0.0 and "timestamp" in tr.columns and tr.height:
+        ts = tr["timestamp"].to_numpy().astype(np.float64)
+        age_days = np.maximum(0.0, (ts.max() - ts) / 86400.0)
+        tw = np.exp(-decay * age_days).astype(np.float32)
+        w = tw if w is None else (w * tw).astype(np.float32)
     if val_rows is not None and val_rows.height:
-        v = apply_pos(val_rows, a, False)
+        v = _filter_zero_grad(val_rows) if getattr(a, "drop_zero_grad_feeds", False) else val_rows
+        v = apply_pos(v, a, False)
         tr = pl.concat([tr, v.select(tr.columns)], how="vertical")
         if w is not None or a.val_weight != 1.0:
             w0 = w if w is not None else np.ones(tr.height - v.height, dtype=np.float32)
