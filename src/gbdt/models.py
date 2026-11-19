@@ -12,6 +12,10 @@ def _x(df: pl.DataFrame, feats: list[str]):
     return df.select(feats).to_pandas()
 
 
+def _x_f32(df: pl.DataFrame, feats: list[str]) -> np.ndarray:
+    return df.select([pl.col(c).cast(pl.Float32) for c in feats]).to_numpy()
+
+
 def _group_sizes(feed_id: np.ndarray) -> np.ndarray:
     # данные отсортированы по feed_id, ленты идут подряд
     _, counts = np.unique(feed_id, return_counts=True)
@@ -75,14 +79,17 @@ class Ranker:
         params = dict(objective=self.loss, learning_rate=self.lr, num_leaves=2 ** min(self.depth, 8) - 1,
                       max_depth=-1, metric="ndcg", eval_at=[30], seed=self.seed, verbose=-1,
                       feature_fraction=0.8, bagging_fraction=0.8, bagging_freq=1, **self.extra)
-        dtr = lgb.Dataset(_x(tr, self.feats), label=tr["target"].to_numpy(), weight=weight,
-                          group=_group_sizes(tr["feed_id"].to_numpy()), categorical_feature=[CAT])
+        cat_idx = [self.feats.index(CAT)] if CAT in self.feats else []
+        group = None if self.loss == "binary" else _group_sizes(tr["feed_id"].to_numpy())
+        dtr = lgb.Dataset(_x_f32(tr, self.feats), label=tr["target"].to_numpy(), weight=weight,
+                          group=group, feature_name=self.feats, categorical_feature=cat_idx, free_raw_data=True)
         cbs = [lgb.log_evaluation(200)]
         valid = []
         if va is not None:
-            valid = [lgb.Dataset(_x(va, self.feats), label=va["target"].to_numpy(),
-                                 group=_group_sizes(va["feed_id"].to_numpy()), categorical_feature=[CAT],
-                                 reference=dtr)]
+            vgroup = None if self.loss == "binary" else _group_sizes(va["feed_id"].to_numpy())
+            valid = [lgb.Dataset(_x_f32(va, self.feats), label=va["target"].to_numpy(),
+                                 group=vgroup, feature_name=self.feats, categorical_feature=cat_idx,
+                                 reference=dtr, free_raw_data=True)]
             cbs.append(lgb.early_stopping(es_rounds, verbose=False))
         self.model = lgb.train(params, dtr, num_boost_round=self.iterations, valid_sets=valid, callbacks=cbs)
         self.best_iteration = int(self.model.best_iteration or self.iterations) if va is not None \
@@ -111,5 +118,5 @@ class Ranker:
         if self.kind == "catboost":
             pool = Pool(_x(df, self.feats), group_id=df["feed_id"].to_numpy(), cat_features=[CAT])
             return np.asarray(self.model.predict(pool), dtype=np.float64)
-        return np.asarray(self.model.predict(_x(df, self.feats), num_iteration=self.best_iteration),
+        return np.asarray(self.model.predict(_x_f32(df, self.feats), num_iteration=self.best_iteration),
                           dtype=np.float64)
