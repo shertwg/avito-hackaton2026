@@ -24,7 +24,7 @@ def make_batch():
     }
 
 
-@pytest.mark.parametrize("option", ["use_periodic_numeric", "use_history_attention_bias"])
+@pytest.mark.parametrize("option", ["use_periodic_numeric", "use_history_attention_bias", "use_contextual_tabular"])
 def test_new_paths_start_from_same_scores_and_receive_gradients(option):
     batch = make_batch()
     torch.manual_seed(43)
@@ -63,7 +63,7 @@ def test_history_bias_masks_padding_and_missing_embedding():
 def test_learned_paths_remain_equivariant_to_candidate_permutation():
     batch = make_batch()
     model = FeedRankingModel(
-        d_model=32, dropout=0.0, use_periodic_numeric=True, use_history_attention_bias=True
+        d_model=32, dropout=0.0, use_periodic_numeric=True, use_history_attention_bias=True, use_contextual_tabular=True
     ).eval()
     permutation = torch.tensor([1, 2, 0])
     permuted = {
@@ -71,9 +71,39 @@ def test_learned_paths_remain_equivariant_to_candidate_permutation():
         for key, value in batch.items()
     }
     with torch.no_grad():
+        model.contextual_tabular.project[-1].weight.fill_(0.02)
         model.periodic_numeric.project[-1].weight.fill_(0.01)
         model.history_attention_bias.category_scale.fill_(0.7)
         model.history_attention_bias.cosine_scale.fill_(0.5)
         _, original = model(batch)
         _, changed = model(permuted)
     torch.testing.assert_close(changed, original[:, permutation])
+
+
+def test_category_context_excludes_padding_and_handles_singletons():
+    from src.nn.contextual_tabular import ContextualTabular
+
+    features = torch.tensor([[[1.], [4.], [3.], [8.]]])
+    categories = torch.tensor([[99999, 0, 99999, 99999]])
+    mask = torch.tensor([[True, True, True, False]])
+    result = ContextualTabular.category_context(features, categories, mask)
+    expected = torch.tensor([[[-1., 2/3], [0., 1/3], [1., 2/3], [0., 0.]]])
+    torch.testing.assert_close(result, expected, atol=1e-5, rtol=0)
+
+
+def test_contextual_donor_influences_candidate_query():
+    batch = make_batch()
+    batch["itemstats"] = torch.ones(2, 3, 2)
+    model = FeedRankingModel(d_model=32, dropout=0, num_itemstats=2, use_contextual_tabular=True).eval()
+    with torch.no_grad():
+        layer = model.contextual_tabular.project
+        layer[0].weight.zero_()
+        layer[0].bias.zero_()
+        layer[0].weight[0, -1] = 1
+        layer[-1].weight[0, 0] = 1
+        original = model.contextual_tabular(batch)
+        batch["itemstats"][0, 0, -1] = 2
+        changed = model.contextual_tabular(batch)
+    difference = changed - original
+    assert difference[0, 0, 0] > 0
+    assert difference.count_nonzero() == 1

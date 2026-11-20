@@ -103,10 +103,10 @@ def run(args):
     out.mkdir(parents=True, exist_ok=False)
     seed_everything(args.seed)
     config = {"use_numeric_head": True}
-    for option in ("event_cosine", "history_match", "periodic_numeric", "history_attention_bias"):
+    for option in ("event_cosine", "history_match", "periodic_numeric", "history_attention_bias", "contextual_tabular"):
         if getattr(args, option):
             config[f"use_{option}"] = True
-    collators = dict.fromkeys(("train", "val", "test"), collate_ranking_batch)
+    collators = dict.fromkeys(("train", "val") if args.skip_test or args.forward_eval else ("train", "val", "test"), collate_ranking_batch)
     for group in ("itemstats", "item2item", "time", "weighted_item2item"):
         root = getattr(args, group)
         if root:
@@ -134,9 +134,9 @@ def run(args):
         if existing.get("candidate_order_version") != 2:
             raise ValueError("Base checkpoint predates the candidate-order fix. Retrain the base.")
         keys = ("drop_zero_grad_feeds", "data", "seed", "train_parts", "base_epochs", "base_steps", "base_feeds_per_shard", "batch_size", "itemstats",
-                "item2item", "weighted_item2item", "time", "event_cosine", "history_match", "periodic_numeric", "history_attention_bias")
+                "item2item", "weighted_item2item", "time", "event_cosine", "history_match", "periodic_numeric", "history_attention_bias", "contextual_tabular")
         for key in keys:
-            default = False if key in ("event_cosine", "history_match", "periodic_numeric", "history_attention_bias") else None
+            default = False if key in ("event_cosine", "history_match", "periodic_numeric", "history_attention_bias", "contextual_tabular") else None
             if existing["args"].get(key, default) != getattr(args, key):
                 raise ValueError(f"Base run has different {key}")
         base = torch.load(previous / "base.pt", map_location="cpu")
@@ -282,6 +282,7 @@ def main():
     parser.add_argument("--time", help="Path to a donor time feature cache")
     parser.add_argument("--event-cosine", action="store_true", help="Add event-type cosine features over the latest 50 history events")
     parser.add_argument("--history-match", action="store_true", help="Learn candidate-to-event similarity over the latest 20 history events")
+    parser.add_argument("--contextual-tabular", action="store_true", help="Fuse donor and category context before attention")
     parser.add_argument("--periodic-numeric", action="store_true", help="Add periodic numeric embeddings to candidate representations")
     parser.add_argument("--history-attention-bias", action="store_true", help="Add learned category and cosine biases to candidate-history attention")
     parser.add_argument("--skip-test", action="store_true", help="Export all four OOF folds without a final fit or test predictions")

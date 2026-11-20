@@ -19,10 +19,12 @@
 from __future__ import annotations
 
 import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from src.nn.contextual_tabular import ContextualTabular
 from src.nn.dataset import CAND_FEAT_NAMES
 
 
@@ -306,6 +308,7 @@ class FeedRankingModel(nn.Module):
         use_history_match: bool = False,
         use_periodic_numeric: bool = False,
         use_history_attention_bias: bool = False,
+        use_contextual_tabular: bool = False,
     ) -> None:
         super().__init__()
         self.d_model = d_model
@@ -421,6 +424,12 @@ class FeedRankingModel(nn.Module):
                 self.periodic_numeric = PeriodicCandidateEncoder(d_model, num_cand_feats)
         self.history_attention_bias = HistoryAttentionBias(nhead) if use_history_attention_bias else None
 
+        self.contextual_tabular = None
+        if use_contextual_tabular:
+            with torch.random.fork_rng(devices=[]):
+                widths = {"itemstats": num_itemstats, "item2item": num_item2item, "time": num_time}
+                self.contextual_tabular = ContextualTabular(num_cand_feats, d_model, widths)
+
     @staticmethod
     def _donor_head(width):
         if not width:
@@ -464,6 +473,9 @@ class FeedRankingModel(nn.Module):
         cand_repr = self.cand_encoder(cand_emb, cand_cat, cand_feats) # [B, M, d_model]
         if self.periodic_numeric is not None:
             cand_repr = cand_repr + self.periodic_numeric(cand_feats)
+
+        if self.contextual_tabular is not None:
+            cand_repr = cand_repr + self.contextual_tabular(batch)
 
         # 3. Энкодинг истории
         history_mask = batch["history_mask"]    # [B, H]
