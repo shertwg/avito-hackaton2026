@@ -36,7 +36,7 @@ def shuffle_candidates(batch):
     rows = torch.arange(mask.shape[0], device=mask.device)[:, None]
     candidate_keys = (
         "candidate_mask", "cand_has_emb_mask", "cand_emb", "cand_item_id",
-        "cand_category_id", "cand_features", "target", "pos", "itemstats", "item2item", "time",
+        "cand_category_id", "cand_features", "target", "pos", "itemstats", "item2item", "time", "recency_cosine",
     )
     return {key: value[rows, order] if key in candidate_keys else value for key, value in batch.items()}
 
@@ -45,27 +45,43 @@ def adaptation_listnet(scores, target, mask):
     return listnet_loss(scores, target, mask, target_temperature=0.5)
 
 
-def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet, reference_model=None):
+def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet, reference_model=None,
+                *, amp_dtype=None):
     start = perf_counter()
     model.train()
     losses = []
     feed_visits = 0
+    scaler = torch.amp.GradScaler("cuda", init_scale=1024., enabled=amp_dtype == torch.float16)
+    skipped = 0
     for batch in loader:
         feed_visits += batch["feed_id"].numel()
         batch = {key: value.to(device) for key, value in batch.items()}
         optimizer.zero_grad()
-        scores, _ = model(batch, use_pos_bias=True)
+        with torch.autocast(device.type, dtype=amp_dtype, enabled=amp_dtype is not None):
+            scores, _ = model(batch, use_pos_bias=True)
         target, mask = batch["target"], batch["candidate_mask"]
         if reference_model is not None:
             with torch.no_grad():
                 _, reference_scores = reference_model(batch, use_pos_bias=False)
             scores = boost_hard_negative_logits(scores, target, mask, reference_scores)
         loss = loss_fn(scores, target, mask)
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
-        optimizer.step()
+        if not torch.isfinite(loss).item():
+            raise RuntimeError(f"Non-finite loss at training step {len(losses) + 1}")
+        scaler.scale(loss).backward()
+        scaler.unscale_(optimizer)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=not scaler.is_enabled())
+        scale_before = scaler.get_scale()
+        scaler.step(optimizer)
+        scaler.update()
+        skipped += int(scaler.get_scale() < scale_before)
         losses.append(loss.item())
+        if len(losses) % 1000 == 0:
+            elapsed = perf_counter() - start
+            print(f"{len(losses)} steps, {elapsed:.1f}s, AMP skipped={skipped}", flush=True)
     stats = {"seconds": perf_counter() - start, "steps": len(losses), "feed_visits": feed_visits, "loss": float(np.mean(losses))}
+    stats["amp_skipped_steps"] = skipped
+    if skipped and skipped == len(losses):
+        raise RuntimeError("AMP skipped all optimizer updates")
     if not np.isfinite(stats["loss"]):
         raise RuntimeError("Non-finite training loss")
     print(stats, flush=True)
@@ -99,6 +115,7 @@ def evaluate(data, predictions):
 
 def run(args):
     device = torch.device(args.device)
+    amp_dtype = {"off": None, "fp16": torch.float16, "bf16": torch.bfloat16}[args.amp]
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=False)
     seed_everything(args.seed)
@@ -107,7 +124,7 @@ def run(args):
         if getattr(args, option):
             config[f"use_{option}"] = True
     collators = dict.fromkeys(("train", "val") if args.skip_test or args.forward_eval else ("train", "val", "test"), collate_ranking_batch)
-    for group in ("itemstats", "item2item", "time", "weighted_item2item"):
+    for group in ("itemstats", "item2item", "time", "weighted_item2item", "recency_cosine"):
         root = getattr(args, group)
         if root:
             collators = {
@@ -134,9 +151,11 @@ def run(args):
         if existing.get("candidate_order_version") != 2:
             raise ValueError("Base checkpoint predates the candidate-order fix. Retrain the base.")
         keys = ("drop_zero_grad_feeds", "data", "seed", "train_parts", "base_epochs", "base_steps", "base_feeds_per_shard", "batch_size", "itemstats",
-                "item2item", "weighted_item2item", "time", "event_cosine", "history_match", "periodic_numeric", "history_attention_bias", "contextual_tabular")
+                "item2item", "weighted_item2item", "time", "event_cosine", "history_match", "periodic_numeric", "history_attention_bias", "contextual_tabular", "recency_cosine", "amp")
         for key in keys:
             default = False if key in ("event_cosine", "history_match", "periodic_numeric", "history_attention_bias", "contextual_tabular") else None
+            if key == "amp":
+                default = "off"
             if existing["args"].get(key, default) != getattr(args, key):
                 raise ValueError(f"Base run has different {key}")
         base = torch.load(previous / "base.pt", map_location="cpu")
@@ -157,7 +176,7 @@ def run(args):
             base_train.set_epoch(epoch)
             print(f"Base epoch {epoch}", flush=True)
             loader = batches(base_train, args.batch_size, collate_train)
-            stats = train_epoch(model, optimizer, loader if remaining is None else islice(loader, remaining), device)
+            stats = train_epoch(model, optimizer, loader if remaining is None else islice(loader, remaining), device, amp_dtype=amp_dtype)
             timing["base"].append(stats)
             if remaining is not None:
                 remaining -= stats["steps"]
@@ -230,7 +249,7 @@ def run(args):
             batches(train, args.batch_size, collate_train), val_loader,
         )
         timing["adaptation"][name] = train_epoch(
-            model, optimizer, loader, device, loss_fn, reference_model,
+            model, optimizer, loader, device, loss_fn, reference_model, amp_dtype=amp_dtype,
         )
         path = out / f"{name}.pt"
         torch.save({"model_config": config, "model_state": model.state_dict(), "epoch": adaptation_epoch}, path)
@@ -279,6 +298,7 @@ def main():
     parser.add_argument("--itemstats", help="Path to an itemstats cache built for these train shards")
     parser.add_argument("--item2item", help="Path to an item2item cache built for these train shards")
     parser.add_argument("--weighted-item2item", help="Weighted donor item2item cache, in place of --item2item")
+    parser.add_argument("--recency-cosine", help="Path to a cache of time-decayed history cosine features")
     parser.add_argument("--time", help="Path to a donor time feature cache")
     parser.add_argument("--event-cosine", action="store_true", help="Add event-type cosine features over the latest 50 history events")
     parser.add_argument("--history-match", action="store_true", help="Learn candidate-to-event similarity over the latest 20 history events")
@@ -293,6 +313,7 @@ def main():
     parser.add_argument("--adapt-val-only", action="store_true", help="Adapt only on the fit portion of val")
     parser.add_argument("--adapt-min-candidates", type=int, default=1, help="Minimum val feed size for adaptation")
     parser.add_argument("--adapt-loss", choices=("listnet", "lambda30", "hard-listnet"), default="listnet")
+    parser.add_argument("--amp", choices=("off", "fp16", "bf16"), default="off")
     parser.add_argument("--device", default="cuda")
     args = parser.parse_args()
     if min(args.train_parts, args.base_epochs, args.batch_size, args.adapt_min_candidates) < 1 or not 0 < args.lr < float("inf"):
@@ -302,6 +323,10 @@ def main():
             parser.error("Base step and per-shard feed limits must be positive")
     if args.item2item and args.weighted_item2item:
         parser.error("--item2item and --weighted-item2item are mutually exclusive")
+    if args.amp != "off" and torch.device(args.device).type != "cuda":
+        parser.error("--amp requires CUDA")
+    if args.amp == "bf16" and not torch.cuda.is_bf16_supported(including_emulation=False):
+        parser.error("The CUDA device does not support native bf16")
     run(args)
 
 

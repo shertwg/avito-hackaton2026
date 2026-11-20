@@ -8,7 +8,7 @@ import numpy as np
 import polars as pl
 import torch
 
-from src.common import item2item, itemstats, time_features, weighted_item2item
+from src.common import item2item, itemstats, recency_cosine, time_features, weighted_item2item
 from src.nn.dataset import collate_ranking_batch, find_parquet_parts
 
 
@@ -22,6 +22,7 @@ class DonorFeatureCollator:
             "itemstats": itemstats,
             "item2item": item2item,
             "time": time_features,
+            "recency_cosine": recency_cosine,
             "weighted_item2item": weighted_item2item,
         }[group].feature_names()
         if not manifest.get("complete") or manifest.get("feature_group") != group:
@@ -36,13 +37,19 @@ class DonorFeatureCollator:
             if set(parent["excluded_train_sources"]) != set(manifest["excluded_train_sources"]):
                 raise ValueError("Weighted item2item parent cohort differs from the cache")
             identity = parent
-        donors = set(identity.get("extra", identity)["donor_sources"])
-        excluded = set(manifest["excluded_train_sources"])
-        train_sources = {path.name for path in all_train}
-        if not fit <= excluded <= train_sources or not donors or donors != train_sources - excluded:
-            raise ValueError("Feature donor shards do not match the training split")
+        if group == "recency_cosine":
+            # These features depend only on each query's own embeddings and history.
+            train_coverage = set(manifest["splits"]["train"]["parts"])
+        else:
+            donors = set(identity.get("extra", identity)["donor_sources"])
+            train_coverage = set(manifest["excluded_train_sources"])
+            train_sources = {path.name for path in all_train}
+            if not fit <= train_coverage <= train_sources or not donors or donors != train_sources - train_coverage:
+                raise ValueError("Feature donor shards do not match the training split")
+        if not fit <= train_coverage:
+            raise ValueError("The cache is missing training shards")
         parts = manifest["splits"][split]["parts"]
-        expected = excluded if split == "train" else {p.name for p in find_parquet_parts(data, split)}
+        expected = train_coverage if split == "train" else {p.name for p in find_parquet_parts(data, split)}
         if set(parts) != expected:
             raise ValueError(f"Feature shard coverage differs for {split}")
 
@@ -69,7 +76,7 @@ class DonorFeatureCollator:
                     np.sin(week_phase), np.cos(week_phase), np.log1p(age), seen,
                 ))
             else:
-                values = np.log1p(raw)
+                values = np.sign(raw) * np.log1p(np.abs(raw))
             if not np.isfinite(values).all():
                 raise ValueError(f"Non-finite features for {name}")
             for feed, start, end in zip(feeds, starts, ends):

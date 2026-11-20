@@ -309,6 +309,7 @@ class FeedRankingModel(nn.Module):
         use_periodic_numeric: bool = False,
         use_history_attention_bias: bool = False,
         use_contextual_tabular: bool = False,
+        num_recency_cosine: int = 0,
     ) -> None:
         super().__init__()
         self.d_model = d_model
@@ -424,10 +425,14 @@ class FeedRankingModel(nn.Module):
                 self.periodic_numeric = PeriodicCandidateEncoder(d_model, num_cand_feats)
         self.history_attention_bias = HistoryAttentionBias(nhead) if use_history_attention_bias else None
 
+        self.recency_cosine_head = self._donor_head(num_recency_cosine)
         self.contextual_tabular = None
         if use_contextual_tabular:
             with torch.random.fork_rng(devices=[]):
-                widths = {"itemstats": num_itemstats, "item2item": num_item2item, "time": num_time}
+                widths = {
+                    "itemstats": num_itemstats, "item2item": num_item2item, "time": num_time,
+                    "recency_cosine": num_recency_cosine,
+                }
                 self.contextual_tabular = ContextualTabular(num_cand_feats, d_model, widths)
 
     @staticmethod
@@ -564,6 +569,9 @@ class FeedRankingModel(nn.Module):
 
         if self.time_head is not None:
             main_scores = main_scores + self.time_head(batch["time"]).squeeze(-1)
+
+        if self.recency_cosine_head is not None:
+            main_scores = main_scores + self.recency_cosine_head(batch["recency_cosine"]).squeeze(-1)
 
         if self.event_cosine_head is not None:
             main_scores = main_scores + self.event_cosine_head(event_cosine_features(batch)).squeeze(-1)
