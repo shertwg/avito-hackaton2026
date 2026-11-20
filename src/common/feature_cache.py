@@ -6,23 +6,18 @@ import os
 from pathlib import Path
 import time
 
-import numpy as np
 import polars as pl
 import pyarrow.parquet as pq
 
 from src.common.preparation import fingerprint, write_json, write_parquet_atomic
 from src.common.resources import memory_snapshot
+from src.common.train_selection import select_parts
 
 KEY = ['split', 'feed_id', 'candidate_index']
 
 
-def selected_parts(source, count, *, first_train_shards=False):
-    parts = source['splits']['train']['parts']
-    if not 1 <= count <= len(parts):
-        raise ValueError('training shard count outside source range')
-    if first_train_shards:
-        return parts[:count]
-    return [parts[int(index)] for index in np.linspace(0, len(parts) - 1, count, dtype=int)]
+def selected_parts(source, count, train_start=None):
+    return select_parts(source, count, train_start)
 
 
 def validate_frame(frame, names, rows, domains):
@@ -70,7 +65,7 @@ def cache_lock(output):
 
 def build_cache(prepared, output, *, train_parts, group, names, domains, producer,
                 extra, build_part, resume=False, excluded=None, prepare=None,
-                verify_extra=None, artifacts=(), first_train_shards=False):
+                verify_extra=None, artifacts=(), train_start=None):
     prepared, output = Path(prepared).resolve(), Path(output).resolve()
     if prepared == output or prepared in output.parents or output in prepared.parents:
         raise ValueError('feature output must be separate from prepared data')
@@ -78,7 +73,7 @@ def build_cache(prepared, output, *, train_parts, group, names, domains, produce
     source = json.loads(source_bytes)
     if not source.get('complete'):
         raise ValueError('prepared dataset incomplete')
-    requested = selected_parts(source, train_parts, first_train_shards=first_train_shards)
+    requested = selected_parts(source, train_parts, train_start)
     identity = {
         'prepared_manifest_sha256': hashlib.sha256(source_bytes).hexdigest(),
         'implementation_sha256': hashlib.sha256(Path(producer).read_bytes()).hexdigest(),
@@ -89,6 +84,8 @@ def build_cache(prepared, output, *, train_parts, group, names, domains, produce
             for info in source['splits'].values() for entry in info['parts']
             for field in ('candidate_path', 'feed_path')},
     }
+    if train_start is not None:
+        identity['train_start'] = train_start
     if excluded is not None:
         identity['excluded_train_sources'] = sorted(excluded)
         if set(excluded) != {entry['source'] for entry in requested}:

@@ -1,0 +1,44 @@
+{
+  "complete": true,
+  "rows": 18461,
+  "feeds": 218,
+  "bitwise_equal": true,
+  "warm_measurements": [
+    {
+      "candidate_batch": 64,
+      "seconds": 0.266
+    },
+    {
+      "candidate_batch": 128,
+      "seconds": 0.235
+    },
+    {
+      "candidate_batch": 128,
+      "seconds": 0.281
+    },
+    {
+      "candidate_batch": 64,
+      "seconds": 0.266
+    },
+    {
+      "candidate_batch": 64,
+      "seconds": 0.281
+    },
+    {
+      "candidate_batch": 128,
+      "seconds": 0.297
+    }
+  ],
+  "scope": "one val shard with warmed index pages, repeated alternating batch sizes",
+  "candidate_source": "part-00000-b97f3a7d-a812-46c8-b086-324d0cb671b2-c000.zstd.parquet",
+  "candidate_fingerprint": {
+    "bytes": 392759,
+    "mtime_ns": 1794386312441829900
+  },
+  "feed_fingerprint": {
+    "bytes": 278215,
+    "mtime_ns": 1794386312448932600
+  },
+  "parent_manifest_sha256": "361dd414c5a26acb115f530249708bad534ef418a31720176bce829257ceb467",
+  "reader_sha256": "02af7baee289b9755676779c227a88ebcde2eba43240375d77cc3ee178e1ff37"
+}

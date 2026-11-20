@@ -35,7 +35,7 @@ def build_features(prepared, output, *, train_parts=8, memory_mb=1536, resume=Fa
     if memory_mb < 128:
         raise ValueError('memory limit must be at least 128 MB')
     source = json.loads((prepared / 'manifest.json').read_text())
-    selected = selected_parts(source, train_parts, first_train_shards=first_train_shards)
+    selected = selected_parts(source, train_parts, 0 if first_train_shards else None)
     excluded = {entry['source'] for entry in selected}
     donors = [entry for entry in source['splits']['train']['parts'] if entry['source'] not in excluded]
     if not donors:
@@ -82,4 +82,4 @@ def build_features(prepared, output, *, train_parts=8, memory_mb=1536, resume=Fa
              'age_policy': 'first positive-ID donor candidate timestamp strictly before query; unknown age zero'}
     return build_cache(prepared, output, train_parts=train_parts, group='time', names=feature_names(), domains=domains(),
                        producer=__file__, extra=extra, build_part=build_part, resume=resume, excluded=excluded,
-                       prepare=aggregate, artifacts=('_first_seen.duckdb',), first_train_shards=first_train_shards)
+                       prepare=aggregate, artifacts=('_first_seen.duckdb',), train_start=0 if first_train_shards else None)

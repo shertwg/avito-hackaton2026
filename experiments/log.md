@@ -498,7 +498,7 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 | 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3677/0.3677/0.3077 | - | out=runs/cb32-is-i2i-qsm-cv; feats=109, 32 parts, GPU, iters 923; pub 0.3167, all 0.3104; vs cb8-is-i2i-qsm-cv priv +0.00220 [+0.00041, +0.00396] (p=0.992), Финал B (select_final), accepted; validator OK |
 | 2026-11-16 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02024 | priv: 0.3637/0.3638/0.3029 | - | out=runs/lgb32-is-i2i-opt; 32 parts, CPU, pub 0.3164, all 0.3069; --no-test |
 | 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02024 | priv: 0.3644/0.3644/0.3034 | - | out=runs/lgb32-is-i2i-opt-cv; 32 parts, CPU, pub 0.3153, all 0.3070; rejected vs lgb8-is-i2i-opt-cv |
-| 2026-11-16 | danya | - | blend weights 8 OOF (cb32-is-i2i-qsm-cv + cb8-is-i2i-qsm-cv-seeds + cb8-is-i2i-qsm-opt-cv + cb32-qsm-cv-seeds + lgb8-cv-seeds + nn-oof4) | priv: -/-/0.3090 | - | out=runs/blend-oof-v5; pub 0.3218, all 0.3128; vs blend32-dima priv +0.00444 [+0.00229, +0.00659] (p=1.000), vs blend-team-v3 priv +0.00150 [-0.00005, +0.00309] (all +0.00161 [+0.00030, +0.00289], p=0.992), Финал A (select_final); validator OK |
+| 2026-11-16 | danya | - | blend weights 8 OOF (cb32-is-i2i-qsm-cv + cb8-is-i2i-qsm-cv-seeds + cb8-is-i2i-qsm-opt-cv + cb32-qsm-cv-seeds + lgb8-cv-seeds + nn-oof4) | priv: -/-/0.3090 | 0.3622419578 | out=runs/blend-oof-v5; pub 0.3218, all 0.3128; vs blend32-dima priv +0.00444 [+0.00229, +0.00659] (p=1.000), vs blend-team-v3 priv +0.00150 [-0.00005, +0.00309] (all +0.00161 [+0.00030, +0.00289], p=0.992); Public LB 0.36224 (~320 место); validator OK |
 | 2026-11-16 | danya | - | blend weights 9 models (8 OOF + dima-joint008) | priv: -/-/0.3087 | - | out=runs/blend-team-v5; pub 0.3218, all 0.3126; validator OK |
 
 | 13.11.2026 | Август | `02ebf18` | NN, ListNet, 2 train-шарда, 12 264 ленты, 1 эпоха, batch=16, seed=42 | 0.33179 / — / 0.26342 | — / 0.27118 | — / 0.26010 | — | Весь val: 14 423 ленты. CPU, эпоха 302,20 с, наблюдавшийся пик рабочего набора 6,60 GiB. Чекпоинт: runs/nn-2parts-001/best_model.pt. |
@@ -592,3 +592,644 @@ cosine, infeed, history, itemstats-008, item2item-008, всего 109 призн
 ### 17.11.2026 — парная NN seed=43 поверх blend32-dima
 
 Проверка на доступном командном архиве danya-team-best-03045-for-avgust.zip. Прогнозы NN взяты из runs/nn-oof4-base-itemstats-i2i-time-mean-001. Вес NN выбран по pseudo-public из сетки 0–0,50. На верхней границе (50% NN) NDCG@30 вырос с 0,31837 до 0,32014 на pseudo-public, с 0,30452 до 0,30794 на pseudo-private. Прибавка +0,00342, парный bootstrap 95% [+0,00129; +0,00554] на 10 095 лентах. CPU, без обучения. Полное покрытие OOF, валидатор test OK. Отчёт и parquet-файлы в runs/blend32-dima-nn-time-s43-overlay-001. Для оценки v9 нужны его val_pred.parquet и test_pred.parquet.
+## Этап 5: все 9 групп признаков (`category-cooc`, `event-cosine`, `feature-ranks`, `time`) на 8 и 32 шардах (Даня) — 16.11.2026
+
+Аудиты пройдены (`"complete": true`): `category-cooc-008/032`, `event-cosine` (8/32), `feature-ranks-008/032`, `time-008/032` (`runs/*_audit.json`). Всего признаков: 130.
+
+| дата | ветка | - | модель | pseudo-private NDCG full / idcg30 / @30 | Public | примечание |
+|---|---|---|---|---|---|---|
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3658/0.3658/0.3048 | - | out=runs/cb8-all-qsm; 9 групп (130 признаков), 8 parts, GPU, best_iter=291; pub 0.3163, all 0.3083; --no-test |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3668/0.3669/0.3066 | - | out=runs/cb8-all-qsm-cv; 130 feats, 8 parts, GPU, iters 291; pub 0.3180, all 0.3100; vs cb8-is-i2i-qsm-cv priv +0.00110 [-0.00052, +0.00276] (p=0.908); validator OK |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=holdout extra=- depth=4 lr=0.02024 | priv: 0.3645/0.3645/0.3042 | - | out=runs/lgb8-all-opt; 130 feats, 8 parts, CPU, pub 0.3176, all 0.3082; --no-test |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02024 | priv: 0.3654/0.3655/0.3050 | - | out=runs/lgb8-all-opt-cv; 130 feats, 8 parts, CPU, pub 0.3159, all 0.3083 |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3672/0.3672/0.3069 | - | out=runs/cb32-all-qsm; 130 feats, 32 parts, GPU, best_iter=403; pub 0.3177, all 0.3101; --no-test |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3680/0.3680/0.3077 | - | out=runs/cb32-all-qsm-cv; 130 feats, 32 parts, GPU, iters 403; pub 0.3173, all 0.3106; vs cb32-is-i2i-qsm-cv pub +0.00066, all +0.00023, Финал B (select_final); validator OK |
+| 2026-11-16 | danya | - | catboost/default pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3642/0.3642/0.3028 | - | out=runs/cb32-all-yeti; 130 feats, 32 parts, GPU, best_iter=341; pub 0.3163, all 0.3068; --no-test |
+| 2026-11-16 | danya | - | catboost/default pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3650/0.3650/0.3041 | - | out=runs/cb32-all-yeti-cv; 130 feats, 32 parts, GPU, iters 341; pub 0.3161, all 0.3077; validator OK |
+| 2026-11-16 | danya | - | blend weights 7 OOF (без 73-фич балласта) | priv: -/-/0.3078 | - | out=runs/blend-oof-v6; pub 0.3213 (mean: priv 0.3088) |
+| 2026-11-16 | danya | - | blend weights 9 OOF (cb32-all-qsm-cv + cb32-is-i2i-qsm-cv + cb8-all-qsm-cv + cb8-is-i2i-qsm-cv-seeds + lgb8-is-i2i-opt-cv + cb32-qsm-cv-seeds + lgb8-cv-seeds + nn-oof4) | priv: -/-/0.3098 | - | out=runs/blend-oof-v7; pub 0.3223, all 0.3136 (mean: pub 0.3205, priv 0.3093); vs blend-oof-v5 priv +0.00085 [-0.00028, +0.00192] (p=0.935, all p=0.952), Финал A (select_final); validator OK |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02359 | priv: 0.3669/0.3669/0.3071 | - | out=runs/lgb8-all-opt2-cv; Optuna runs/tune-lgb-all (130 feats, min_data=252, best pub 0.3187), 361 iters, pub 0.3173, all 0.3101 |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02359 | priv: 0.3661/0.3662/0.3061 | - | out=runs/lgb32-all-opt2-cv; 32 parts, pub 0.3153, all 0.3089; уступает 8-шардовой lgb8-all-opt2-cv |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02359 | priv: 0.3661/0.3661/0.3066 | - | out=runs/lgb8-all-opt2-cv-s1; seed=1, pub 0.3173, all 0.3098 |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02359 | priv: 0.3669/0.3669/0.3074 | - | out=runs/lgb8-all-opt2-cv-s2; seed=2, pub 0.3188, all 0.3109 |
+| 2026-11-16 | danya | - | seed-avg mean lgb8-all-opt2-cv + s1 + s2 | priv: -/-/0.3071 | - | out=runs/lgb8-all-opt2-cv-seeds; pub 0.3185 (+0.00122 vs seed 0, p=0.952), all 0.3105; validator OK |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3677/0.3678/0.3076 | - | out=runs/cb32-all-qsm-cv-s1; seed=1, 130 feats, 32 parts, GPU, iters 403, pub 0.3188, all 0.3109; validator OK |
+| 2026-11-16 | danya | - | blend weights 9 OOF (cb32-all-qsm-cv-s1 + lgb8-all-opt2-cv-seeds + cb32-is-i2i-qsm-cv + cb8-all-qsm-cv + nn-oof4 ...) | priv: -/-/0.3091 | - | out=runs/blend-oof-v8; pub 0.3223 (mean: pub 0.3205, priv 0.3098) |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3652/0.3652/0.3041 | - | out=runs/cb8-all-fi-qsm; 152 feats (--feed-interactions), 8 parts, GPU, best_iter=306; pub 0.3165, all 0.3078; --no-test |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3675/0.3676/0.3074 | - | out=runs/cb8-all-fi-qsm-cv; 152 feats, 8 parts, GPU, iters 306; pub 0.3194, all 0.3110; vs cb8-all-qsm-cv all +0.00101 (p=0.909) |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02359 | priv: 0.3671/0.3672/0.3072 | - | out=runs/lgb8-all-fi-opt2-cv; 152 feats (--feed-interactions), 8 parts, CPU, pub 0.3183, all 0.3105 |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3670/0.3671/0.3066 | - | out=runs/cb32-all-fi-qsm; 152 feats, 32 parts, GPU, best_iter=518; pub 0.3181, all 0.3101; --no-test |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3679/0.3679/0.3074 | - | out=runs/cb32-all-fi-qsm-cv; 152 feats, 32 parts, GPU, iters 518; pub 0.3193, all 0.3110 (all_ndcg_full 0.3703); validator OK |
+| 2026-11-16 | danya | - | blend weights 10 OOF (152-feat + 130-feat + 73-feat + nn-oof4) | priv: -/-/0.3100 | - | out=runs/blend-oof-v9; pub 0.3219, all 0.3136; validator OK |
+| 2026-11-16 | danya | - | blend mean 10 OOF (152-feat + 130-feat + 73-feat + nn-oof4) | priv: -/-/0.3107 | 0.3619731509 | out=runs/blend-oof-v9-mean; pub 0.3210, all 0.3138; vs blend-oof-v5 priv +0.00175 [+0.00027, +0.00324] (p=0.992), Финал A (select_final); Public LB 0.36197; validator OK |
+| 2026-11-16 | danya | - | nn-is-oof4 (Август, 4-fold OOF с itemstats) | priv: -/-/0.3016 | - | out=runs/nn-is-oof4; pub 0.3131, all 0.3050; vs nn-oof4 priv +0.00091 [-0.00186, +0.00387]; validator OK |
+| 2026-11-16 | danya | - | blend weights 8 OOF (пул blend-oof-v5 с nn-is-oof4 вместо nn-oof4) | priv: -/-/0.3095 | - | out=runs/blend-oof-v5-nnis; pub 0.3234, all 0.3137; vs blend-oof-v5 priv +0.00059 [-0.00096, +0.00224] |
+| 2026-11-16 | danya | - | blend weights 10 OOF (пул v9 с nn-is-oof4 вместо nn-oof4) | priv: -/-/0.3096 | - | out=runs/blend-oof-v10; pub 0.3241 (mean: pub 0.3212, priv 0.3102); validator OK |
+| 2026-11-16 | danya | - | blend mean 11 OOF (пул v9 + nn-oof4 + nn-is-oof4) | priv: -/-/0.3103 | - | out=runs/blend-oof-v10-bothnn; pub 0.3217, all 0.3137; validator OK |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3640/0.3641/0.3038 | - | out=runs/cb8-all-fi2-qsm; 167 feats (fi2 ранги+взаимодействия+log1p), 8 parts, GPU, best_iter=387; pub 0.3175, all 0.3079; --no-test |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3682/0.3683/0.3083 | - | out=runs/cb8-all-fi2-qsm-cv; 167 feats, 8 parts, GPU, iters 387; pub 0.3200, all 0.3118; vs cb8-all-fi-qsm-cv all +0.00079 (p=0.923); validator OK |
+| 2026-11-16 | danya | - | lightgbm/default pos=none mode=cv extra=- depth=4 lr=0.02359 | priv: 0.3673/0.3673/0.3080 | - | out=runs/lgb8-all-fi2-opt2-cv; 167 feats, 8 parts, CPU, pub 0.3179, all 0.3110 |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=holdout extra=- depth=8 lr=0.05 | priv: 0.3669/0.3670/0.3067 | - | out=runs/cb32-all-fi2-qsm; 167 feats, 32 parts, GPU, best_iter=495; pub 0.3178, all 0.3100; --no-test |
+| 2026-11-16 | danya | - | catboost/QuerySoftMax pos=none mode=cv extra=- depth=8 lr=0.05 | priv: 0.3672/0.3673/0.3070 | - | out=runs/cb32-all-fi2-qsm-cv; 167 feats, 32 parts, GPU, iters 495; pub 0.3177, all 0.3102 |
+| 2026-11-16 | danya | - | blend weights 9 OOF (fi2 + 152 + 130 + nn-is-oof4 + nn-oof4) | priv: -/-/0.3094 | - | out=runs/blend-oof-v11; pub 0.3239, all 0.3138; vs blend-oof-v5 pub +0.00212, all +0.00095; validator OK |
+| 2026-11-16 | danya | - | blend mean 9 OOF (fi2 + 152 + 130 + nn-is-oof4 + nn-oof4) | priv: -/-/0.3103 | - | out=runs/blend-oof-v11-mean; pub 0.3209 |
+| 2026-11-17 | danya | - | nn-i2i-mean-oof4 (Август, среднее base NN + NN с itemstats + item2item, 4-fold OOF) | priv: -/-/0.3034 | - | out=runs/nn-i2i-mean-oof4; pub 0.3173, all 0.3076; vs nn-is-oof4 priv +0.00181, all +0.00253 (p=0.994); validator OK |
+| 2026-11-17 | danya | - | nn-time-mean-oof4 (Август, среднее base NN + NN с itemstats + item2item + time, 4-fold OOF) | priv: -/-/0.3044 | - | out=runs/nn-time-mean-oof4; pub 0.3176, all 0.3083; vs nn-i2i-mean-oof4 priv +0.00095 (p=0.936); validator OK |
+| 2026-11-17 | danya | - | blend mean 10 OOF (пул v9 с nn-i2i-mean-oof4 вместо nn-oof4) | priv: -/-/0.3102 | - | out=runs/blend-oof-v9-i2i-mean; pub 0.3206 |
+| 2026-11-17 | danya | - | blend weights 10 OOF (пул v9 с nn-i2i-mean-oof4 вместо nn-oof4) | priv: 0.3700/-/0.3108 | - | out=runs/blend-oof-v9-i2i-w; pub 0.3222 (pub_full 0.37734), all 0.3142 (all_full 0.37222); vs blend-oof-v5 priv +0.00186 (p=0.990), all +0.00142 (p=0.988); validator OK |
+| 2026-11-17 | danya | - | blend mean 10 OOF (пул v9 с nn-time-mean-oof4 вместо nn-oof4) | priv: -/-/0.3102 | - | out=runs/blend-oof-v9-time-mean; pub 0.3205 |
+| 2026-11-17 | danya | - | blend weights 10 OOF (пул v9 с nn-time-mean-oof4 вместо nn-oof4) | priv: 0.3698/-/0.3107 | - | out=runs/blend-oof-v9-time-w; pub 0.3222 (pub_full 0.37759), all 0.3141 (all_full 0.37213); vs blend-oof-v9-mean pub +0.00121 (p=0.978); validator OK |
+| 2026-11-17 | danya | - | blend weights 8 OOF (GBDT пул v11 + nn-time-mean-oof4) | priv: -/-/0.3093 | - | out=runs/blend-oof-v12; pub 0.3227 (mean: pub 0.3205, priv 0.3098) |
+| 2026-11-17 | danya | - | blend weights 8 OOF (GBDT пул v11 + nn-i2i-mean-oof4) | priv: -/-/0.3091 | - | out=runs/blend-oof-v12-i2i; pub 0.3228 (mean: pub 0.3205, priv 0.3098) |
+| 2026-11-17 | danya | - | blend mean 11 OOF (GBDT пул v11 + 4 NN: nn-oof4, nn-is-oof4, nn-i2i-mean-oof4, nn-time-mean-oof4) | priv: -/-/0.3093 | - | out=runs/blend-oof-v12-allnn; pub 0.3218 (weights: pub 0.3246, priv 0.3091) |
+| 2026-11-17 | danya | - | dima-i2i-oof4 (Дима, CatBoost YetiRank, 109 feats, 8 parts, depth=6, lr=0.1, 92 iters, 4-fold OOF) | priv: 0.3668/-/0.3063 | - | out=runs/dima-i2i-oof4; pub 0.3170 (pub_full 0.3736), all 0.3095 (all_full 0.3688); vs cb8-is-i2i-cv priv +0.00181 (p=0.993), но уступает cb8-all-fi2-qsm-cv all -0.00230 (p=0.994); validator OK |
+| 2026-11-17 | danya | - | blend weights 11 OOF (пул v9-i2i + dima-i2i-oof4) | priv: -/-/0.3087 | - | out=runs/blend-oof-v13-v9dima-w; pub 0.3227 (mean: pub 0.3211, priv 0.3100); уступает blend-oof-v9-i2i-w |
+| 2026-11-17 | danya | - | blend weights 11 OOF (пул v9-time + dima-i2i-oof4) | priv: -/-/0.3093 | - | out=runs/blend-oof-v13-v9timedima-w; pub 0.3234 (mean: pub 0.3210, priv 0.3100); dima вес 0.0 |
+| 2026-11-17 | danya | - | blend mean 10 OOF (топ GBDT fi2/152/130 + dima-i2i-oof4 + nn-i2i-mean-oof4 + nn-time-mean-oof4) | priv: -/-/0.3096 | - | out=runs/blend-oof-v13-best-mean; pub 0.3213 (weights: pub 0.3226, priv 0.3090) |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-mean: mean 10 OOF (v9-���, dmylo �����������) | priv: -/-/0.3107 | - | out=runs/dmylo-opt-mean; pub 0.3210; validator OK |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-weights_pub: v9-���, ���� �� pub | priv: -/-/0.3098 | - | out=runs/dmylo-opt-weights_pub; pub 0.3213; validator OK |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-weights_priv: v9-���, ���� �� priv (?? �� ������������) | priv: -/-/0.3107 | - | out=runs/dmylo-opt-weights_priv; pub 0.3216; validator OK; priv-���� � ������ ��������� |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-topkmean: topkmean@6 v9-��� | priv: -/-/0.3095 | - | out=runs/dmylo-opt-topkmean; pub 0.3199; ���� mean |
+| 2026-11-18 | danya | - | [Bionic] dmylo-opt-union51: mean 51 ������ | priv: -/-/0.3092 | - | out=runs/dmylo-opt-union51; pub 0.3204; ���� v9-mean |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, --no-test) | - | - | task-1767 �������; task-1623 ���� (����� ����� fold 2 �� 2h+) |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, --no-test, llama-server ����) | priv: 0.3684/0.3685/0.3080 | - | out=runs/cb32-all-fi-qsm-cv-s1; pub_full=0.3754 pub@30=0.3190; 4 ����� �� 14 ��� (���� 2h+ ��-�� llama-server) |
+| 2026-11-18 | danya | - | cb32-all-qsm-cv-s2 (seed=2, 130 feats, 32 parts, 403 iter, --no-test) | priv: 0.3683/0.3685/0.3082 | - | out=runs/cb32-all-qsm-cv-s2; pub_full=0.3743 pub@30=0.3179; 4 ����� �� 11 ��� |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s1 (seed=1, 152 feats, 32 parts, 518 iter, full val+test, ����� �������� llama-server) | priv: 0.3684/0.3685/0.3078 | - | out=runs/cb32-all-fi-qsm-cv-s1; pub_full=0.3742 pub@30=0.3176 |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-seeds: seed mean s0+s1 (152 feats) | priv: -/-/0.3078 | - | out=runs/cb32-all-fi-qsm-cv-seeds; pub@30=0.3190 mean, 0.3194 weights; s0 ��� 0.89 |
+| 2026-11-18 | danya | - | blend-oof-v14-seeds-fi: v9-��� � cb32-all-fi-qsm-cv-seeds | priv: -/-/0.3102 | - | out=runs/blend-oof-v14-seeds-fi; pub@30=0.3225 (mean: 0.3212); vs blend-oof-v9 pub +0.00058; nn-oof4 ��� 0.2286; validator OK; test_pred ���������� �� Desktop |
+| 2026-11-18 | danya | - | cb32-all-qsm-cv-s2 (seed=2, 130 feats, 32 parts, 403 iter, full val+test) | priv: 0.3680/0.3685/0.3079 | - | out=runs/cb32-all-qsm-cv-s2; pub_full=0.3748 pub@30=0.3184 |
+| 2026-11-18 | danya | - | cb32-all-qsm-cv-seeds: seed mean s0+s1+s2 (130 feats) | priv: -/-/0.3079 | - | out=runs/cb32-all-qsm-cv-seeds; pub@30=0.3181 mean, 0.3187 weights; s1 ��� 0.44 s2 ��� 0.44 |
+| 2026-11-18 | danya | - | blend-oof-v14c: fi-seeds + qsm-seeds | priv: -/-/0.3105 | - | out=runs/blend-oof-v14c; pub@30=0.3219; ���� v14-seeds-fi |
+| 2026-11-18 | danya | - | blend-oof-v14d: fi-seeds + qsm-seeds + qsm-s1 | priv: -/-/0.3104 | - | out=runs/blend-oof-v14d; pub@30=0.3223; ���� v14-seeds-fi |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s1 (seed=1, 152 feats, 8 parts, 306 iter) | - | - | task-1940 �������; ���������� feature-roots: itemstats-008 item2item-008 category-cooc-008 feature-ranks-008 time-008 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s1 (seed=1, 152 feats, 8 parts, 306 iter, 3 ���!) | priv: 0.3673/-/0.3068 | - | out=runs/cb8-all-fi-qsm-cv-s1; pub_full=0.3753 pub@30=0.3193 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds: seed mean s0+s1 (152 feats, 8 parts) | priv: -/-/0.3076 | - | out=runs/cb8-all-fi-qsm-cv-seeds; pub@30=0.3193 mean, 0.3194 weights; s0 ��� 1.0 |
+| 2026-11-18 | danya | - | blend-oof-v15: fi-seeds + cb8-seeds (��� 152-feat seeds) | priv: -/-/0.3104 | - | out=runs/blend-oof-v15; pub@30=0.3228 (mean 0.3208); NEW BEST +0.0003 vs v14-seeds-fi; nn-oof4 ��� 0.11 cb8-seeds ��� 0.22; validator OK; test_pred �� Desktop |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s2 (seed=2, 152 feats, 8 parts, 306 iter) | priv: 0.3672/-/0.3069 | - | out=runs/cb8-all-fi-qsm-cv-s2; pub_full=0.3761 pub@30=0.3200; ������ �� s0/s1/s2 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds3: 3-seed mean s0+s1+s2 (8 parts) | priv: -/-/0.3081 | - | out=runs/cb8-all-fi-qsm-cv-seeds3; mean 0.3191, weights 0.3203 |
+| 2026-11-18 | danya | - | blend-oof-v16-s2: v15-��� � cb8-s2 ������ cb8-seeds | priv: -/-/0.3100 | - | out=runs/blend-oof-v16-s2; pub@30=0.3221; ���� v15 � s2 ������� ������������� �� ���� � ��������� |
+| 2026-11-18 | danya | - | blend-oof-v16-seeds3: v15-��� � cb8-seeds3 ������ cb8-seeds | priv: -/-/0.3101 | - | out=runs/blend-oof-v16-seeds3; pub@30=0.3221; ���� v15 |
+| 2026-11-18 | danya | - | cb8-is-i2i-qsm-cv-s1 (seed=1, 5 feats, 8 parts, 348 iter) | priv: 0.3662/-/0.3059 | - | out=runs/cb8-is-i2i-qsm-cv-s1; pub@30=0.3186 |
+| 2026-11-18 | danya | - | cb8-is-i2i-qsm-cv-seeds: seed mean s0+s1 | priv: -/-/0.3067 | - | out=runs/cb8-is-i2i-qsm-cv-seeds; pub@30=0.3189 mean, 0.3195 weights |
+| 2026-11-18 | danya | - | blend-oof-v17a: v15-��� � cb8-is-i2i-seeds ������ cb32-is-i2i | priv: -/-/0.3098 | - | pub@30=0.3216; ���� v15 � cb32-is-i2i (32 �����) ������ |
+| 2026-11-18 | danya | - | blend-oof-v17b: v15-��� + cb8-is-i2i-seeds (11 �������) | priv: -/-/0.3102 | - | pub@30=0.3220; ���� v15 |
+| 2026-11-18 | danya | - | blend-oof-v17-compact: 8 ������� ��� ������� ����� �� v15 | priv: -/-/0.3104 | - | pub@30=0.3223; ���� v15 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s1 (seed=1, 152 feats, 8 parts, CPU LGB) | - | - | task-2011 ������� �� CPU |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s1 (seed=1, 152 feats, 8 parts, CPU LGB, 2000 iters) | priv: 0.3655/-/0.3051 | - | out=runs/lgb8-all-fi-opt2-cv-s1; pub_full=0.3745 pub@30=0.3183; 167 feats |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds: seed mean s0+s1 (CPU LGB, 152 feats, 8 parts) | priv: -/-/0.3081 | - | out=runs/lgb8-all-fi-opt2-cv-seeds; mean 0.3197, weights 0.3200 |
+| 2026-11-18 | danya | - | cb32-all-yeti-cv-seeds: seed mean s0+s1 (Yeti loss) | priv: -/-/0.3039 | - | out=runs/cb32-all-yeti-cv-seeds; mean 0.3165, weights 0.3168 |
+| 2026-11-18 | danya | - | blend-oof-v18-yeti-seeds: v15-��� � yeti-seeds ������ yeti-cv | priv: -/-/0.3106 | - | out=runs/blend-oof-v18-yeti-seeds; pub@30=0.3226; ���� v15 |
+| 2026-11-18 | danya | - | blend-oof-v18-lgbfi-seeds: v15-��� � lgbfi-seeds ������ lgbfi | priv: -/-/0.3101 | - | out=runs/blend-oof-v18-lgbfi-seeds; pub@30=0.3237; NEW BEST! lgbfi-seeds 0.2857 + nn-oof4 0.2857; validator OK; test_pred �� Desktop |
+| 2026-11-18 | danya | - | blend-oof-v18-all-seeds: lgbfi-seeds + yeti-seeds ��� �������� | priv: -/-/0.3097 | - | out=runs/blend-oof-v18-all-seeds; pub@30=0.3234; ���� v18-lgbfi-seeds |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s2 (seed=2, 152 feats, 8 parts, CPU LGB, 2000 iters) | priv: 0.3675/-/0.3073 | - | out=runs/lgb8-all-fi-opt2-cv-s2; pub_full=0.3766 pub@30=0.3206; best individual lgb-fi! |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds-s0s2: seed mean s0+s2 | priv: -/-/0.3087 | - | mean 0.3209, weights 0.3211 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds3: seed mean s0+s1+s2 | priv: -/-/0.3088 | - | mean 0.3215, weights 0.3217 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s3 (seed=3, 152 feats, 8 parts, GPU) | priv: 0.3669/-/0.3069 | - | pub_full=0.3756 pub@30=0.3194 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds-s0s3: mean s0+s3 | priv: -/-/0.3073 | - | mean 0.3196 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-seeds-s0s1s3: mean s0+s1+s3 | priv: -/-/0.3077 | - | mean 0.3192, weights 0.3196; s3 ��� 0.059 � ���� |
+| 2026-11-18 | danya | - | blend-oof-v19-* (cb8 seeds ��������, s2extra, s3extra) | - | - | ��� 0.3224-0.3227, ���� v18 |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-seeds3: seeds3 (s0+s1+s2) ������ seeds | priv: -/-/0.3107 | - | pub@30=0.3220, ���� v18 |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s0s2: seeds s0+s2 ������ s0+s1 | priv: -/-/0.3102 | - | pub@30=0.3224, ���� v18 |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2only: lgb-fi-s2 alone (�� mean) | priv: -/-/0.3106 | - | out=runs/blend-oof-v20-lgbfi-s2only; pub@30=0.3243; NEW BEST! lgbfi-s2 0.296 + nn-oof4 0.296; validator OK; test_pred �� Desktop |
+| 2026-11-18 | danya | - | blend-oof-v20-lgbfi-s2plus-seeds: s2 + seeds ��� � ���� (11 �������) | priv: -/-/0.3110 | - | pub@30=0.3237, ���� v20 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s3 (seed=3, CPU LGB, �������) | - | - | task-2190 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s3 (seed=3, 152 feats, 8 parts, CPU LGB) | priv: 0.3663/-/0.3059 | - | out=runs/lgb8-all-fi-opt2-cv-s3; pub_full=0.3754 pub@30=0.3190 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-seeds3: seed mean s0+s1+s2 | priv: -/-/0.3088 | - | mean 0.3215 |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s2 (seed=2, 32 parts, GPU) | priv: 0.3681/-/0.3080 | - | pub_full=0.3741 pub@30=0.3172; ������ s0 � s1 |
+| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s3only: lgbfi-s3 alone ������ lgbfi-seeds | priv: -/-/0.3106 | - | out=runs/blend-oof-v21-lgbfi-s3only; pub@30=0.3246; NEW BEST! s3 ��� 0.3478 + cb32-is-i2i 0.1739 + nn-oof4 0.1739; validator OK; test_pred �� Desktop |
+| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s2s3: s2+s3 ��� � ���� (11�) | priv: -/-/0.3104 | - | pub@30=0.3237; ���� � s3 ���������� 0.32, s2=0.04 |
+| 2026-11-18 | danya | - | blend-oof-v21-cb32fi-s0: cb32-fi-s0 alone ������ seeds | priv: -/-/0.3094 | - | pub@30=0.3240; ���� v21 |
+| 2026-11-18 | danya | - | blend-oof-v21-lgbfi-s3-s0extra: +lgbfi-s0 ��� ��� | priv: -/-/0.3099 | - | pub@30=0.3246; �� �� � s0 ������� 0.0 ��� |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s4 (seed=4, CPU LGB, �������) | - | - | task-2218; ETA ~45 ��� |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s4 (seed=4, CPU) | priv: 0.3660/-/0.3058 | - | pub@30=0.3173; blend v22 s4only=0.3225 � ���� |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s5 (seed=5, CPU) | priv: 0.3657/-/0.3056 | - | pub@30=0.3188 |
+| 2026-11-18 | danya | - | blend-oof-v22-lgbfi-s5only: lgbfi-s5 alone | priv: -/-/0.3102 | - | out=runs/blend-oof-v22-lgbfi-s5only; pub@30=0.3249; NEW BEST! s5=0.2963 nn-oof4=0.2963 cb8-seeds=0.1481; validator OK; test_pred �� Desktop |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s6 (seed=6, CPU) | priv: 0.3660/-/0.3056 | - | pub@30=0.3176; blend s6only=0.3219 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s7 (seed=7, CPU) | priv: 0.3650/-/0.3049 | - | pub@30=0.3184; blend s7only=0.3227 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s4 (seed=4, GPU) | priv: 0.3669/-/0.3067 | - | pub@30=0.3174 |
+| 2026-11-18 | danya | - | cb32-all-fi-qsm-cv-s2 (seed=2, GPU 32sh) | priv: 0.3681/-/0.3080 | - | pub@30=0.3172; ������ s0/s1 |
+| 2026-11-18 | danya | - | ������������ v23: meta-blend, s5+s3/s2extra, cb8s2/s3, 2model | - | - | ��� 0.3217-0.3247; v22-s5only=0.3249 ������� ������ |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s8 (seed=8, CPU, �������) | - | - | task-2347; ETA ~40 ��� |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s9 (seed=9, CPU, ������� ��� � ��� s8) | - | - | � |
+| 2026-11-18 | danya | - | cb32-is-i2i-qsm-cv-s1 (seed=1, GPU 32sh, is+i2i feats, �������) | - | - | task-2301; ETA ~15 ��� |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s8 (seed=8, CPU) | priv: 0.3651/-/0.3047 | - | pub@30=0.3181; blend s8only=0.3228 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s9 (seed=9, CPU) | priv: 0.3657/-/0.3052 | - | pub@30=0.3175; blend s9only=0.3233 |
+| 2026-11-18 | danya | - | cb32-is-i2i-qsm-cv-s1 (seed=1, GPU 32sh) | priv: 0.3678/-/0.3073 | - | pub@30=0.3192 |
+| 2026-11-18 | danya | - | cb8-all-fi-qsm-cv-s5 (seed=5, GPU 8sh) | priv: 0.3666/-/0.3064 | - | pub@30=0.3183 |
+| 2026-11-18 | danya | - | blend-oof-v24-cb8s5: cb8-s5 вместо cb8-seeds | priv: -/-/0.3111 | - | pub@30=0.3221; хуже v22; cb8-s5 вес 0.205 вытесняет lgb-fi-s5 |
+| 2026-11-18 | danya | - | blend-oof-v24-i2i-s1: i2i-s1 вместо i2i-s0 | priv: -/-/0.3102 | - | pub@30=0.3243; хуже v22; i2i-s0 original уникален |
+| 2026-11-18 | danya | - | blend-oof-v24-i2i-seeds: mean(i2i-s0+s1) вместо i2i-s0 | priv: -/-/0.3105 | - | pub@30=0.3235; хуже v22; confirms i2i-s0 original irreplaceable |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s10 (seed=10, CPU, запущен) | - | - | task-2463; ETA ~1h |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s11 (seed=11, CPU, запущен) | - | - | task-2465; ETA ~1h |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s10 (seed=10, CPU) | priv: 0.3651/-/0.3052 | - | pub@30=0.3200; blend s10only=0.3219 (normal, нет доминации) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s11 (seed=11, CPU) | priv: 0.3642/-/0.3037 | - | pub@30=0.3170; слабый |
+| 2026-11-18 | danya | - | blend-oof-v25-lgbfi-s10: s10 вместо s5 | priv: -/-/0.3107 | - | pub@30=0.3219; normal seed — нет доминации |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s12 (seed=12) | priv: 0.3661/-/0.3059 | - | pub@30=0.3187; blend s12only=0.3243 (magic!) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s13 (seed=13) | priv: 0.3646/-/0.3044 | - | pub@30=0.3193; blend s13only=0.3245 (magic!) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s14 (seed=14) | priv: 0.3650/-/0.3049 | - | pub@30=0.3174; blend s14only=0.3228 (normal) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-s15 (seed=15) | priv: 0.3659/-/0.3057 | - | pub@30=0.3162; blend TBD |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-d6 (depth=6, lr=0.01) | priv: 0.3679/-/0.3080 | - | pub@30=0.3176; blend d6=0.3228 (normal, нет магии) |
+| 2026-11-18 | danya | - | Итог seeds s0-s15: magic={s2,s3,s5,s12,s13} blend 0.3243-0.3249; normal прочие 0.3219-0.3233 | - | - | s5=0.3249 остаётся лучшим; depth=6 не помогает |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-reg-s0 (lambda_l2=1, min_leaf=50, запущен) | - | - | task-2542; исследование регуляризации |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0 (max_bin=63, запущен) | - | - | task-2544; грубая дискретизация |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0 (max_bin=63, seed=0, CPU) | priv: 0.3675/-/0.3075 | - | pub@30=0.3202 |
+| 2026-11-18 | danya | - | blend-oof-v26-lgbfi-bin63-s0: bin63-s0 вместо lgb-fi-s5 | priv: -/-/0.3112 | - | pub@30=0.3252 NEW BEST! bin63 вес 0.4571 — сверхдиверсификация от nn-oof4; validator OK; test_pred на Desktop |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s5 (max_bin=63, seed=5, запущен) | - | - | task-2565 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s3 (max_bin=63, seed=3, запущен) | - | - | task-2567 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s1 (max_bin=63, seed=1) | priv: 0.3683/-/0.3088 | - | pub@30=0.3214 (лучший инд!); blend=0.3240 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s2 (max_bin=63, seed=2) | priv: 0.3686/-/0.3090 | - | pub@30=0.3207; blend=0.3249 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s3 (max_bin=63, seed=3) | priv: 0.3671/-/0.3073 | - | pub@30=0.3215; blend=0.3236 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s4 (max_bin=63, seed=4) | priv: 0.3679/-/0.3081 | - | pub@30=0.3191; blend TBD |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s5 (max_bin=63, seed=5) | priv: 0.3677/-/0.3079 | - | pub@30=0.3197; blend=0.3238 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin31-s0 (max_bin=31, seed=0) | priv: 0.3695/-/0.3101 | - | pub@30=0.3197; blend=0.3248 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin31-s1 (max_bin=31, seed=1) | priv: 0.3693/-/0.3097 | - | pub@30=0.3204; blend=0.3237 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin127-s0 (max_bin=127, seed=0) | priv: 0.3680/-/0.3082 | - | pub@30=0.3181; blend=0.3232 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-reg-s0 (lambda_l2=1, min_leaf=50) | priv: 0.3652/-/0.3052 | - | pub@30=0.3183; blend=0.3246 |
+| 2026-11-18 | danya | - | Итог: max_bin sweep seed=0: bin63=0.3252 > bin31=0.3248 > bin127=0.3232 | - | - | bin63 — оптимум; seed=0 магический для coarse-bin |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s6 (запущен, CPU) | - | - | task-2646 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s0 (bin63, lr=0.05, seed=0, CPU) | - | - | task-2648 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s0 (bin63, lr=0.05, seed=0) | priv: 0.3631/-/0.3024 | - | pub@30=0.3178; ВНИМАНИЕ: большой pub-priv gap 0.0154 |
+| 2026-11-18 | danya | - | blend-oof-v29-bin63-lr005-s0: bin63-lr005-s0 вместо bin63-s0 | priv: -/-/0.3106 | - | pub@30=0.3266 NEW BEST! вес 0.302 — необычный паттерн; validator OK; test_pred на Desktop |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s6 (bin63, seed=6) | priv: 0.3684/-/0.3085 | - | pub@30=0.3201; blend s6=0.3227 (normal) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s1 (bin63, lr=0.05, seed=1, запущен) | - | - | task-2684 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s5 (bin63, lr=0.05, seed=5, запущен) | - | - | task-2686 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0-i3000 (bin63, s0, 3000 iters, запущен) | - | - | task-2666 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s1 (bin63, lr=0.05, s1) | priv: 0.3654/-/0.3045 | - | pub@30=0.3186; gap=0.0141; blend=0.3250 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s2 (bin63, lr=0.05, s2) | priv: 0.3635/-/0.3026 | - | pub@30=0.3146; gap=0.0120; blend TBD |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s3 (bin63, lr=0.05, s3) | priv: 0.3642/-/0.3043 | - | pub@30=0.3172; gap=0.0129; blend=0.3234 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s4 (bin63, lr=0.05, s4) | priv: 0.3666/-/0.3064 | - | pub@30=0.3155; gap=0.0091; skip blend |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s5 (bin63, lr=0.05, s5) | priv: 0.3654/-/0.3056 | - | pub@30=0.3143; gap=0.0087; blend=0.3228 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s6 (bin63, lr=0.05, s6) | priv: 0.3651/-/0.3046 | - | pub@30=0.3143; gap=0.0097; skip blend |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr01-s0 (bin63, lr=0.1, s0) | priv: 0.3587/-/0.2971 | - | pub@30=0.3068; gap=0.0097; слишком большой lr — модель шумная |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-s0-i3000 (bin63, s0, 3000 iters) | priv: 0.3665/-/0.3063 | - | pub@30=0.3200; blend=0.3226 — переобучилась, потеряла magic |
+| 2026-11-18 | danya | - | Итог lr sweep: lr=0.05 оптимален; s0 magic (gap=0.0154); gap коррелирует с blend |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin31-lr005-s0 (bin31, lr=0.05, s0, запущен) | - | - | task-2738 |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin31-lr005-s0 (bin31, lr=0.05, s0) | priv: 0.3689/-/0.3067 | - | pub@30=0.3169; gap=0.0102; blend v31=0.3239; bin31 хуже bin63 (меньше gap) |
+| 2026-11-18 | danya | - | lgb8-all-fi-opt2-cv-bin63-lr005-s7 (bin63, lr=0.05, s7) | priv: 0.3729/-/0.3025 | - | pub@30=0.3162; gap=0.0137; blend v31=0.3219 (uniform weights — не magic) |
+
+## Public платформы и новый план — Дима, 16.11.2026
+
+Из сообщения Дани `blend-oof-v5` получил pseudo-Private NDCG@30 0.30896,
+Public LB 0.36224, место примерно 320. Это первое переданное численное
+значение Public. Для сверки порядка моделей нужны результаты других
+командных сабмитов на платформе.
+
+Свежий журнал ветки danya уже содержит OOF с item2item на 8 и 32 шардах.
+Наша конфигурация сохраняет параметры joint-008, depth=6, lr=0.1, seed=42,
+92 дерева, пять групп и 109 признаков. По новому запросу команды готовится
+локальный четырёхфолдовый OOF. Из-за доступной RAM добавлен последовательный
+раннер с дисковыми пулами, предсказанием по шардам и возобновлением фолдов.
+Реальные метрики нового прогона будут записаны после его завершения.
+
+Повторно прошли 80 общих unittest-тестов за 82.987 с. Нейросетевой
+pytest-модуль исключён. Новый тест проверил исключение held-out лент из
+экспортированного обучающего TSV каждого фолда, четыре OOF-модели,
+возобновление после первого фолда, эталонные метрики и валидатор test.
+
+Следующие группы по запросу команды включают иерархический и свежий CTR,
+item2item с весами событий и свежести, контекст сильных признаков внутри
+ленты с взаимодействиями cosine/CTR, recency-weighted cosine. Исходные
+истории содержат порядок событий и типы, временные метки отдельных событий
+в предоставленной схеме отсутствуют. Для давности внутри истории доступен
+её порядковый индекс.
+
+### Новые группы после запроса 16.11
+
+Добавлены `weighted_item2item` (12 признаков), `recency_cosine` (4),
+`feed_context` (34) и `bayesian_ctr` (14), всего 64 новых признака.
+Взвешенный item2item использует каналы всех событий, типов 2 и 10, затухание
+по позиции и нормировку по взвешенной длине. Донорский индекс переиспользуется.
+Recency cosine содержит взвешенное среднее и сходство с нормированным
+профилем истории. Контекст ленты дополняет существующие группы отклонениями,
+z-score, рангами item2item и двумя взаимодействиями cosine/CTR.
+Иерархический CTR использует prior категории, прошлые полные UTC-дни,
+окна 3/7 дней относительно последнего допустимого донорского дня,
+отклонение товара от категории и поддержку оценок.
+
+Прошли все 86 общих unittest-тестов за 47.765 с. Нейросетевой pytest-модуль
+исключён. Тесты покрывают независимые числовые аудиты новых групп на малых
+данных, сохранение порядка и дубликатов, неизвестные векторы/товары,
+исключение доноров, холодный старт, отсутствие влияния будущих и query-labels,
+возобновление таблиц и lookup-файлов, ties, константы и крайние Float32.
+Четырёхфолдовый реальный OOF с 109 признаками выполняется отдельно.
+Материализация новых когорт планируется последовательно с учётом RAM.
+Реальные метрики новых групп ожидают проверочных прогонов.
+
+## Завершение OOF joint + item2item — Дима, 17.11.2026
+
+Завершён четырёхфолдовый time-block OOF на 8 train-шардах с пятью группами,
+109 признаками и прежними параметрами joint-008, depth=6, lr=0.1, seed=42,
+92 итерации на фолд. Источники cosine, infeed, history, itemstats-008,
+item2item-008. Новые группы от 16.11 готовятся отдельно. Каждый блок val
+предсказан моделью, обученной на train и остальных трёх блоках val.
+
+| Выборка | Лент | NDCG full | NDCG@10 | NDCG@30 |
+| --- | ---: | ---: | ---: | ---: |
+| all | 14423 | 0.368800604 | 0.241669223 | 0.309501248 |
+| pseudo_public | 4328 | 0.373569640 | 0.248437702 | 0.316981663 |
+| pseudo_private | 10095 | 0.366755989 | 0.238767393 | 0.306294192 |
+
+Эталонные метрики full/@10/@30 совпали. Test на 2 904 806 кандидатов прошёл
+валидатор. OOF val содержит 1 389 971 строку, пропуски и дубли пар отсутствуют.
+Дополнительно проверены все строки четырёх сохранённых квантованных
+обучающих пулов. Group-ID hashes, порядок и target точно совпали с исходным
+train и тремя допустимыми блоками val каждого фолда. Held-out ленты
+в обучающих пулах отсутствуют. Test-score усредняет четыре внутри-ленточных
+z-score. Пик рабочего набора процесса составил 3 870 408 704 байта.
+
+Проверенный архив `dima_joint_item2item_oof4_2026-11-17.zip` помещён в
+локальные «Загрузки» по выбранному пользователем способу передачи.
+Он содержит val_pred.parquet, test_pred.parquet, metadata.json с SHA-256
+и README. Архив ожидает передачи пользователем Дане.
+[Прогон](joint_item2item_oof_008.json), [аудит обучения](joint_item2item_oof_training_audit_008.json),
+[метаданные передачи](joint_item2item_oof_handoff_008.json).
+
+### Возможность бэггинга на блоках train
+
+Блоки 0..31, 32..63 и 64..95 непересекающиеся, содержат соответственно
+15 307 081, 15 340 516 и 15 419 577 кандидатов. По min/max timestamps все три
+покрывают исходный диапазон train 05–19.09.2026 UTC. При 109 признаках
+матрицы всех признаков в Float32 занимают 6,67–6,72 ГБ на блок.
+Экстраполяция текущего квантованного пула по числу строк даёт 1,75–1,76 ГБ
+входного пула на один CV-фолд блока. Оценка относится к входу, дополнительные
+структуры модели и подготовка увеличивают расход RAM.
+
+Последовательное обучение и освобождение модели перед следующим блоком
+сохраняют один активный блок в памяти. Для трёх блоков и четырёх фолдов
+потребуется 12 обучений. Готовые cosine/infeed покрывают все три блока.
+История и донорские кеши требуют расширения покрытия и явного выбора
+источников, текущий `--train-parts 32` выбирает linspace. Для каждого блока
+можно исключить его 32 шарда из доноров, оставив 480. Общая группа доноров
+с исключением объединения 96 шардов оставит 416. Оба варианта требуют
+соответствующих кешей, параметры выбора источников должны фиксироваться
+в manifest. Итоговые OOF/test каждого блока имеют общие ключи, веса
+ансамбля выбираются на pseudo-Public.
+[Расчёт блоков и покрытия кешей](train_block_bagging_feasibility_001.json).
+
+## Новые признаки и проверки — Дима, 17.11.2026
+
+Завершена материализация четырёх групп, всего 64 новых признака, для
+обучающих когорт из 8 и 32 шардов. Каждый кеш содержит весь val/test.
+`recency-cosine` хранит общий кеш для объединения выбранных train-шардов,
+38 источников. Донорские группы имеют отдельные кеши 008/032 и исключают
+соответствующую обучающую когорту. Данные остаются локальными, команды
+воспроизведения приведены в README.
+
+| Группа | Признаков | Кеши |
+| --- | ---: | --- |
+| weighted_item2item | 12 | weighted-item2item-008 / weighted-item2item-032 |
+| recency_cosine | 4 | recency-cosine, покрытие обеих когорт |
+| feed_context | 34 | feed-context-008 / feed-context-032 |
+| bayesian_ctr | 14 | bayesian-ctr-008 / bayesian-ctr-032 |
+
+Прошли восемь аудитов. Структура, ключи вхождений, диапазоны и отпечатки
+проверены на всех строках кешей. Независимые формулы пересчитаны на трёх
+лентах каждого файла, 408 лентах и 40 695 кандидатах для когорты 008,
+480 лентах и 47 528 кандидатах для 032. Для CTR заново посчитаны все
+категорийные и общие наблюдения доноров и дневные наблюдения проверяемых
+товаров. Weighted item2item использует ранее независимо проверенный
+родительский индекс и скалярный пересчёт весов и пересечений списков лент.
+[Материализация и сводные распределения](nov17_feature_materialization_001.json),
+[аудиты weighted item2item 008](weighted_item2item_008_audit.json) и [032](weighted_item2item_032_audit.json),
+[recency cosine 008](recency_cosine_008_audit.json) и [032](recency_cosine_032_audit.json),
+[контекст ленты 008](feed_context_008_audit.json) и [032](feed_context_032_audit.json),
+[CTR 008](bayesian_ctr_008_audit.json) и [032](bayesian_ctr_032_audit.json).
+
+### По одному малому прогону на группу
+
+Общий контроль `baseline-item2item-001` содержит cosine, itemstats-008,
+item2item-008 и базовые поля, 51 признак. Все четыре проверки используют
+тот же один train-шард, 476 301 кандидата, depth=6, lr=0.1, seed=42,
+максимум 100 итераций и early stopping на pseudo-Public. Каждая добавляет
+ровно одну новую группу. Проверены совпадение setup, ключей, targets и
+разбиения val, эталонные метрики и валидность test. Интервалы получены
+парным bootstrap 10 095 pseudo-Private лент, 1 000 повторений, seed=42.
+
+| Группа | Pseudo-Public NDCG@30 | Pseudo-Private NDCG@30 | Разность к контролю | 95% парный интервал |
+| --- | ---: | ---: | ---: | --- |
+| контроль | 0.311299892 | 0.298266319 | — | — |
+| weighted_item2item | 0.312721481 | 0.300383184 | +0.002116864 | [+0.000021417, +0.004056777] |
+| recency_cosine | 0.311743452 | 0.298186393 | -0.000079926 | [-0.002072803, +0.001801463] |
+| feed_context | 0.305658189 | 0.296168205 | -0.002098115 | [-0.004993226, +0.000732102] |
+| bayesian_ctr | 0.309997030 | 0.296627640 | -0.001638679 | [-0.003546186, +0.000210731] |
+
+Положительная разность weighted item2item относится к этому малому срезу.
+Для него интервал едва выше нуля. Перенос эффекта на joint OOF, 32 шарда
+и командный ансамбль требует проверки владельцем модели. У остальных
+трёх групп прирост здесь не подтвердился. Все новые группы подключаются
+явно. Полный четырёхфолдовый OOF выше содержит прежние 109 признаков.
+[Сравнение weighted item2item](weighted_item2item_comparison_001.json),
+[recency cosine](recency_cosine_comparison_001.json),
+[контекст ленты](feed_context_comparison_001.json),
+[CTR](bayesian_ctr_comparison_001.json).
+
+### Совместимость и восстановление расчётов
+
+Обычный `src.gbdt.prepared.load_prepared` проверен со всеми 14 группами,
+210 уникальными признаками. Для каждой когорты загружен реальный train-шард
+из 476 301 строки и по одному val/test-файлу. Покрытие всех выбранных
+8/32 train-шардов и полного val/test проверено по manifest. Неподходящая
+донорская когорта отклоняется. [Проверка загрузчика](nov17_gbdt_integration_001.json).
+
+CTR потребовал изменения агрегации из-за нехватки памяти при одновременной
+обработке 7,5 млн ключей. Суммы по окнам и join с lookup выполняются
+по одному дню запросов, лимит DuckDB равен 1536 МиБ. Для 008 сохранённые
+дневные счётчики переиспользованы после проверки SQL, входных отпечатков
+и донорских итогов. Итоговые признаки рассчитаны текущим кодом и заново
+проверены аудитом. [Проверка восстановления](bayesian_ctr_checkpoint_recovery_001.json).
+
+В предварительном CTR-аудите исправлен порядок выбора проверяемых товаров.
+Кандидаты сортируются до выборки лент, как в общем аудиторе. Добавлен
+регрессионный сценарий с перемешанными лентами. Все 86 общих unittest-тестов
+прошли за 46.221 с. Нейросетевой pytest-модуль исключён, torch и pytest
+в текущем окружении отсутствуют. `uv lock --check --offline` прошёл.
+Расчёт бэггинга дополнен явным порядком фолдов 0..3 в оценках памяти.
+
+## Подготовка бэггинга — Дима, 17.11.2026
+
+Пользователь сообщил о передаче архива joint + item2item OOF Дане.
+Добавлен явный выбор непрерывного train-блока через `--train-start`
+и `--train-parts` в cosine, infeed, history, itemstats, item2item,
+weighted item2item, дисковый OOF и общий prepared-раннер CatBoost/LightGBM.
+По умолчанию сохранён linspace. Выбор основан на позиции источника
+в manifest. Блоки 0..31, 32..63 и 64..95 имеют 480 донорских шардов каждый.
+
+`scripts.prepare_train_blocks` проверяет непересечение источников и feed_id,
+покрытие общих cosine/infeed, последовательно собирает отдельные history,
+itemstats, item2item и опциональный weighted item2item для каждого блока,
+запускает независимые аудиты и проверяет реальную загрузку train/val/test.
+Режим `--plan-only` выполняет предварительные проверки. План содержит
+команды OOF и отпечатки источников, кешей и аудитов. Завершённый план при
+повторной успешной проверке сохраняет исходное содержимое и SHA-256.
+
+`scripts.run_train_blocks_oof` запускает блоки в отдельных последовательных
+процессах. По умолчанию используются четыре фолда, depth=6, lr=0.1,
+seed=42, 92 итерации. Для трёх блоков потребуется 12 обучений. После
+завершения процесса блока его память освобождается. Реальные модели
+бэггинга остаются владельцам основных обучений.
+
+Синтетическая сквозная проверка охватывает два непересекающихся блока,
+отдельные донорские статистики и индексы, четыре аудита каждого блока,
+прерывание после готового itemstats, resume с сохранением истории,
+неизменность завершённого плана и реальный четырёхфолдовый OOF блока 1
+на 121 признаке в дочернем процессе. Дополнительно проверены общий
+GBDT-загрузчик, отказ для неверного покрытия/доноров, пересекающихся
+блоков и выхода за границы. Завершённые OOF-прогоны могут вернуть
+проверенные сохранённые результаты с исходной provenance кода.
+Для незавершённых прогонов требуется совпадение реализации.
+
+Команды подготовки и последовательного OOF приведены в README.
+Реальная материализация трёх блоков готовится отдельно от обучений.
+
+Прошли 88 общих unittest-тестов за 39.736 с. Нейросетевой pytest-модуль
+исключён. Проверка завершённого прежнего OOF через `--resume` вернула
+сохранённые результаты без повторного обучения.
+
+### Диагностика готового OOF во время подготовки блоков
+
+Добавлен `scripts.analyse_oof_slices`. Предсказания выравниваются по ключам
+вхождений, targets сверяются с prepared, временные фолды пересчитываются,
+средние метрики сравниваются с завершённым OOF. Фиксированные группы
+покрывают длину истории, размер ленты и долю эмбеддингов кандидатов.
+Диагностика описательная, параметры моделей и признаки по срезам
+не подбирались. Для test считаются характеристики покрытия.
+
+В val 14 423 ленты, все содержат хотя бы один позитив. NDCG@30 четырёх
+OOF-фолдов равен 0.315716, 0.300757, 0.312062, 0.309469.
+Истории длиннее 50 событий имеют 89.17% лент val и 89.73% test.
+Пустые истории встречаются в 1.35% val и 0.86% test. Средняя по лентам
+доля кандидатов с эмбеддингом равна 99.984% val и 99.985% test.
+Средний размер ленты увеличивается с 96.37 кандидата на val до 101.58
+на test. Эти характеристики фиксируют состав выборок.
+[Срезы OOF и покрытие test](joint_item2item_oof_slices_008.json).
+
+## Ускорение материализации itemstats — Дима, 18.11.2026
+
+Таблица lookup содержит около 11 млн товаров. Для каждого val/test-файла
+SQL заново строил соединение с этой таблицей. После агрегации lookup
+экспортируется в отсортированные массивы ключей и Float32-значений,
+материализация использует прямой поиск по ключам. Массивы имеют отпечатки
+в manifest и восстанавливаются по контрольным точкам. Входы, ключи вхождений,
+повторы и все 32 признака проверены сравнением с SQL.
+
+На первом реальном блоке совпали побитово 19 601 858 строк и 627 259 456
+значений признаков. Дополнительно выполняется SQL-join на одном train,
+val и test-файле. Отдельные замеры относятся к материализации и включают
+поиск и сборку результирующей таблицы. Экспорт массивов измерен отдельно,
+чтение кандидатов и запись Parquet исключены из этих замеров.
+База статистик сохранила исходный отпечаток.
+[Полная проверка и замеры](itemstats_lookup_benchmark_001.json).
+
+Для известных прежних реализаций проверяется сигнатура формул, состава
+полей и SQL-агрегаций. Готовые кеши возвращаются после проверки источников
+и файлов. В частичных кешах сохранены версии производителей каждого
+Parquet и перечень совместимых реализаций. Реальные itemstats-008/032
+прошли новый `--resume`, SHA-256 обоих manifest до и после совпали.
+Все 89 общих unittest-тестов прошли за 50.958 с, включая сравнение
+с SQL, прежний формат кеша, восстановление отсутствующего Parquet
+и прежние проверки прерывания. Нейросетевой pytest-модуль исключён.
+
+Истории всех трёх блоков подготовлены. Статистики блоков 32..63 и 64..95
+собраны проверенной реализацией из сохранённого снимка исходников,
+его SHA-256 совпадает с опубликованным кодом. Первая очередь заканчивает
+первый блок, после контрольной точки подготовка продолжится текущим кодом.
+
+### Дополнительные проверки сигналов и размера пакета
+
+На фиксированной выборке из 512 pseudo-Public лент, 49 590 кандидатов,
+проверены 40 вариантов асимметричной нормировки co-history и затухания
+по позиции. Формула `Cij / (pop_candidate^alpha * pop_history^(1-alpha))`,
+alpha=0/0.25/0.5/0.75/1, окна 10/50, сумма или максимум. Для затухания
+использовано взвешенное среднее или максимум, полураспад 10 позиций.
+При alpha=0.5 все восемь обычных и recency-сигналов совпали побитово
+с готовыми кешами. Это однофакторная оценка на Public-подвыборке.
+
+Лучший NDCG@30 получил исходный cosine sum по 50 событиям, 0.196387.
+Суммы с alpha=0.75 и 0.25 получили 0.194693 и 0.193702.
+Оценка признака f1 на тех же лентах равна 0.270296.
+[Все варианты и параметры выборки](item2item_normalization_diagnostics_008.json).
+
+На одном val-шарде, 18 461 кандидате и 218 лентах, размер пакета 64/128
+дал побитово одинаковые признаки. После прогрева страниц индекса
+проведены чередующиеся повторы. Устойчивого ускорения от увеличения
+пакета на этом файле не получилось.
+[Замеры](item2item_batch_benchmark_001.json).
+
+### Новые группы в reproduce_ranking — 18.11.2026
+
+Одиночный воспроизводимый пайплайн принимает weighted item2item,
+recency cosine, feed context и Bayesian CTR. Зависимые itemstats и
+item2item создаются автоматически. В модель они добавляются отдельными
+флагами, что позволяет проверять производные группы самостоятельно.
+Требование отдельного донорского шарда проверяется до подготовки данных.
+
+Сквозной синтетический тест теперь охватывает все 14 групп и 210 признаков,
+валидатор test, неизменность Parquet при resume и совпадение предсказаний.
+Отдельно проверен набор из cosine, weighted item2item и feed context,
+61 признак, с построенными родительскими кешами. Все 89 общих unittest
+прошли за 65.463 с. Нейросетевой pytest-модуль исключён. Реальные модели
+в этой проверке не обучались. Команды и различие одиночного прогона
+и четырёхфолдового OOF описаны в README.
+
+## Непересекающиеся блоки готовы — Дима, 18.11.2026
+
+Полностью материализованы три блока с отдельными историями, itemstats,
+item2item и weighted item2item. Cosine и infeed используют общие полные
+кеши. В каждом блоке 121 признак, 480 донорских шардов и весь val/test.
+
+| Блок train | Кандидатов train | Лент train | Плотная train-матрица Float32, ГиБ |
+| --- | ---: | ---: | ---: |
+| 0..31 | 15 307 081 | 196 397 | 6.900 |
+| 32..63 | 15 340 516 | 196 641 | 6.915 |
+| 64..95 | 15 419 577 | 196 851 | 6.951 |
+
+Источники и feed_id не пересекаются. Всего 46 067 174 кандидата,
+589 889 обучающих лент. Все 12 независимых аудитов прошли. Структура,
+ключи, домены и файловые отпечатки проверены на всех строках; независимые
+формулы — на выборках каждого файла. Точная область каждого аудита
+сохранена в его отчёте. Совместная загрузка реального train/val/test-файла
+прошла для каждого блока.
+
+Четыре каталога каждого блока вместе занимают 11.161 ГиБ, из них
+Parquet признаков — 3.649 ГиБ. Общие cosine/infeed и prepared в эти числа
+не входят. Восемь ранее подготовленных наборов Parquet сохранили исходные
+файловые отпечатки при переходе на проверенный lookup itemstats.
+Истории всех блоков и itemstats последних двух когорт переиспользованы;
+индексы и weighted-группа третьего блока подготовлены фоновой очередью.
+Для всех кешей сохранены исходные версии производителей и аудитов.
+
+Завершённый план повторно проверен штатным CLI
+`prepare_train_blocks --resume --plan-only`. Его SHA-256 остался
+`489dca9f5e2438d5543a28236f5c96d927b909ab49964b76271d5794d921cdea`.
+Текущая очередь заняла 7 859.07 с, включая валидацию готовых данных
+и ожидание фоновой подготовки. Первые данные собирались через Modern
+Standby, поэтому прежние времена отдельных файлов непригодны для
+сравнения производительности. Записанные пики памяти относятся к
+процессам целиком. Матрицы в таблице охватывают только train;
+CV добавляет три блока val, нативные пулы, квантование и модели.
+
+89 общих unittest-тестов прошли за 65.463 с после расширения
+reproduce_ranking; нейросетевой pytest-модуль исключён. Команды для
+weighted OOF на 8 шардах и последовательного OOF трёх блоков приведены
+в README. Три блока потребуют 12 моделей; реальные обучения бэггинга
+остаются Дане и Августу.
+
+[Кеши, области аудитов, размеры, provenance и OOF-команды](train_block_materialization_001.json).
+
+## Поправки по категории внутри ленты — Дима, 18.11.2026
+
+На сохранённых OOF joint + item2item (109 признаков) проверили три поправки к
+z-score модели: ранг f1 внутри категории, среднее трёх лучших f1 категории
+и отношение взвешенной доли категории в истории к её доле в ленте.
+Прибавляли нормированный внутри ленты сигнал с весом 0.03, 0.1 или 0.3.
+На первых 2 169 лентах pseudo-Public выиграл ранг f1 внутри категории с весом
+0.1 (+0.002106 NDCG@30). На следующих 2 159 лентах тот же вариант дал
+0.323458 против 0.323372 (+0.000086, 95% парный интервал по лентам
+[-0.003050, +0.003392]). Поправка не включена в сабмит. После отбора отдельно
+проверили общий ранг f1 и разность двух рангов при фиксированном весе 0.1.
+Поздние разности -0.000317 и +0.000464 соответственно, это описательные
+контроли на той же выборке. Pseudo-Private не использовали для оценки вариантов.
+[Параметры и результаты](category_reranking_public_008.json).
+
+При фиксированном весе 0.1 на поздней половине pseudo-Public метрика
+улучшилась у 528 лент, ухудшилась у 504, осталась прежней у 1 127.
+По размеру ленты средняя разность NDCG@30 составила -0.000670 (1–30),
++0.000286 (31–99) и +0.000570 (100 и больше). В 1 856 лентах с шестью
+и более категориями средняя разность +0.0000035. Это описательные срезы
+после выбора варианта. Обе разбивки воспроизвели общую разность.
+
+## Проверка порядка показа train как дополнительного сигнала — Дима, 18.11.2026
+
+На 218 976 кандидатах из 2 721 ленты семи train-шардов обучен небольшой
+LightGBM восстанавливать относительную позицию кандидата по 25 доступным
+при инференсе признакам. На восьмом шарде (377 лент) средняя корреляция
+Спирмена с порядком показа составила 0.1633 против 0.0809 у f1.
+Сигнал добавлялся к сохранённому joint OOF на 109 признаках после
+нормировки обоих скоров внутри ленты. Ранние 2 169 лент pseudo-Public
+выбрали коэффициент 0.15 из 0/0.05/0.15/0.3/0.6. На поздних 2 159
+лентах разность +0.001111, парный 95% интервал [-0.003529, +0.005548].
+Сохранённая модель воспроизвела этот результат перед отдельной оценкой
+на pseudo-Private. При фиксированном весе Private NDCG@30 изменился
+с 0.306294 до 0.305871, разность -0.000423 [-0.002340, +0.001448]
+на 10 095 лентах. Такой вариант в сабмит не включён. Результат относится
+к линейному смешиванию скоров этой модели с joint-109.
+[Подбор на Public](logged_order_probe_008.json), [проверка фиксированного веса](logged_order_confirmation_008.json).
+
+## Покрытие weighted item2item и поправка по категории — Дима, 18.11.2026
+
+Ненулевое совпадение хотя бы с одним из первых 50 товаров истории найдено
+у 34,84% кандидатов train-008, 12,28% val и 10,12% test. На test у
+1 412 780 из 2 904 806 кандидатов товар отсутствует в донорском индексе.
+Ещё у 1 198 141 товар есть в индексе, но совместного появления с историей
+пользователя нет. Среди кандидатов с товаром в индексе совпадение
+встречается у 40,25% на train, 20,96% на val и 19,70% на test.
+Канал события 10 имеет ненулевое значение в 996 из 28 595 тестовых лент.
+[Полная разбивка по каналам](weighted_item2item_coverage_008.json).
+
+Для кандидатов без точного совпадения проверили добавку к joint-109 из
+категорийных совместных появлений (`cc_sum_50`). Оценка нормирована
+внутри ленты по кандидатам без совпадений. На ранних 2 169 лентах
+pseudo-public каждый положительный коэффициент из 0,025/0,05/0,1/0,2
+снизил NDCG@30. Выбран вес 0, поэтому на поздних 2 159 лентах порядок
+совпал с исходным. Для этого правила проверка на pseudo-private не потребовалась.
+[Сетка и метрики](category_backoff_public_008.json).
+
+```powershell
+uv run --locked python -m scripts.profile_item2item_coverage --cache data/features/weighted-item2item-008 --parent data/features/item2item-008 --out runs/weighted-coverage.json
+uv run --locked python -m scripts.probe_category_backoff --model runs/dima-joint-item2item-008-cv-001 --out runs/category-backoff.json
+```
+
+## Четыре фолда weighted item2item — Дима, 18.11.2026
+
+Завершён joint-008 с 121 признаком, 4 временных фолда, 92 дерева на фолд.
+Контроль — joint-008 со 109 признаками, те же фолды, входные файлы базовых
+групп и параметры. Pseudo-public NDCG@30 вырос с 0,316982 до 0,317122,
+pseudo-private с 0,306294 до 0,306723. Парная разность на 10 095 лентах
++0,000429, 95% интервал [−0,000915; +0,001853]. Для отдельной модели
+устойчивый прирост не подтверждён. Оба Parquet прошли проверку ключей
+и хешей, test прошёл валидатор. В архиве 1 389 971 строка val и
+2 904 806 строк test. [Парное сравнение](weighted_joint_oof_008.json).
+
+В бленде двух локальных моделей подбор по pseudo-public выбрал веса
+0,7 для joint-109 и 0,3 для weighted-121. На pseudo-private NDCG@30
+равен 0,306632, разность к joint-109 +0,000338 [−0,000395; +0,001166].
+Для сравнения с командным blend-oof-v5 нужны его предсказания.
+[Веса и интервал бленда](joint_overlay_109_121_008.json).
+
+## Предпочтения в пространстве эмбеддингов — Дима, 18.11.2026
+
+Для каждой обучающей ленты рассчитана разность средних векторов товаров
+с кликом и без клика среди кандидатов с эмбеддингом. Линейная регрессия
+по вектору пользователя предсказывает это направление. Оценка кандидата —
+скалярное произведение направления и его нормированного вектора.
+Второй вариант усредняет направления 64 ближайших пользователей train.
+Обе модели используют только train, проверены непересечение лент с val
+и порядок временных диапазонов. Эмбеддинги читаются из своего сплита.
+
+У линейной модели подбор на ранних 2 169 лентах pseudo-public выбрал
+коэффициент 0,05 как для 8, так и для 32 шардов. На поздних 2 159 лентах
+прибавка к joint-109 составила +0,000486 [−0,001501; +0,002423] и
++0,000788 [−0,001218; +0,002812] соответственно. Для ближайших соседей
+оба раза выбран нулевой вес. Это разведочные результаты на повторно
+использованном pseudo-public. Ни один вариант не включён в архив OOF.
+[8 шардов](embedding_preference_public_008.json), [32 шарда](embedding_preference_public_032.json).
+
+```powershell
+uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --model runs/dima-joint-item2item-008-cv-001 --out runs/embedding-preference-032.json
+```
+
+Для weighted-032 ненулевое точное совпадение нашли у 287 412 из
+2 904 806 тестовых кандидатов (9,89%), против 293 885 у weighted-008 (10,12%).
+[Разбивка по train, val и test для 032](weighted_item2item_coverage_032.json).
+
+## Этап 4: Weighted item2item + feed-interactions + LB 0.36426 (Даня + Дима) — 19.11.2026
+
+| дата | ветка | - | модель | pseudo-private NDCG full / idcg30 / @30 | Public | примечание |
+|---|---|---|---|---|---|---|
+| 2026-11-19 | danya | - | cb8-all-wi2i-fi-qsm (holdout, GPU) | priv: 0.3664/-/0.3064 | - | pub@30=0.3192 (+0.0027 к cb8-fi); best_iter=835; wi2i_all_mean_10 top-9 |
+| 2026-11-19 | danya | - | cb8-all-wi2i-fi-qsm-cv (seed=0, 835 iters) | priv: 0.3687/-/0.3090 | - | pub@30=0.3216 |
+| 2026-11-19 | danya | - | cb8-all-wi2i-fi-qsm-cv-s1 (seed=1, 835 iters) | priv: 0.3692/-/0.3092 | - | pub@30=0.3219 |
+| 2026-11-19 | danya | - | cb8-all-wi2i-fi-qsm-cv-seeds (s0+s1) | priv: -/-/0.3092 | - | pub@30=0.3227 (рекорд одиночной модели) |
+| 2026-11-19 | danya | - | lgb8-all-wi2i-fi-opt2-cv-bin63-lr005-s0 | priv: 0.3661/-/0.3058 | - | pub@30=0.3173 (+0.0034 priv к версии без wi2i) |
+| 2026-11-19 | danya | - | blend-oof-v33b-swap-lgbwi2i | priv: -/-/0.3128 | - | pub@30=0.3245; рекорд priv@30 |
+| 2026-11-19 | danya | - | blend-oof-v36-cb8wi2i-seeds | priv: -/-/0.3122 | **0.3642589789** | pub@30=0.3252; +0.0021 к прежнему LB 0.3622; validator OK |

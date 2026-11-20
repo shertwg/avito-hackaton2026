@@ -1,0 +1,39 @@
+{
+  "complete": true,
+  "manifest_sha256": "952057d47432251c8421397def953a07c02ed9a434d028ccaf855ca758cd0712",
+  "scope": "all covered rows: keys, schema, finite values and both source fingerprints; independent formulas sampled per shard",
+  "sample_feeds_per_shard": 3,
+  "sampled_feeds": 480,
+  "sampled_candidate_rows": 48798,
+  "sampled_repeated_item_feeds": 0,
+  "splits": {
+    "train": {
+      "parts": 32,
+      "rows": 15419577
+    },
+    "val": {
+      "parts": 64,
+      "rows": 1389971
+    },
+    "test": {
+      "parts": 64,
+      "rows": 2904806
+    }
+  },
+  "bytes": 301046000,
+  "formula_atol": 2e-06,
+  "formula_rtol": 2e-06,
+  "candidate_history_match_rows": {
+    "train": 1,
+    "val": 0,
+    "test": 0
+  },
+  "duration_seconds": 91.45,
+  "memory": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 7134400512,
+    "working_set_bytes": 353054720,
+    "peak_working_set_bytes": 4079599616
+  },
+  "audit_sha256": "83421b7bf9e9a1f9e8334f9ad0e7f9c7e575cb5a4a71b7d7d60cc765cf3fcbb5"
+}

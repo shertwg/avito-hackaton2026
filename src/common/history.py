@@ -21,6 +21,7 @@ import pyarrow.parquet as pq
 
 from src.common.preparation import fingerprint, write_json, write_parquet_atomic
 from src.common.resources import memory_snapshot
+from src.common.train_selection import select_parts
 
 KEY = ['split', 'feed_id', 'candidate_index']
 EVENT_TYPES = list(range(1, 11))   # по EDA в истории встречаются типы 1..10
@@ -130,7 +131,7 @@ def build_feature_part(candidates: pl.DataFrame, feeds: pl.DataFrame) -> pl.Data
     return result
 
 
-def build_features(prepared, output, *, train_parts=None, resume=False):
+def build_features(prepared, output, *, train_parts=None, resume=False, train_start=None):
     """Тот же протокол, что у infeed: манифест, отпечатки файлов, возобновление по шардам."""
     prepared, output = Path(prepared).resolve(), Path(output).resolve()
     if prepared == output or prepared in output.parents or output in prepared.parents:
@@ -146,6 +147,7 @@ def build_features(prepared, output, *, train_parts=None, resume=False):
         raise ValueError('prepared dataset incomplete')
     if train_parts is not None and not 1 <= train_parts <= len(source['splits']['train']['parts']):
         raise ValueError('train_parts outside source range')
+    requested_train = select_parts(source, train_parts or len(source['splits']['train']['parts']), train_start)
     implementation = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     source_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
     manifest = {'format_version': 1, 'feature_group': 'history', 'complete': False, 'key': KEY,
@@ -154,6 +156,9 @@ def build_features(prepared, output, *, train_parts=None, resume=False):
                 'target_policy': 'only the history arrays of the same feed and candidate item/category; '
                                  'no target, original pos or other feeds',
                 'splits': {}}
+    if train_start is not None:
+        manifest['train_start'] = train_start
+        manifest['requested_train_sources'] = [entry['source'] for entry in requested_train]
     same_code = (resume and previous.get('implementation_sha256') == implementation
                  and previous.get('source_manifest_sha256') == source_sha)
     if same_code:
@@ -163,10 +168,8 @@ def build_features(prepared, output, *, train_parts=None, resume=False):
     for split in ('train', 'val', 'test'):
         all_entries = source['splits'][split]['parts']
         entries = all_entries
-        if split == 'train' and train_parts is not None:
-            if not 1 <= train_parts <= len(entries):
-                raise ValueError('train_parts outside source range')
-            entries = [entries[int(i)] for i in np.linspace(0, len(entries) - 1, train_parts, dtype=int)]
+        if split == 'train':
+            entries = requested_train
         prior_parts = previous.get('splits', {}).get(split, {}).get('parts', {}) if same_code else {}
         def reusable(entry):
             prior = prior_parts.get(entry['source'], {})

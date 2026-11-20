@@ -1,0 +1,73 @@
+{
+  "cache_sha256": "e94bbfc5e3e81a763f666b56e652625d56efb46a60798b066555641081a290f8",
+  "donor_sha256": "94efeaaacd817dfb0ece5de82b8457b79eb4472a658cd43094fdea297a6aee55",
+  "support": "positive weighted maximum over the first 50 history events",
+  "splits": {
+    "train": {
+      "feeds": 49200,
+      "rows": 3850759,
+      "absent_from_index": 517282,
+      "known_no_match": 1991701,
+      "known_match": 1341776,
+      "match_given_known": 0.40251545158403673,
+      "channels": {
+        "all": {
+          "candidates": 1341776,
+          "feeds": 47854
+        },
+        "evt2": {
+          "candidates": 225577,
+          "feeds": 26052
+        },
+        "evt10": {
+          "candidates": 42893,
+          "feeds": 1798
+        }
+      }
+    },
+    "val": {
+      "feeds": 14423,
+      "rows": 1389971,
+      "absent_from_index": 575396,
+      "known_no_match": 643871,
+      "known_match": 170704,
+      "match_given_known": 0.20956204155541233,
+      "channels": {
+        "all": {
+          "candidates": 170704,
+          "feeds": 12738
+        },
+        "evt2": {
+          "candidates": 18749,
+          "feeds": 4531
+        },
+        "evt10": {
+          "candidates": 6634,
+          "feeds": 566
+        }
+      }
+    },
+    "test": {
+      "feeds": 28595,
+      "rows": 2904806,
+      "absent_from_index": 1412780,
+      "known_no_match": 1198141,
+      "known_match": 293885,
+      "match_given_known": 0.19697042812926852,
+      "channels": {
+        "all": {
+          "candidates": 293885,
+          "feeds": 24783
+        },
+        "evt2": {
+          "candidates": 31495,
+          "feeds": 8188
+        },
+        "evt10": {
+          "candidates": 9898,
+          "feeds": 996
+        }
+      }
+    }
+  }
+}

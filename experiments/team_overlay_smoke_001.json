@@ -1,0 +1,69 @@
+{
+  "base": "dima-joint-item2item-008-cv-001",
+  "candidate": "baseline-joint-008-retry-001",
+  "input_sha256": {
+    "runs\\dima-joint-item2item-008-cv-001\\val_pred.parquet": "1a916c874578f36a0536eb301efc11362f448f5288aadcc8966f0ad3265bb7f9",
+    "runs\\dima-joint-item2item-008-cv-001\\test_pred.parquet": "2af106e2d862bf89d16c542ea8e5f39d27ba92e446e45b8a8e300571d58f65ba",
+    "runs\\baseline-joint-008-retry-001\\val_pred.parquet": "4c70adb981f7b574e799d1bc214247bab87ae72505872c2fb2714137cb1df55e",
+    "runs\\baseline-joint-008-retry-001\\test_pred.parquet": "f8d2aee55ddb6f7879baf1d62a57fab208fee78b5c8905a7766f6a7e8843bc3c"
+  },
+  "public_grid": [
+    [
+      0.0,
+      0.31698166332505606
+    ],
+    [
+      0.025,
+      0.3171513572698501
+    ],
+    [
+      0.05,
+      0.31712652262392343
+    ],
+    [
+      0.1,
+      0.31707359811362207
+    ],
+    [
+      0.15,
+      0.3167813783356565
+    ],
+    [
+      0.2,
+      0.3166043339684289
+    ],
+    [
+      0.3,
+      0.317142324860551
+    ],
+    [
+      0.4,
+      0.3175802830398975
+    ],
+    [
+      0.5,
+      0.31734017314441
+    ],
+    [
+      0.75,
+      0.3153131725638135
+    ],
+    [
+      1.0,
+      0.3117743483957607
+    ]
+  ],
+  "candidate_weight": 0.4,
+  "public_feeds": 4328,
+  "private_feeds": 10095,
+  "private_base": 0.30629419162265364,
+  "private_blend": 0.30444385512941274,
+  "private_delta": -0.0018503364932409402,
+  "paired_feed_bootstrap_ci95": [
+    -0.00337502582600685,
+    -0.000304354718236992
+  ],
+  "val_rows": 1389971,
+  "test_rows": 2904806,
+  "submission_validator": "passed"
+}

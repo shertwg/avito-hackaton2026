@@ -211,12 +211,13 @@ def build_feature_part(candidates, feeds, index, *, candidate_batch=64):
         pl.Series(name, output[:, column], dtype=pl.Float32) for column, name in enumerate(feature_names())])
 
 
-def build_features(prepared, output, *, train_parts=8, memory_mb=1536, candidate_batch=64, resume=False, first_train_shards=False):
+def build_features(prepared, output, *, train_parts=8, memory_mb=1536, candidate_batch=64, resume=False,
+                   train_start=None):
     prepared, output = Path(prepared).resolve(), Path(output).resolve()
     if memory_mb < 128 or candidate_batch < 1:
         raise ValueError('invalid item2item resource parameters')
     source = json.loads((prepared / 'manifest.json').read_text())
-    selected = selected_parts(source, train_parts, first_train_shards=first_train_shards)
+    selected = selected_parts(source, train_parts, train_start)
     excluded = {entry['source'] for entry in selected}
     donors = [entry for entry in source['splits']['train']['parts'] if entry['source'] not in excluded]
     if not donors:
@@ -244,4 +245,4 @@ def build_features(prepared, output, *, train_parts=8, memory_mb=1536, candidate
                        extra={'donor_sources': [entry['source'] for entry in donors], 'windows': list(RECENT),
                               'normalization': 'co-history feed presence cosine; self pairs included; nonpositive IDs unknown'},
                        build_part=build_part, prepare=prepare, resume=resume, excluded=excluded,
-                       artifacts=('_index.json', *ARRAYS), first_train_shards=first_train_shards)
+                       artifacts=('_index.json', *ARRAYS), train_start=train_start)

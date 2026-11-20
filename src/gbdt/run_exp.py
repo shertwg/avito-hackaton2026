@@ -43,6 +43,7 @@ def get_args(argv=None) -> argparse.Namespace:
     ap.add_argument("--feature-root", action="append", default=[],
                     help="группа признаков Димы (data/features/cosine, data/features/infeed); можно повторять")
     ap.add_argument("--train-parts", type=int, default=1, help="сколько train-шардов брать при --prepared")
+    ap.add_argument("--train-start", type=int, help="начальная позиция непрерывного блока train-шардов при --prepared")
     ap.add_argument("--out", required=True)
     ap.add_argument("--mode", choices=["holdout", "cv", "final"], default="holdout")
     ap.add_argument("--kind", choices=["catboost", "lightgbm"], default="catboost")
@@ -62,13 +63,17 @@ def get_args(argv=None) -> argparse.Namespace:
     ap.add_argument("--model-params", default=None, help="JSON-файл с доп. параметрами модели (пишет tune.py)")
     ap.add_argument("--features-dir", default=None, help="папка с внешними признаками (extra_features.py)")
     ap.add_argument("--extra", nargs="*", default=[], help="группы внешних признаков, напр. anton avgust")
+    ap.add_argument("--feed-interactions", action="store_true", help="добавить внутриленточные z-score/dmax и взаимодействия")
     ap.add_argument("--max-parts", type=int, default=None)
     ap.add_argument("--n-jobs", type=int, default=1, help="процессов при построении признаков")
     ap.add_argument("--cache", default=None, help="папка кэша таблиц признаков")
     ap.add_argument("--no-test", action="store_true")
     ap.add_argument("--note", default="")
     ap.add_argument("--log", action="store_true", help="дописать строку в experiments/log.md (только для реальных данных)")
-    return ap.parse_args(argv)
+    args = ap.parse_args(argv)
+    if args.train_start is not None and not args.prepared:
+        ap.error('--train-start requires --prepared')
+    return args
 
 
 def load_all(a: argparse.Namespace, need_test: bool) -> tuple[dict[str, pl.DataFrame], list[str]]:
@@ -78,15 +83,20 @@ def load_all(a: argparse.Namespace, need_test: bool) -> tuple[dict[str, pl.DataF
     for s in splits:
         if a.prepared:
             from src.gbdt.prepared import load_prepared
-            df, base_feats = load_prepared(a.prepared, s, a.feature_root, a.train_parts)
+            df, base_feats = load_prepared(a.prepared, s, a.feature_root, a.train_parts,
+                                          train_start=getattr(a, 'train_start', None))
         else:
             df = load_split(a.data, s, a.max_parts, a.n_jobs, a.cache)
         df, extra_cols = attach(df, a.features_dir, a.extra, s)
+        fi_cols: list[str] = []
+        if getattr(a, "feed_interactions", False):
+            from src.gbdt.feed_interactions import add_feed_interactions
+            df, fi_cols = add_feed_interactions(df)
         if "pos" not in df.columns:
             df = df.with_columns(pl.lit(None, dtype=pl.Int16).alias("pos"))
         frames[s] = df.with_columns(pl.col("category_id").cast(pl.Int32), pl.col("pos").cast(pl.Int16)
                                     ).sort("feed_id", maintain_order=True)
-    return frames, base_feats + extra_cols
+    return frames, base_feats + extra_cols + fi_cols
 
 
 def apply_pos(df: pl.DataFrame, a: argparse.Namespace, is_train: bool) -> pl.DataFrame:
