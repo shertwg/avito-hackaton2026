@@ -107,14 +107,15 @@ def run(args):
         if getattr(args, option):
             config[f"use_{option}"] = True
     collators = dict.fromkeys(("train", "val", "test"), collate_ranking_batch)
-    for group in ("itemstats", "item2item", "time"):
+    for group in ("itemstats", "item2item", "time", "weighted_item2item"):
         root = getattr(args, group)
         if root:
             collators = {
                 split: DonorFeatureCollator(root, args.data, split, args.train_parts, group, collate)
                 for split, collate in collators.items()
             }
-            config[f"num_{group}"] = collators["train"].width
+            feature_key = collators["train"].group
+            config[f"num_{feature_key}"] = collators["train"].width
     def collate_train(samples):
         return shuffle_candidates(collators["train"](samples))
 
@@ -133,7 +134,7 @@ def run(args):
         if existing.get("candidate_order_version") != 2:
             raise ValueError("Base checkpoint predates the candidate-order fix. Retrain the base.")
         keys = ("drop_zero_grad_feeds", "data", "seed", "train_parts", "base_epochs", "base_steps", "base_feeds_per_shard", "batch_size", "itemstats",
-                "item2item", "time", "event_cosine", "history_match")
+                "item2item", "weighted_item2item", "time", "event_cosine", "history_match")
         for key in keys:
             default = False if key in ("event_cosine", "history_match") else None
             if existing["args"].get(key, default) != getattr(args, key):
@@ -276,6 +277,7 @@ def main():
     parser.add_argument("--lr", type=float, default=2e-4)
     parser.add_argument("--itemstats", help="Path to an itemstats cache built for these train shards")
     parser.add_argument("--item2item", help="Path to an item2item cache built for these train shards")
+    parser.add_argument("--weighted-item2item", help="Weighted donor item2item cache, in place of --item2item")
     parser.add_argument("--time", help="Path to a donor time feature cache")
     parser.add_argument("--event-cosine", action="store_true", help="Add event-type cosine features over the latest 50 history events")
     parser.add_argument("--history-match", action="store_true", help="Learn candidate-to-event similarity over the latest 20 history events")
@@ -293,6 +295,8 @@ def main():
     for value in (args.base_steps, args.base_feeds_per_shard):
         if value is not None and value < 1:
             parser.error("Base step and per-shard feed limits must be positive")
+    if args.item2item and args.weighted_item2item:
+        parser.error("--item2item and --weighted-item2item are mutually exclusive")
     run(args)
 
 

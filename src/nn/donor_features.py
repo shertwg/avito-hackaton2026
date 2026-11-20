@@ -8,7 +8,7 @@ import numpy as np
 import polars as pl
 import torch
 
-from src.common import item2item, itemstats, time_features
+from src.common import item2item, itemstats, time_features, weighted_item2item
 from src.nn.dataset import collate_ranking_batch, find_parquet_parts
 
 
@@ -16,9 +16,14 @@ class DonorFeatureCollator:
     def __init__(self, root, data, split, train_parts, group, collate=collate_ranking_batch):
         root = Path(root)
         manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-        self.group = group
+        self.group = "item2item" if group == "weighted_item2item" else group
         self.collate = collate
-        self.features = {"itemstats": itemstats, "item2item": item2item, "time": time_features}[group].feature_names()
+        self.features = {
+            "itemstats": itemstats,
+            "item2item": item2item,
+            "time": time_features,
+            "weighted_item2item": weighted_item2item,
+        }[group].feature_names()
         if not manifest.get("complete") or manifest.get("feature_group") != group:
             raise ValueError("Expected a complete donor cache")
         if manifest.get("features") != self.features:
@@ -26,6 +31,11 @@ class DonorFeatureCollator:
         all_train = find_parquet_parts(data, "train")
         fit = {path.name for path in all_train[:train_parts]}
         identity = manifest["identity"]
+        if group == "weighted_item2item":
+            parent = identity["extra"]["parent_identity"]
+            if set(parent["excluded_train_sources"]) != set(manifest["excluded_train_sources"]):
+                raise ValueError("Weighted item2item parent cohort differs from the cache")
+            identity = parent
         donors = set(identity.get("extra", identity)["donor_sources"])
         excluded = set(manifest["excluded_train_sources"])
         train_sources = {path.name for path in all_train}
