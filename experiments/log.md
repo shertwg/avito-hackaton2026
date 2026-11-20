@@ -1169,3 +1169,4 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-20 | danya | - | lgb32-all-wi2i-rc-fi3-bin63-lr005-td03-seeds3 (32 шарда, lambdarank bin63 d=4, time-decay 0.03, 3 сида) | priv: -/-/0.3113 | - | all@30=0.3150, pub@30=0.3236 (+0.0010 pub к версии без decay) |
 | 2026-11-20 | danya | - | cb32-all-wi2i-rc-fi3-pairlogitpw-d6-l2-cv (32 шарда, PairLogitPairwise d=6, l2=10, 1800 iters) | priv: 0.3722/-/0.3132 | - | all@30=0.3157, pub@30=0.3217 |
 | 2026-11-20 | danya | - | cb96-blocks-wi2i-fi3-qsm-td03-cv (3 блока 0..95, QuerySoftMax d=8, time-decay 0.03) | priv: -/-/0.3085 | - | all@30=0.3124, pub@30=0.3216 |
+| 2026-11-20 | danya | - | lgb96-blocks-wi2i-fi3-binary-td03-cv (3 блока 0..95, binary ExtraTrees bin63, time-decay 0.03) | priv: -/-/0.3123 | - | all@30=0.3160, pub@30=0.3245 (+0.0009 priv к версии без decay) |
