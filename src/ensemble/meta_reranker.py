@@ -100,7 +100,7 @@ def attach_context_cols(base: pl.DataFrame, data_dir: str, split: str) -> pl.Dat
 
 
 def fit_lgb_meta(X_tr: np.ndarray, y_tr: np.ndarray, f_tr: np.ndarray, seed: int = 42,
-                 lr: float = 0.03, rounds: int = 250, num_leaves: int = 15, min_data: int = 300):
+                 lr: float = 0.03, rounds: int = 150, num_leaves: int = 7, min_data: int = 500):
     import lightgbm as lgb
     _, counts = np.unique(f_tr, return_counts=True)
     params = dict(
@@ -108,11 +108,11 @@ def fit_lgb_meta(X_tr: np.ndarray, y_tr: np.ndarray, f_tr: np.ndarray, seed: int
         learning_rate=lr,
         num_leaves=num_leaves,
         min_data_in_leaf=min_data,
-        feature_fraction=0.6,
+        feature_fraction=0.55,
         bagging_fraction=0.8,
         bagging_freq=1,
-        lambda_l2=30.0,
-        max_bin=127,
+        lambda_l2=50.0,
+        max_bin=63,
         seed=seed,
         verbose=-1,
         metric="ndcg",
@@ -125,11 +125,12 @@ def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--data", default="competition")
     ap.add_argument("--runs", nargs="+", required=True)
+    ap.add_argument("--base-run", default=None, help="готовый 4-fold OOF бленд (Meta-A) в качестве базы для смешивания")
     ap.add_argument("--out", required=True)
     ap.add_argument("--folds", type=int, default=4)
-    ap.add_argument("--rounds", type=int, default=250)
+    ap.add_argument("--rounds", type=int, default=150)
     ap.add_argument("--lr", type=float, default=0.03)
-    ap.add_argument("--num-leaves", type=int, default=15)
+    ap.add_argument("--num-leaves", type=int, default=7)
     ap.add_argument("--seed", type=int, default=42)
     a = ap.parse_args(argv)
 
@@ -146,6 +147,11 @@ def main(argv=None) -> None:
 
     extra_cols = ["f1", "f2", "f3", "f5"]
     X_meta, s_base = build_meta_features(val, names, extra_cols=extra_cols)
+    if a.base_run:
+        bp = pl.read_parquet(Path(a.base_run) / "val_pred.parquet").select(KEYS + ["score"]).cast(
+            {"feed_id": pl.Int32, "item_id": pl.Int32}
+        )
+        s_base = feed_zscore(f, val.select(KEYS).join(bp, on=KEYS, how="left")["score"].to_numpy())
 
     uf, fold = time_folds(f, ts, a.folds)
     fold_of = dict(zip(uf.tolist(), fold.tolist()))
@@ -159,8 +165,8 @@ def main(argv=None) -> None:
         oof_lgb[held] = feed_zscore(f[held], m.predict(X_meta[held]))
         print(f"[meta-reranker] fold {k+1}/{a.folds} lgb_ndcg@30={mean_ndcg(f[held], t[held], oof_lgb[held], 30):.5f}", flush=True)
 
-    # Check blend alpha between linear hybrid and non-linear meta_lgb strictly on pub/all
-    alphas = [0.0, 0.15, 0.25, 0.35, 0.5, 0.7, 1.0]
+    # Check blend alpha between linear hybrid/base and non-linear meta_lgb strictly on pub/all
+    alphas = [0.0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.50]
     grid = []
     for al in alphas:
         s = (1.0 - al) * s_base + al * oof_lgb
@@ -179,6 +185,11 @@ def main(argv=None) -> None:
     te = attach_context_cols(te, a.data, "test").sort("feed_id", maintain_order=True)
     Xt_meta, st_base = build_meta_features(te, names, extra_cols=extra_cols)
     ft = te["feed_id"].to_numpy()
+    if a.base_run:
+        btp = pl.read_parquet(Path(a.base_run) / "test_pred.parquet").select(KEYS + ["score"]).cast(
+            {"feed_id": pl.Int32, "item_id": pl.Int32}
+        )
+        st_base = feed_zscore(ft, te.select(KEYS).join(btp, on=KEYS, how="left")["score"].to_numpy())
     m_full = fit_lgb_meta(X_meta, t, f, seed=a.seed, lr=a.lr, rounds=a.rounds, num_leaves=a.num_leaves)
     st_lgb = feed_zscore(ft, m_full.predict(Xt_meta))
     st_best = ((1.0 - best_al) * st_base + best_al * st_lgb).astype(np.float32)
