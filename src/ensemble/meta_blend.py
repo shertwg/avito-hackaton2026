@@ -77,7 +77,7 @@ def fit_weights_regularized(
         if s <= 0.0:
             return -1e9
         w = w / s
-        score = X @ w
+        score = X @ w.astype(np.float32)
         val = mean_ndcg(feed_id, target, score, cutoff=30)
         pen = l2_reg * float(np.sum((w - w_unif) ** 2))
         return val - pen
