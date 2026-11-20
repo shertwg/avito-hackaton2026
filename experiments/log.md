@@ -1142,3 +1142,10 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-19 | danya | - | lgb8-all-wi2i-fi-opt2-cv-bin63-lr005-s0 | priv: 0.3661/-/0.3058 | - | pub@30=0.3173 (+0.0034 priv к версии без wi2i) |
 | 2026-11-19 | danya | - | blend-oof-v33b-swap-lgbwi2i | priv: -/-/0.3128 | - | pub@30=0.3245; рекорд priv@30 |
 | 2026-11-19 | danya | - | blend-oof-v36-cb8wi2i-seeds | priv: -/-/0.3122 | **0.3642589789** | pub@30=0.3252; +0.0021 к прежнему LB 0.3622; validator OK |
+| 2026-11-19 | danya | - | cb8-all-wi2i-rc-fi3-qsm-cv-seeds3 (wi2i + rc + fi v3) | priv: -/-/0.3096 | - | pub@30=0.3211 (s0); recency_cosine + fi v3 дают +0.0006 |
+| 2026-11-19 | danya | - | lgb8-all-wi2i-rc-fi3-extratrees-seeds3 (extra_trees, bin63) | priv: -/-/0.3076 | - | s1 priv@30=0.3076, all@30=0.3103 |
+| 2026-11-19 | danya | - | lgb8-all-wi2i-rc-fi3-binary-seeds3 (pointwise binary + extra_trees) | priv: -/-/0.3107 | - | s1 priv@30=0.3107, all@30=0.3137; топ-модель LightGBM |
+| 2026-11-19 | danya | - | cb8-all-wi2i-rc-fi3-pairlogit-d6-cv-seeds3 (PairLogit depth=6) | priv: -/-/0.3115 | - | s1 priv@30=0.3115, s2 pub@30=0.3228, all@30=0.3144 — рекорд одиночной модели |
+| 2026-11-19 | danya | - | cb96-blocks-wi2i-fi3-pairlogit-d6-cv (3 блока 0..95, 46.1M строк) | priv: -/-/0.3108 | - | блоки 0.3102/0.3093/0.3108 priv@30 |
+| 2026-11-19 | danya | - | lgb96-blocks-wi2i-fi3-binary-cv (3 блока 0..95, binary ExtraTrees) | priv: -/-/0.3112 | - | блоки 0.3098/0.3112/0.3109 priv@30; вес 0.1639 в v9 |
+| 2026-11-20 | danya | - | meta-blend-v9-lgb96 (4-fold OOF Z+RankGauss, L2, 12 семейств) | priv: -/-/0.31465 | - | all@30=0.31796, pub@30=0.32568; +0.00245 priv к v36 (LB 0.36426); Desktop обновлён |
