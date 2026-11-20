@@ -1161,3 +1161,4 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-20 | danya | - | lgb32-all-wi2i-rc-fi3-binary-td03-cv (32 шарда, binary ExtraTrees bin63, time-decay 0.03) | priv: 0.3714/-/0.3123 | - | all@30=0.3158, pub@30=0.3242 (+0.0004 priv к s0 без decay) |
 | 2026-11-20 | danya | - | meta-blend-v20-td03-mean-hybrid (4-fold OOF Z+RankGauss, mean_hybrid, 16 семейств) | priv: -/-/0.31603 | - | all@30=0.31904, pub@30=0.32608; +0.00383 priv к v36 (LB 0.36426); validator OK; Desktop обновлён |
 | 2026-11-20 | danya | - | cb96-blocks-wi2i-fi3-pairlogit-d6-l2-cv (3 блока 0..95, PairLogit d=6, l2=10, 2200 iters) | priv: -/-/0.3121 | - | all@30=0.3151, pub@30=0.3220 (+0.0005 priv к версии без l2=10) |
+| 2026-11-20 | danya | - | cb32-all-wi2i-rc-fi3-qsm-td03-cv (32 шарда, QuerySoftMax d=8, time-decay 0.03) | priv: 0.3698/-/0.3099 | - | all@30=0.3134, pub@30=0.3213 (+0.0013 priv к qsm без decay) |
