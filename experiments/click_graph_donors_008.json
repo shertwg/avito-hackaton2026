@@ -1,0 +1,36 @@
+{
+  "prepared_sha256": "c41fee4a3d34330e40afbbe660b27ed959f6d56028c002c6cb837cf8deae9874",
+  "excluded_shards": [
+    "part-00000-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00073-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00146-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00219-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00292-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00365-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00438-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00511-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+  ],
+  "donor_shards": 504,
+  "query_items": 5935429,
+  "donor_min_ts": 1788642048,
+  "donor_max_ts": 1789851648,
+  "scored_time_bounds": {
+    "val": [
+      1790024448,
+      1790283648
+    ],
+    "test": [
+      1790370048,
+      1790715520
+    ]
+  },
+  "totals": {
+    "feeds": 3102008,
+    "impressions": 242895077,
+    "clicks": 5362045,
+    "query_impressions": 106620564,
+    "query_clicks": 2400975,
+    "history_impression_pairs": 5023338768,
+    "history_click_pairs": 113594739
+  }
+}
