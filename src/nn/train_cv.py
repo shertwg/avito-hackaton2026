@@ -143,6 +143,8 @@ def run(args):
         drop_zero_grad_feeds=args.drop_zero_grad_feeds,
     )
     timing = {"base": [], "adaptation": {}}
+    if args.prefetch_train_embeddings:
+        train.prefetch_embeddings()
 
     base_path = out / "base.pt"
     if args.base_run:
@@ -171,6 +173,8 @@ def run(args):
                 max_feeds_per_part=args.base_feeds_per_shard,
                 drop_zero_grad_feeds=args.drop_zero_grad_feeds,
             )
+            if args.prefetch_train_embeddings:
+                base_train.prefetch_embeddings()
         remaining = args.base_steps
         for epoch in range(1, args.base_epochs + 1):
             base_train.set_epoch(epoch)
@@ -314,6 +318,7 @@ def main():
     parser.add_argument("--adapt-min-candidates", type=int, default=1, help="Minimum val feed size for adaptation")
     parser.add_argument("--adapt-loss", choices=("listnet", "lambda30", "hard-listnet"), default="listnet")
     parser.add_argument("--amp", choices=("off", "fp16", "bf16"), default="off")
+    parser.add_argument("--prefetch-train-embeddings", action="store_true", help="Read the selected cohort embedding rows into RAM in file order")
     parser.add_argument("--device", default="cuda")
     args = parser.parse_args()
     if min(args.train_parts, args.base_epochs, args.batch_size, args.adapt_min_candidates) < 1 or not 0 < args.lr < float("inf"):

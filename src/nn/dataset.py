@@ -369,6 +369,20 @@ def row_to_sample(row: dict[str, Any], emb: np.memmap, max_hist_len: int = 256) 
     return sample
 
 
+class CompactEmbeddingStore:
+    """Keep requested rows in RAM with an index back to their original row IDs."""
+
+    def __init__(self, row_ids, vectors):
+        self.row_ids = row_ids
+        self.vectors = vectors
+
+    def __getitem__(self, indices):
+        positions = np.searchsorted(self.row_ids, indices)
+        if (positions >= len(self.row_ids)).any() or not np.array_equal(self.row_ids[positions], indices):
+            raise IndexError("Embedding row was not prefetched")
+        return self.vectors[positions]
+
+
 class ShardedFeedRankingDataset(IterableDataset):
     """Быстрый шардированный загрузчик для 512+ партов и миллионов лент.
 
@@ -422,17 +436,35 @@ class ShardedFeedRankingDataset(IterableDataset):
 
         schema_cols = set(pq.ParquetFile(self.parts[0]).schema_arrow.names)
         self.cols_to_read = [c for c in EXPECTED_COLUMNS if c in schema_cols]
-        self._emb_memmap: np.memmap | None = None
+        self._emb_memmap: np.memmap | CompactEmbeddingStore | None = None
 
     def set_epoch(self, epoch: int) -> None:
         """Обновляет эпоху для детерминированного перемешивания партов."""
         self.epoch = epoch
 
     @property
-    def emb_memmap(self) -> np.memmap:
+    def emb_memmap(self) -> np.memmap | CompactEmbeddingStore:
         if self._emb_memmap is None:
             self._emb_memmap = load_item_embeddings_memmap(self.data_root, self.split)
         return self._emb_memmap
+
+    def prefetch_embeddings(self):
+        """Read only this shard cohort's embedding vectors in physical file order."""
+        from src.common.similarity import prefetch_vectors
+
+        if isinstance(self._emb_memmap, CompactEmbeddingStore):
+            return
+        present = np.zeros(self.emb_memmap.shape[0], dtype=bool)
+        columns = ["item_id__embedding_idx", "history__item_id__embedding_idx"]
+        for path in self.parts:
+            frame = pl.read_parquet(path, columns=[c for c in columns if c in self.cols_to_read])
+            for column in frame.columns:
+                values = frame[column].explode().drop_nulls().to_numpy()
+                present[values[values >= 0]] = True
+        rows = np.flatnonzero(present)
+        print(f"Prefetching {len(rows):,} embedding vectors", flush=True)
+        vectors = prefetch_vectors(self.data_root, self.split, rows)
+        self._emb_memmap = CompactEmbeddingStore(rows, vectors)
 
     def __len__(self) -> int:
         return self.total_rows
