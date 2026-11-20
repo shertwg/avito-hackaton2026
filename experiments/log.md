@@ -1177,7 +1177,7 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-20 | avgust | - | nn-avgust-context-balanced-oof411 (NN v2 balanced: fusion42+43+rule42+43, 2 шарда) | priv: -/-/0.3051 | - | all@30=0.3092, pub@30=0.3187 (+0.0044 priv к nn-oof4); validator OK |
 | 2026-11-20 | avgust | - | nn-avgust-context-fusion2-oof411 (NN v2 fusion2: fusion42+43, 2 шарда) | priv: -/-/0.3043 | - | pub@30=0.3187; validator OK |
 | 2026-11-21 | danya | - | meta-blend-v31-lgbd8-mean-hybrid (4-fold OOF Z+RankGauss alpha=0.25, mean_hybrid, 18 моделей) | priv: -/-/0.31679 | **0.3664069032** | all@30=0.31963, pub@30=0.32625 (+0.00062 priv к v30); validator OK; Desktop обновлён |
-| 2026-11-21 | danya | - | meta-blend-v34-d8-bal-mean-hybrid (4-fold OOF Z+RankGauss alpha=0.25, mean_hybrid, 18 моделей с balanced NN) | priv: -/-/0.31677 | - | all@30=0.31965 (новый рекорд), pub@30=0.32638; validator OK; Desktop обновлён |
+| 2026-11-21 | danya | - | meta-blend-v34-d8-bal-mean-hybrid (4-fold OOF Z+RankGauss alpha=0.25, mean_hybrid, 18 моделей с balanced NN) | priv: -/-/0.31677 | **0.3665061448** | all@30=0.31965 (новый рекорд), pub@30=0.32638; validator OK; Desktop обновлён |
 
 ## Данные для проверки P0 и сверка с Public — Дима, 20.11.2026
 
