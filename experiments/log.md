@@ -1176,7 +1176,7 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-20 | danya | - | lgb32-all-wi2i-rc-fi3-binary-td03-d8-cv (32 шарда, binary ExtraTrees bin63 d=8, lr=0.03, time-decay 0.03) | priv: 0.3735/-/0.3143 | - | all@30=0.3163, pub@30=0.3209 (новый соло-рекорд priv@30 для LightGBM) |
 | 2026-11-20 | avgust | - | nn-avgust-context-balanced-oof411 (NN v2 balanced: fusion42+43+rule42+43, 2 шарда) | priv: -/-/0.3051 | - | all@30=0.3092, pub@30=0.3187 (+0.0044 priv к nn-oof4); validator OK |
 | 2026-11-20 | avgust | - | nn-avgust-context-fusion2-oof411 (NN v2 fusion2: fusion42+43, 2 шарда) | priv: -/-/0.3043 | - | pub@30=0.3187; validator OK |
-| 2026-11-21 | danya | - | meta-blend-v31-lgbd8-mean-hybrid (4-fold OOF Z+RankGauss alpha=0.25, mean_hybrid, 18 моделей) | priv: -/-/0.31679 | - | all@30=0.31963, pub@30=0.32625 (+0.00062 priv к v30); validator OK; Desktop обновлён |
+| 2026-11-21 | danya | - | meta-blend-v31-lgbd8-mean-hybrid (4-fold OOF Z+RankGauss alpha=0.25, mean_hybrid, 18 моделей) | priv: -/-/0.31679 | **0.3664069032** | all@30=0.31963, pub@30=0.32625 (+0.00062 priv к v30); validator OK; Desktop обновлён |
 
 ## Данные для проверки P0 и сверка с Public — Дима, 20.11.2026
 
