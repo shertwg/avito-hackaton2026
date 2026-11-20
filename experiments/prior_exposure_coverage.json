@@ -1,0 +1,48 @@
+{
+  "training_shards": 512,
+  "max_train_ts": 1789851648,
+  "min_scored_ts": 1790024448,
+  "scope": "Target-free; prior exposures from all strictly earlier train/val/test impressions",
+  "coverage": {
+    "item_id": {
+      "test": {
+        "feeds": 28595,
+        "rows": 2904806,
+        "rows_with_previous": 3828,
+        "feeds_with_previous": 2064,
+        "rows_previous_within_24h": 126,
+        "rows_previous_within_1h": 3,
+        "rows_with_missing_user_or_key": 134910
+      },
+      "val": {
+        "feeds": 14423,
+        "rows": 1389971,
+        "rows_with_previous": 2542,
+        "feeds_with_previous": 1224,
+        "rows_previous_within_24h": 35,
+        "rows_previous_within_1h": 18,
+        "rows_with_missing_user_or_key": 69815
+      }
+    },
+    "category_id": {
+      "test": {
+        "feeds": 28595,
+        "rows": 2904806,
+        "rows_with_previous": 724253,
+        "feeds_with_previous": 8406,
+        "rows_previous_within_24h": 4513,
+        "rows_previous_within_1h": 247,
+        "rows_with_missing_user_or_key": 134910
+      },
+      "val": {
+        "feeds": 14423,
+        "rows": 1389971,
+        "rows_with_previous": 367482,
+        "feeds_with_previous": 4394,
+        "rows_previous_within_24h": 1367,
+        "rows_previous_within_1h": 478,
+        "rows_with_missing_user_or_key": 69815
+      }
+    }
+  }
+}

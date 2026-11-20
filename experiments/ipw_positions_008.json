@@ -1,0 +1,67 @@
+{
+  "donors": 504,
+  "excluded_sources": [
+    "part-00000-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00073-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00146-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00219-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00292-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00365-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00438-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00511-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+  ],
+  "positions": {
+    "feeds": 3102008,
+    "candidates": 242895077,
+    "min_pos": 0,
+    "max_pos": 299,
+    "feeds_missing_first_position": 457954,
+    "feeds_with_internal_gaps": 2615112,
+    "feeds_with_pos_ge_candidate_count": 2653580,
+    "feeds_repeated_or_null_position": 14
+  },
+  "duplicate_diagnostics": {
+    "null_positions": 0,
+    "repeated_positions": 320,
+    "affected_rows": 640,
+    "repeated_positions_with_different_items": 320
+  },
+  "buckets": [
+    {
+      "position": "00",
+      "impressions": 2644055,
+      "clicks": 312413,
+      "ctr": 0.11815677056642165
+    },
+    {
+      "position": "01-04",
+      "impressions": 10801766,
+      "clicks": 703454,
+      "ctr": 0.06512398065279326
+    },
+    {
+      "position": "05-09",
+      "impressions": 12899464,
+      "clicks": 593939,
+      "ctr": 0.046043696079154914
+    },
+    {
+      "position": "10-29",
+      "impressions": 42858978,
+      "clicks": 1317560,
+      "ctr": 0.03074175030491861
+    },
+    {
+      "position": "30-99",
+      "impressions": 90493029,
+      "clicks": 1560778,
+      "ctr": 0.017247494279365984
+    },
+    {
+      "position": "100+",
+      "impressions": 83197785,
+      "clicks": 873901,
+      "ctr": 0.010503897429480845
+    }
+  ]
+}
