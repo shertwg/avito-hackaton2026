@@ -103,7 +103,7 @@ def run(args):
     out.mkdir(parents=True, exist_ok=False)
     seed_everything(args.seed)
     config = {"use_numeric_head": True}
-    for option in ("event_cosine", "history_match"):
+    for option in ("event_cosine", "history_match", "periodic_numeric", "history_attention_bias"):
         if getattr(args, option):
             config[f"use_{option}"] = True
     collators = dict.fromkeys(("train", "val", "test"), collate_ranking_batch)
@@ -134,9 +134,9 @@ def run(args):
         if existing.get("candidate_order_version") != 2:
             raise ValueError("Base checkpoint predates the candidate-order fix. Retrain the base.")
         keys = ("drop_zero_grad_feeds", "data", "seed", "train_parts", "base_epochs", "base_steps", "base_feeds_per_shard", "batch_size", "itemstats",
-                "item2item", "weighted_item2item", "time", "event_cosine", "history_match")
+                "item2item", "weighted_item2item", "time", "event_cosine", "history_match", "periodic_numeric", "history_attention_bias")
         for key in keys:
-            default = False if key in ("event_cosine", "history_match") else None
+            default = False if key in ("event_cosine", "history_match", "periodic_numeric", "history_attention_bias") else None
             if existing["args"].get(key, default) != getattr(args, key):
                 raise ValueError(f"Base run has different {key}")
         base = torch.load(previous / "base.pt", map_location="cpu")
@@ -199,7 +199,7 @@ def run(args):
         reference_model = FeedRankingModel(**config).to(device)
         reference_model.load_state_dict(base["model_state"])
         reference_model.eval().requires_grad_(False)
-    fold_ids = range(2, 4) if args.forward_eval else range(5)
+    fold_ids = range(2, 4) if args.forward_eval else range(4 if args.skip_test else 5)
     forward_windows = {}
     for fold in fold_ids:
         final = fold == 4
@@ -258,8 +258,9 @@ def run(args):
         "oof": evaluate(args.data, oof),
     })
     oof.write_parquet(out / "val_pred.parquet")
-    test = score_checkpoint(out / "final.pt", FeedRankingDataset(args.data, "test"), args.batch_size, device, collators["test"])
-    test.write_parquet(out / "test_pred.parquet")
+    if not args.skip_test:
+        test = score_checkpoint(out / "final.pt", FeedRankingDataset(args.data, "test"), args.batch_size, device, collators["test"])
+        test.write_parquet(out / "test_pred.parquet")
     (out / "report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps(report, indent=2), flush=True)
 
@@ -281,6 +282,9 @@ def main():
     parser.add_argument("--time", help="Path to a donor time feature cache")
     parser.add_argument("--event-cosine", action="store_true", help="Add event-type cosine features over the latest 50 history events")
     parser.add_argument("--history-match", action="store_true", help="Learn candidate-to-event similarity over the latest 20 history events")
+    parser.add_argument("--periodic-numeric", action="store_true", help="Add periodic numeric embeddings to candidate representations")
+    parser.add_argument("--history-attention-bias", action="store_true", help="Add learned category and cosine biases to candidate-history attention")
+    parser.add_argument("--skip-test", action="store_true", help="Export all four OOF folds without a final fit or test predictions")
     parser.add_argument("--base-run", help="Reuse the train-only base checkpoint from a completed run")
     parser.add_argument("--drop-zero-grad-feeds", action="store_true",
                         help="Drop zero-click train feeds. This changes the ListNet objective.")

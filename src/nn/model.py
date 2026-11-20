@@ -23,6 +23,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from src.nn.dataset import CAND_FEAT_NAMES
+
 
 EVENT_COSINE_TYPES = 10
 EVENT_COSINE_WINDOW = 50
@@ -223,6 +225,64 @@ class CandidateEncoder(nn.Module):
         return self.mlp(x)
 
 
+class PeriodicCandidateEncoder(nn.Module):
+    """Learn periodic embeddings of normalized numeric signals."""
+
+    FEATURES = (
+        "f1_z", "f2_z", "f3_z", "f4_z", "f5_z", "cos_user", "cos_hist_mean",
+        "cos_hist_max", "cos_hist_recent_max", "cos_hist_recent_mean",
+    )
+
+    def __init__(self, d_model: int, num_cand_feats: int) -> None:
+        super().__init__()
+        indices = [CAND_FEAT_NAMES.index(name) for name in self.FEATURES]
+        if max(indices) >= num_cand_feats:
+            raise ValueError("Periodic encoding requires the standard candidate feature layout")
+        self.register_buffer("indices", torch.tensor(indices), persistent=False)
+        frequencies = torch.linspace(0.125, 1.0, 8).repeat(len(indices), 1)
+        self.frequencies = nn.Parameter(frequencies)
+        self.project = nn.Sequential(
+            nn.Linear(len(indices) * frequencies.shape[1] * 2, 64),
+            nn.SiLU(),
+            nn.Linear(64, d_model),
+        )
+        nn.init.zeros_(self.project[-1].weight)
+        nn.init.zeros_(self.project[-1].bias)
+
+    def forward(self, candidate_features: torch.Tensor) -> torch.Tensor:
+        selected = candidate_features.index_select(-1, self.indices).float().clamp(-5, 5)
+        phase = selected.unsqueeze(-1) * (2 * math.pi * self.frequencies.float())
+        periodic = torch.cat((phase.sin(), phase.cos()), dim=-1).flatten(-2)
+        return self.project(periodic)
+
+
+class HistoryAttentionBias(nn.Module):
+    """Per-head preferences for category matches and candidate/event similarity."""
+
+    def __init__(self, nhead: int) -> None:
+        super().__init__()
+        self.category_scale = nn.Parameter(torch.zeros(nhead))
+        self.cosine_scale = nn.Parameter(torch.zeros(nhead))
+
+    def forward(self, batch: dict[str, torch.Tensor], safe_history: torch.Tensor,
+                dtype: torch.dtype) -> torch.Tensor:
+        candidate_category = batch["cand_category_id"][:, :, None]
+        history_category = batch["hist_category_id"][:, None, :]
+        same_category = (candidate_category == history_category) & (candidate_category > 0)
+        category_valid = batch["candidate_mask"][:, :, None] & batch["history_mask"][:, None, :]
+        candidate = F.normalize(batch["cand_emb"].float(), dim=-1)
+        history = F.normalize(batch["hist_emb"].float(), dim=-1)
+        cosine = candidate @ history.transpose(-1, -2)
+        cosine_valid = batch["cand_has_emb_mask"][:, :, None] & batch["hist_has_emb_mask"][:, None, :]
+        cosine = cosine.masked_fill(~(category_valid & cosine_valid), 0.0)
+        same_category = (same_category & category_valid).to(cosine.dtype)
+        bias = (
+            same_category[:, None] * self.category_scale[None, :, None, None]
+            + cosine[:, None] * self.cosine_scale[None, :, None, None]
+        )
+        return bias.masked_fill(~safe_history[:, None, None, :], -torch.inf).to(dtype).flatten(0, 1)
+
+
 class FeedRankingModel(nn.Module):
     """Полнофункциональная модель ранжирования ленты с Cross-Attention и дебиасингом."""
 
@@ -244,6 +304,8 @@ class FeedRankingModel(nn.Module):
         num_time: int = 0,
         use_event_cosine: bool = False,
         use_history_match: bool = False,
+        use_periodic_numeric: bool = False,
+        use_history_attention_bias: bool = False,
     ) -> None:
         super().__init__()
         self.d_model = d_model
@@ -352,6 +414,13 @@ class FeedRankingModel(nn.Module):
             with torch.random.fork_rng(devices=[]):
                 self.history_match_head = HistoryMatchHead(emb_dim, num_categories)
 
+        self.periodic_numeric = None
+        if use_periodic_numeric:
+            # Preserve initialization and dropout draws of all shared layers.
+            with torch.random.fork_rng(devices=[]):
+                self.periodic_numeric = PeriodicCandidateEncoder(d_model, num_cand_feats)
+        self.history_attention_bias = HistoryAttentionBias(nhead) if use_history_attention_bias else None
+
     @staticmethod
     def _donor_head(width):
         if not width:
@@ -393,6 +462,8 @@ class FeedRankingModel(nn.Module):
 
         # 2. Энкодинг кандидатов
         cand_repr = self.cand_encoder(cand_emb, cand_cat, cand_feats) # [B, M, d_model]
+        if self.periodic_numeric is not None:
+            cand_repr = cand_repr + self.periodic_numeric(cand_feats)
 
         # 3. Энкодинг истории
         history_mask = batch["history_mask"]    # [B, H]
@@ -409,12 +480,17 @@ class FeedRankingModel(nn.Module):
         safe_hist_mask = history_mask.clone()
         safe_hist_mask[:, 0] = safe_hist_mask[:, 0] | (~has_any_hist.squeeze(1))
         padding_mask = ~safe_hist_mask
+        attention_mask = None
+        if self.history_attention_bias is not None:
+            attention_mask = self.history_attention_bias(batch, safe_hist_mask, cand_repr.dtype)
+            padding_mask = None  # The additive bias already masks padded keys.
 
         attn_out, _ = self.cross_attn(
             query=cand_repr,
             key=hist_encoded,
             value=hist_encoded,
             key_padding_mask=padding_mask,
+            attn_mask=attention_mask,
         ) # [B, M, d_model]
 
         attn_out = attn_out * has_any_hist.unsqueeze(-1).float()
