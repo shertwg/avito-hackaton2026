@@ -1171,3 +1171,5 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-20 | danya | - | cb96-blocks-wi2i-fi3-qsm-td03-cv (3 блока 0..95, QuerySoftMax d=8, time-decay 0.03) | priv: -/-/0.3085 | - | all@30=0.3124, pub@30=0.3216 |
 | 2026-11-20 | danya | - | lgb96-blocks-wi2i-fi3-binary-td03-cv (3 блока 0..95, binary ExtraTrees bin63, time-decay 0.03) | priv: -/-/0.3123 | - | all@30=0.3160, pub@30=0.3245 (+0.0009 priv к версии без decay) |
 | 2026-11-20 | danya | - | cb32-all-wi2i-rc-fi3-pairlogit-d5-l2-cv (32 шарда, PairLogit d=5, l2=10, lr=0.04, 2500 iters) | priv: 0.3725/-/0.3134 | - | all@30=0.3160, pub@30=0.3222 |
+| 2026-11-20 | avgust | - | nn-v2-length-rule-s42-oof4-001 (NN v2 periodic encoder + length rule, ListNet, seed=42) | priv: -/-/0.3035 | - | all@30=0.3072, pub@30=0.3158 (+0.00162 priv к контролю); validator OK |
+| 2026-11-20 | danya | - | meta-blend-v30-avgust-add-mean-hybrid (4-fold OOF Z+RankGauss alpha=0.25, mean_hybrid, 17 моделей с NN Августа) | priv: -/-/0.31617 | - | all@30=0.31920 (новый рекорд), pub@30=0.32628; validator OK; Desktop обновлён |
