@@ -44,7 +44,7 @@ CAND_FEAT_NAMES = [
     "cat_share_hist",
     "feed_size",
     "hist_len",
-    "cand_rel_pos",
+    "reserved_zero",
     "cos_user",
     "cos_hist_mean",
     "cos_hist_max",
@@ -187,7 +187,7 @@ def compute_candidate_features(
 
     feed_size = np.full(m, m / 40.0, dtype=np.float32)
     hist_len = np.full(m, h / 256.0, dtype=np.float32)
-    cand_rel_pos = np.arange(m, dtype=np.float32) / max(m, 1)
+    reserved_zero = np.zeros(m, dtype=np.float32)
 
     # Cosine / similarity признаки по эмбеддингам кандидата, пользователя и истории
     if cand_embs is None:
@@ -260,7 +260,7 @@ def compute_candidate_features(
         cat_share_hist,           # 1
         feed_size,                # 1
         hist_len,                 # 1
-        cand_rel_pos,             # 1
+        reserved_zero,            # Preserve the feature layout for existing checkpoints.
         cos_user,                 # 1
         cos_hist_mean,            # 1
         cos_hist_max,             # 1
@@ -390,6 +390,7 @@ class ShardedFeedRankingDataset(IterableDataset):
         shuffle: bool = True,
         seed: int = 42,
         max_feeds_per_part: int | None = None,
+        drop_zero_grad_feeds: bool = False,
     ) -> None:
         super().__init__()
         self.data_root = Path(data_root)
@@ -399,6 +400,9 @@ class ShardedFeedRankingDataset(IterableDataset):
         if max_feeds_per_part is not None and max_feeds_per_part < 1:
             raise ValueError("max_feeds_per_part must be positive")
         self.max_feeds_per_part = max_feeds_per_part
+        if drop_zero_grad_feeds and split != 'train':
+            raise ValueError('Feed filtering is supported only on train')
+        self.drop_zero_grad_feeds = drop_zero_grad_feeds
         self.shuffle = shuffle
         self.seed = seed
         self.epoch = 0
@@ -466,6 +470,8 @@ class ShardedFeedRankingDataset(IterableDataset):
 
             part_path = self.parts[int(p_idx)]
             df = pl.read_parquet(part_path, columns=self.cols_to_read)
+            if self.drop_zero_grad_feeds:
+                df = df.filter(pl.col("target").list.sum() > 0)
             n_rows = df.height
             if n_rows == 0:
                 continue

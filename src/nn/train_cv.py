@@ -29,6 +29,18 @@ def batches(dataset, batch_size, collate=collate_ranking_batch):
     return DataLoader(dataset, batch_size=batch_size, collate_fn=collate)
 
 
+def shuffle_candidates(batch):
+    # Donor collators must align their rows before any candidate permutation.
+    mask = batch["candidate_mask"]
+    order = torch.rand(mask.shape, device=mask.device).masked_fill(~mask, 2.0).argsort(dim=1)
+    rows = torch.arange(mask.shape[0], device=mask.device)[:, None]
+    candidate_keys = (
+        "candidate_mask", "cand_has_emb_mask", "cand_emb", "cand_item_id",
+        "cand_category_id", "cand_features", "target", "pos", "itemstats", "item2item", "time",
+    )
+    return {key: value[rows, order] if key in candidate_keys else value for key, value in batch.items()}
+
+
 def adaptation_listnet(scores, target, mask):
     return listnet_loss(scores, target, mask, target_temperature=0.5)
 
@@ -103,16 +115,24 @@ def run(args):
                 for split, collate in collators.items()
             }
             config[f"num_{group}"] = collators["train"].width
+    def collate_train(samples):
+        return shuffle_candidates(collators["train"](samples))
+
     model = FeedRankingModel(**config).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
-    train = ShardedFeedRankingDataset(args.data, "train", max_parts=args.train_parts, seed=args.seed)
+    train = ShardedFeedRankingDataset(
+        args.data, "train", max_parts=args.train_parts, seed=args.seed,
+        drop_zero_grad_feeds=args.drop_zero_grad_feeds,
+    )
     timing = {"base": [], "adaptation": {}}
 
     base_path = out / "base.pt"
     if args.base_run:
         previous = Path(args.base_run)
         existing = json.loads((previous / "report.json").read_text(encoding="utf-8"))
-        keys = ("data", "seed", "train_parts", "base_epochs", "base_steps", "base_feeds_per_shard", "batch_size", "itemstats",
+        if existing.get("candidate_order_version") != 2:
+            raise ValueError("Base checkpoint predates the candidate-order fix. Retrain the base.")
+        keys = ("drop_zero_grad_feeds", "data", "seed", "train_parts", "base_epochs", "base_steps", "base_feeds_per_shard", "batch_size", "itemstats",
                 "item2item", "time", "event_cosine", "history_match")
         for key in keys:
             default = False if key in ("event_cosine", "history_match") else None
@@ -129,12 +149,13 @@ def run(args):
             base_train = ShardedFeedRankingDataset(
                 args.data, "train", max_parts=args.train_parts, seed=args.seed,
                 max_feeds_per_part=args.base_feeds_per_shard,
+                drop_zero_grad_feeds=args.drop_zero_grad_feeds,
             )
         remaining = args.base_steps
         for epoch in range(1, args.base_epochs + 1):
             base_train.set_epoch(epoch)
             print(f"Base epoch {epoch}", flush=True)
-            loader = batches(base_train, args.batch_size, collators["train"])
+            loader = batches(base_train, args.batch_size, collate_train)
             stats = train_epoch(model, optimizer, loader if remaining is None else islice(loader, remaining), device)
             timing["base"].append(stats)
             if remaining is not None:
@@ -205,7 +226,7 @@ def run(args):
         train.set_epoch(adaptation_epoch)
         val_loader = batches(fit_val, args.batch_size, collators["val"])
         loader = val_loader if args.adapt_val_only else chain(
-            batches(train, args.batch_size, collators["train"]), val_loader,
+            batches(train, args.batch_size, collate_train), val_loader,
         )
         timing["adaptation"][name] = train_epoch(
             model, optimizer, loader, device, loss_fn, reference_model,
@@ -221,7 +242,7 @@ def run(args):
     oof = pl.concat(predictions)
     report = {
         "device": torch.cuda.get_device_name(device) if device.type == "cuda" else str(device),
-        "train_feeds": len(train), "args": vars(args), "timing": timing,
+        "train_feeds": len(train), "args": vars(args), "timing": timing, "candidate_order_version": 2,
     }
     rows.with_columns(pl.Series("fold", row_fold)).write_parquet(out / "folds.parquet")
     if args.forward_eval:
@@ -259,6 +280,8 @@ def main():
     parser.add_argument("--event-cosine", action="store_true", help="Add event-type cosine features over the latest 50 history events")
     parser.add_argument("--history-match", action="store_true", help="Learn candidate-to-event similarity over the latest 20 history events")
     parser.add_argument("--base-run", help="Reuse the train-only base checkpoint from a completed run")
+    parser.add_argument("--drop-zero-grad-feeds", action="store_true",
+                        help="Drop zero-click train feeds. This changes the ListNet objective.")
     parser.add_argument("--forward-eval", action="store_true", help="Score val blocks 2 and 3 with strictly earlier fit data")
     parser.add_argument("--adapt-val-only", action="store_true", help="Adapt only on the fit portion of val")
     parser.add_argument("--adapt-min-candidates", type=int, default=1, help="Minimum val feed size for adaptation")
