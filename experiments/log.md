@@ -1242,3 +1242,10 @@ uv run --locked python -m scripts.audit_covariate_shift --out runs/covariate-shi
 ```powershell
 uv run --locked python -m scripts.profile_ipw_positions --train-parts 8 --out runs/ipw-positions-008.json
 ```
+
+Архив prepared дополнительно сверили с распакованным исходным датасетом
+по каждому кандидату и каждой ленте в 640 шардах. Сверка охватывает
+индексы вхождений, все доступные f1–f5, позиции, метки, временные поля,
+ID, эмбеддинг-индексы, пользовательские векторы и массивы истории.
+Совпали 246 745 836 строк train, 1 389 971 val и 2 904 806 test.
+[Отпечатки поставки и результаты полной сверки](p0_input_handoff_008.json).
