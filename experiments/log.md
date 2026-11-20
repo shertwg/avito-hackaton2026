@@ -1149,3 +1149,8 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-19 | danya | - | cb96-blocks-wi2i-fi3-pairlogit-d6-cv (3 блока 0..95, 46.1M строк) | priv: -/-/0.3108 | - | блоки 0.3102/0.3093/0.3108 priv@30 |
 | 2026-11-19 | danya | - | lgb96-blocks-wi2i-fi3-binary-cv (3 блока 0..95, binary ExtraTrees) | priv: -/-/0.3112 | - | блоки 0.3098/0.3112/0.3109 priv@30; вес 0.1639 в v9 |
 | 2026-11-20 | danya | - | meta-blend-v9-lgb96 (4-fold OOF Z+RankGauss, L2, 12 семейств) | priv: -/-/0.31465 | - | all@30=0.31796, pub@30=0.32568; +0.00245 priv к v36 (LB 0.36426); Desktop обновлён |
+| 2026-11-20 | danya | - | cb32-all-wi2i-rc-fi3-pairlogit-d6-cv-seeds3 (32 шарда, PairLogit d=6, 3 сида) | priv: -/-/0.3147 | - | all@30=0.3168, pub@30=0.3219 |
+| 2026-11-20 | danya | - | cb32-all-wi2i-rc-fi3-pairlogit-d7-cv (32 шарда, PairLogit d=7, lr=0.04, 1500 iters) | priv: -/-/0.3134 | - | all@30=0.3160, pub@30=0.3222 |
+| 2026-11-20 | danya | - | cb32-all-wi2i-rc-fi3-pairlogit-d6-l2-cv (32 шарда, PairLogit d=6, l2=10, lr=0.035, 2200 iters) | priv: -/-/0.3144 | - | all@30=0.3166, pub@30=0.3217 (новый соло-рекорд 1 сида) |
+| 2026-11-20 | danya | - | lgb32-all-wi2i-rc-fi3-binary-cv-seeds3 (32 шарда, binary ExtraTrees bin63, 3 сида) | priv: -/-/0.3131 | - | all@30=0.3160, pub@30=0.3228 |
+| 2026-11-20 | danya | - | meta-blend-v14 (4-fold OOF Z+RankGauss, L2, 14 семейств, oof_weighted) | priv: -/-/0.31526 | - | all@30=0.31844, pub@30=0.32585; +0.00306 priv к v36 (LB 0.36426); validator OK; Desktop обновлён |
