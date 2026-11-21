@@ -1274,6 +1274,7 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-21 | danya | - | cb32-v2-pairlogit-d6-l2-cv (32 шарда, 13 групп + fi v4 без фильтра шифта, PairLogit d=6, l2=10) | priv: 0.3721/-/0.3132 | - | all@30=0.3156, pub@30=0.3212 (-0.00116 priv к v1 из-за 25 смещённых колонок us/ci2i) |
 | 2026-11-21 | danya | - | cb32-v2clean-pairlogit-d6-l2-cv (32 шарда, 13 групп минус 25 смещённых колонок + fi v4, PairLogit d=6, l2=10) | priv: 0.3727/-/0.3138 | - | all@30=0.3165, pub@30=0.3228 (+0.00083 all к v2, +0.00109 pub и -0.00063 priv к v1) |
 | 2026-11-21 | danya | - | pos-teacher-032 (CatBoostRanker QueryRMSE d=8 1500it + YetiRank d=7 1200it по pos на 30 непересекающихся донорских шардах block-032-064) | priv: 0.3319/-/0.2558 | - | all@30=0.25914, pub@30=0.26689 (gain=0.25771, yeti=0.25711; feed_size%=2.73/1.33; validator OK) |
+| 2026-11-21 | danya | - | cb32-v3-pairlogit-d6-l2-cv (32 шарда, 14 групп включая pos-teacher-032, минус 27 смещённых колонок + fi_pt/fi_incat, PairLogit d=6, l2=10) | priv: 0.3739/-/0.3130 | - | all@30=0.3160, pub@30=0.3229 (против v1: pub +0.00126, priv -0.00144, all -0.00063; validator OK) |
 
 ## Данные для проверки P0 и сверка с Public — Дима, 20.11.2026
 
