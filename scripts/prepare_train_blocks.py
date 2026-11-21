@@ -10,6 +10,8 @@ import time
 import numpy as np
 import polars as pl
 
+from src.common.click_item2item import build_features as build_click_item2item
+from scripts.audit_click_item2item_features import audit as audit_click_item2item
 from scripts.audit_history_features import audit as audit_history
 from scripts.audit_itemstats_features import audit as audit_itemstats
 from scripts.audit_item2item_features import audit as audit_item2item
@@ -90,7 +92,7 @@ def verify_block(prepared, source, block, shared):
 
 def prepare_blocks(prepared, raw, feature_dir, output, *, starts=(0, 32, 64), train_parts=32,
                    cosine=Path('data/features/cosine'), infeed=Path('data/features/infeed'),
-                   oof_out=Path('runs/dima-blocks-oof'), weighted=False, memory_mb=1536,
+                   oof_out=Path('runs/dima-blocks-oof'), weighted=False, click_item2item=False, memory_mb=1536,
                    threads=1, plan_only=False, resume=False):
     prepared, raw, feature_dir, output, cosine, infeed, oof_out = map(
         lambda path: Path(path).resolve(), (prepared, raw, feature_dir, output, cosine, infeed, oof_out))
@@ -141,14 +143,21 @@ def prepare_blocks(prepared, raw, feature_dir, output, *, starts=(0, 32, 64), tr
                   'src/common/similarity.py', 'src/common/infeed.py', 'scripts/feature_audit.py', 'scripts/prepare_train_blocks.py',
                   'scripts/audit_history_features.py', 'scripts/audit_itemstats_features.py',
                   'scripts/audit_item2item_features.py', 'scripts/audit_weighted_item2item_features.py']
+    if click_item2item:
+        code_paths.extend(['src/common/click_item2item.py', 'scripts/audit_click_item2item_features.py'])
     identity = {'prepared': str(prepared), 'prepared_manifest_sha256': source_sha, 'cohorts': cohorts, 'weighted': weighted,
                 'feature_dir': str(feature_dir), 'raw': str(raw), 'oof_out': str(oof_out), 'shared': shared,
                 'code_sha256': {name: digest(name) for name in code_paths}}
+    if click_item2item:
+        identity['click_item2item'] = True
     with cache_lock(output):
         report_path = output / 'run.json'
         report = {'identity': identity, 'complete': False, 'blocks': {}, 'started_unix': time.time()}
         if report_path.exists():
             report = json.loads(report_path.read_text(encoding='utf-8'))
+            # A completed legacy plan only verifies its original immutable artifacts.
+            if report.get('complete') and not click_item2item:
+                identity['code_sha256']['scripts/prepare_train_blocks.py'] = report['identity']['code_sha256']['scripts/prepare_train_blocks.py']
             if not resume or report['identity'] != identity:
                 raise ValueError('existing block preparation requires matching inputs and --resume')
 
@@ -171,6 +180,8 @@ def prepare_blocks(prepared, raw, feature_dir, output, *, starts=(0, 32, 64), tr
                 roots = {name: block_root / name for name in ('history', 'itemstats', 'item2item')}
                 if weighted:
                     roots['weighted-item2item'] = block_root / 'weighted-item2item'
+                if click_item2item:
+                    roots['click-item2item'] = block_root / 'click-item2item'
                 feature_roots = [cosine, infeed, *roots.values()]
                 argv = ['uv', 'run', '--locked', 'python', '-m', 'scripts.run_joint_oof',
                         '--prepared', str(prepared), '--raw', str(raw), '--train-parts', str(train_parts),
@@ -199,6 +210,10 @@ def prepare_blocks(prepared, raw, feature_dir, output, *, starts=(0, 32, 64), tr
                     steps.append(('weighted-item2item', partial(build_weighted, prepared, roots['item2item'],
                         roots['weighted-item2item'], **options), partial(audit_weighted, prepared,
                         roots['weighted-item2item'], roots['item2item'], output / tag / 'item2item-audit.json')))
+                if click_item2item:
+                    steps.append(('click-item2item', partial(build_click_item2item, prepared, roots['click-item2item'],
+                        memory_mb=memory_mb, threads=threads, **options),
+                        partial(audit_click_item2item, prepared, roots['click-item2item'])))
                 with cache_lock(block_root):
                     for name, build, audit in steps:
                         checkpoint(f'{tag}/{name}/build')
@@ -223,7 +238,7 @@ def prepare_blocks(prepared, raw, feature_dir, output, *, starts=(0, 32, 64), tr
                 fields = list(BASE)
                 for root in feature_roots:
                     fields.extend(json.loads((root / 'manifest.json').read_text())['features'])
-                if len(fields) != (121 if weighted else 109) or len(fields) != len(set(fields)):
+                if len(fields) != (109 + 12 * weighted + 18 * click_item2item) or len(fields) != len(set(fields)):
                     raise ValueError('unexpected joint feature contract')
                 loaded = {}
                 for split, parts in block_entries.items():
@@ -259,6 +274,7 @@ def main():
     parser.add_argument('--oof-out', type=Path, default=Path('runs/dima-blocks-oof'))
     parser.add_argument('--starts', type=int, nargs='+', default=[0, 32, 64])
     parser.add_argument('--train-parts', type=int, default=32)
+    parser.add_argument('--click-item2item', action='store_true')
     parser.add_argument('--weighted-item2item', dest='weighted', action='store_true')
     parser.add_argument('--memory-mb', type=int, default=1536)
     parser.add_argument('--threads', type=int, default=1)

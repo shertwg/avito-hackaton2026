@@ -1,0 +1,28 @@
+{
+  "complete": true,
+  "manifest_sha256": "a9fcd4e7cbcd862c55692a82e60eaac50ac16d1e91ee6f11785632cff788524c",
+  "rows": {
+    "train": 3850759,
+    "val": 1389971,
+    "test": 2904806
+  },
+  "features": 18,
+  "scalar_candidates": 18,
+  "donor_shards": 504,
+  "excluded_sources": [
+    "part-00000-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00073-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00146-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00219-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00292-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00365-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00438-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00511-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+  ],
+  "resources": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 7603048448,
+    "working_set_bytes": 152608768,
+    "peak_working_set_bytes": 256716800
+  }
+}

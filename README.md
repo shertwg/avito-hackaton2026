@@ -1120,3 +1120,21 @@ uv run --locked python -m scripts.compare_team_overlay --data competition --base
 ```powershell
 uv run --locked python -m scripts.bag_train_blocks --plan runs/train-blocks-prepare-003/run.json --out runs/train-blocks-mean-001
 ```
+
+### Граф кликов click_item2item
+
+Группа содержит 18 Float32-признаков для кандидата. Переходы от товара истории
+к кандидату оцениваются по показам и кликам донорского train, совместные клики —
+по общим пользователям, категорийные переходы — по типу и источнику события.
+Первые 10 и 50 событий сохраняют исходные позиции и повторы истории. В среднем
+по окну отсутствующая пара даёт ноль. Затухание по позиции применяется к co-click.
+Все обучающие шарды выбранной когорты исключаются из доноров.
+
+```powershell
+uv run --locked python -m scripts.build_click_item2item_features --train-parts 8 --out data/features/click-item2item-008 --resume
+uv run --locked python -m scripts.audit_click_item2item_features --cache data/features/click-item2item-008 --out runs/click-item2item-008-audit.json
+```
+
+Для 32 или 96 шардов измените число и каталог. Для непрерывного блока задайте
+`--train-start` или включите `--click-item2item` в `scripts.prepare_train_blocks`.
+Промежуточная база DuckDB сохраняет готовые части графа для возобновления.
