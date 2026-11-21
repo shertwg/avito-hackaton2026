@@ -10,6 +10,7 @@ import polars as pl
 
 from eval.make_synthetic import make_split
 from scripts.check_dataset import inspect_split
+from src.nn.dataset import ShardedFeedRankingDataset
 
 
 class DatasetTests(unittest.TestCase):
@@ -72,6 +73,14 @@ class DatasetTests(unittest.TestCase):
 
         with patch.object(Path, "stat", autospec=True, side_effect=stat):
             self.assertEqual(inspect_split(self.root, "train", 2)["errors"], [])
+
+    def test_prefetch_preserves_multifeed_samples_and_order(self):
+        original = ShardedFeedRankingDataset(self.root, shuffle=True, seed=9)
+        prefetched = ShardedFeedRankingDataset(self.root, shuffle=True, seed=9)
+        prefetched.prefetch_embeddings()
+        for left, right in zip(original, prefetched, strict=True):
+            for key, value in left.items():
+                np.testing.assert_array_equal(value, right[key], err_msg=key)
 
     def test_missing_split(self):
         self.assertTrue(inspect_split(self.root, "val", 2)["errors"])

@@ -30,7 +30,12 @@ from torch.utils.data import DataLoader
 
 from src.common.cv import mask_feeds, pseudo_split
 from src.common.metric import all_variants, mean_ndcg
-from src.nn.dataset import NUM_CAND_FEATS, FeedRankingDataset, collate_ranking_batch
+from src.nn.dataset import (
+    NUM_CAND_FEATS,
+    FeedRankingDataset,
+    ShardedFeedRankingDataset,
+    collate_ranking_batch,
+)
 from src.nn.model import FeedRankingModel
 
 
@@ -216,18 +221,18 @@ def evaluate_ndcg(
         m_pub = mask_feeds(feed_ids_cat, pub_feeds)
         m_priv = mask_feeds(feed_ids_cat, priv_feeds)
         res["ndcg_public"] = (
-            mean_ndcg(feed_ids_cat[m_pub], targets_cat[m_pub], scores_cat[m_pub])
+            mean_ndcg(feed_ids_cat[m_pub], targets_cat[m_pub], scores_cat[m_pub], cutoff=30)
             if m_pub.any()
-            else res["ndcg_full"]
+            else res["ndcg@30"]
         )
         res["ndcg_private"] = (
-            mean_ndcg(feed_ids_cat[m_priv], targets_cat[m_priv], scores_cat[m_priv])
+            mean_ndcg(feed_ids_cat[m_priv], targets_cat[m_priv], scores_cat[m_priv], cutoff=30)
             if m_priv.any()
-            else res["ndcg_full"]
+            else res["ndcg@30"]
         )
     else:
-        res["ndcg_public"] = res["ndcg_full"]
-        res["ndcg_private"] = res["ndcg_full"]
+        res["ndcg_public"] = res["ndcg@30"]
+        res["ndcg_private"] = res["ndcg@30"]
 
     return res
 
@@ -239,6 +244,7 @@ def train(args: argparse.Namespace) -> float:
     device = torch.device(args.device if args.device else ("cuda" if torch.cuda.is_available() else "cpu"))
     mixup_alpha = getattr(args, "mixup_alpha", 0.0)
     temperature = getattr(args, "temperature", 1.0)
+    target_temperature = getattr(args, "target_temperature", 1.0)
     use_set_attention = getattr(args, "use_set_attention", True)
     cv_mode = getattr(args, "cv_mode", "danya")
     scheduler_type = getattr(args, "scheduler", "plateau")
@@ -246,53 +252,95 @@ def train(args: argparse.Namespace) -> float:
     min_lr = getattr(args, "min_lr", 1e-6)
     amp_requested = getattr(args, "amp", False)
     use_amp = bool(amp_requested and device.type == "cuda")
+    sharded_loader = getattr(args, "sharded_loader", True)
 
     print("=" * 75)
-    print(f"Запуск обучения: {args.data} | Device: {device} | AMP: {'ON' if use_amp else 'OFF'} | Loss: {args.loss} (T={temperature}) | Seed: {seed}")
+    print(f"Запуск обучения: {args.data} | Device: {device} | AMP: {'ON' if use_amp else 'OFF'} | Loss: {args.loss} (T={temperature}, target T={target_temperature}) | Seed: {seed}")
     if amp_requested and not use_amp:
         print("[INFO] Флаг --amp передан, но GPU недоступен (CPU режим) — AMP отключен.")
     print(f"Сплиты: train='{args.train_split}', val='{args.val_split}' | CV: {cv_mode} | Scheduler: {scheduler_type} (warmup={warmup_epochs}ep)")
     print(f"Debias: {'ВКЛ' if args.use_pos_bias else 'ВЫКЛ'} | Set-Attention: {'ВКЛ' if use_set_attention else 'ВЫКЛ'} | MixUp: {mixup_alpha} | Patience: {args.patience}")
     print("=" * 75)
 
-    # 1. Загрузка данных
-    train_dataset = FeedRankingDataset(
-        data_root=args.data,
-        split=args.train_split,
-        max_parts=args.max_parts,
-        max_feeds=args.max_feeds,
-        max_hist_len=args.max_hist_len,
-    )
-    val_dataset = FeedRankingDataset(
-        data_root=args.data,
-        split=args.val_split,
-        max_parts=args.max_parts,
-        max_feeds=args.max_feeds // 3 if args.max_feeds else None,
-        max_hist_len=args.max_hist_len,
-    )
+    train_parts = getattr(args, "train_parts", None)
+    if train_parts is None:
+        train_parts = args.max_parts
 
-    print(f"Train лент: {len(train_dataset)}, Val лент: {len(val_dataset)}")
+    # 1. Загрузка данных
+    if sharded_loader:
+        train_dataset = ShardedFeedRankingDataset(
+            data_root=args.data,
+            split=args.train_split,
+            max_parts=train_parts,
+            max_feeds=args.max_feeds,
+            max_hist_len=args.max_hist_len,
+            shuffle=True,
+            seed=seed,
+        )
+        val_dataset = ShardedFeedRankingDataset(
+            data_root=args.data,
+            split=args.val_split,
+            max_parts=args.max_parts,
+            max_feeds=args.max_feeds // 3 if args.max_feeds else None,
+            max_hist_len=args.max_hist_len,
+            shuffle=False,
+            seed=seed,
+        )
+    else:
+        train_dataset = FeedRankingDataset(
+            data_root=args.data,
+            split=args.train_split,
+            max_parts=train_parts,
+            max_feeds=args.max_feeds,
+            max_hist_len=args.max_hist_len,
+        )
+        val_dataset = FeedRankingDataset(
+            data_root=args.data,
+            split=args.val_split,
+            max_parts=args.max_parts,
+            max_feeds=args.max_feeds // 3 if args.max_feeds else None,
+            max_hist_len=args.max_hist_len,
+        )
+
+    loader_label = "Sharded (Polars)" if sharded_loader else "Map-style"
+    print(f"Loader: {loader_label} | Train лент: {len(train_dataset)}, Val лент: {len(val_dataset)}")
 
     dl_generator = torch.Generator()
     dl_generator.manual_seed(seed)
 
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=args.batch_size,
-        shuffle=True,
-        generator=dl_generator,
-        collate_fn=collate_ranking_batch,
-        num_workers=args.num_workers,
-        pin_memory=(device.type == "cuda"),
-    )
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=args.batch_size,
-        shuffle=False,
-        collate_fn=collate_ranking_batch,
-        num_workers=args.num_workers,
-        pin_memory=(device.type == "cuda"),
-    )
+    if sharded_loader:
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=args.batch_size,
+            collate_fn=collate_ranking_batch,
+            num_workers=args.num_workers,
+            pin_memory=(device.type == "cuda"),
+        )
+        val_loader = DataLoader(
+            val_dataset,
+            batch_size=args.batch_size,
+            collate_fn=collate_ranking_batch,
+            num_workers=args.num_workers,
+            pin_memory=(device.type == "cuda"),
+        )
+    else:
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=args.batch_size,
+            shuffle=True,
+            generator=dl_generator,
+            collate_fn=collate_ranking_batch,
+            num_workers=args.num_workers,
+            pin_memory=(device.type == "cuda"),
+        )
+        val_loader = DataLoader(
+            val_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            collate_fn=collate_ranking_batch,
+            num_workers=args.num_workers,
+            pin_memory=(device.type == "cuda"),
+        )
 
     # Конфиг модели для сохранения в чекпоинт
     model_config = {
@@ -304,6 +352,8 @@ def train(args: argparse.Namespace) -> float:
         "max_hist_len": args.max_hist_len,
         "dropout": args.dropout,
         "use_set_attention": use_set_attention,
+        "use_numeric_head": getattr(args, "numeric_head", False),
+        "use_history_context": not getattr(args, "no_history_context", False),
     }
 
     # 2. Инициализация продвинутой модели
@@ -336,13 +386,14 @@ def train(args: argparse.Namespace) -> float:
 
     # 3. Начальная оценка до обучения
     init_metrics = evaluate_ndcg(model, val_loader, device, cv_mode=cv_mode, use_amp=use_amp)
-    init_target = init_metrics["ndcg_public"] if cv_mode == "danya" else init_metrics["ndcg_full"]
+    init_target = init_metrics["ndcg_public"] if cv_mode == "danya" else init_metrics["ndcg@30"]
     print(
-        f"Initial Val NDCG (без обучения): priv={init_metrics['ndcg_private']:.4f} | "
-        f"pub={init_metrics['ndcg_public']:.4f} | full={init_metrics['ndcg_full']:.4f} | @30={init_metrics['ndcg@30']:.4f}"
+        f"Initial Val NDCG (без обучения): pub={init_metrics['ndcg_public']:.4f} | "
+        f"priv={init_metrics['ndcg_private']:.4f} | full={init_metrics['ndcg_full']:.4f} | @30={init_metrics['ndcg@30']:.4f}"
     )
 
     best_ndcg = -1.0
+    best_priv_ndcg = init_metrics["ndcg_private"]
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -362,6 +413,8 @@ def train(args: argparse.Namespace) -> float:
     total_start = time.perf_counter()
 
     for epoch in range(1, args.epochs + 1):
+        if hasattr(train_dataset, "set_epoch"):
+            train_dataset.set_epoch(epoch)
         model.train()
         epoch_losses = []
         epoch_start = time.perf_counter()
@@ -382,7 +435,11 @@ def train(args: argparse.Namespace) -> float:
                 target = batch["target"]
 
                 if args.loss == "listnet":
-                    loss = listnet_loss(total_scores, target, cand_mask, logit_temperature=temperature)
+                    loss = listnet_loss(
+                        total_scores, target, cand_mask,
+                        logit_temperature=temperature,
+                        target_temperature=target_temperature,
+                    )
                 else:
                     loss = masked_bce_loss(total_scores, target, cand_mask)
 
@@ -416,7 +473,7 @@ def train(args: argparse.Namespace) -> float:
 
         # Валидация после эпохи
         val_metrics = evaluate_ndcg(model, val_loader, device, cv_mode=cv_mode, use_amp=use_amp)
-        cur_ndcg = val_metrics["ndcg_public"] if cv_mode == "danya" else val_metrics["ndcg_full"]
+        cur_ndcg = val_metrics["ndcg_public"] if cv_mode == "danya" else val_metrics["ndcg@30"]
 
         # Шаг шедулера ReduceLROnPlateau (для cosine шаг делается по батчам)
         if scheduler_type == "plateau":
@@ -426,6 +483,7 @@ def train(args: argparse.Namespace) -> float:
         is_best = cur_ndcg > best_ndcg
         if is_best:
             best_ndcg = cur_ndcg
+            best_priv_ndcg = val_metrics["ndcg_private"]
             patience_counter = 0
         else:
             patience_counter += 1
@@ -457,7 +515,7 @@ def train(args: argparse.Namespace) -> float:
         print("-" * 75)
         print(
             f"--> Эпоха {epoch} ({epoch_duration:.2f}с, {train_throughput:.1f} л/с) | "
-            f"Val NDCG: priv={val_metrics['ndcg_private']:.4f} | pub={val_metrics['ndcg_public']:.4f} | "
+            f"Val NDCG: pub={val_metrics['ndcg_public']:.4f} | priv={val_metrics['ndcg_private']:.4f} | "
             f"full={val_metrics['ndcg_full']:.4f} | @30={val_metrics['ndcg@30']:.4f} "
             f"{'(* NEW BEST *)' if is_best else f'(patience: {patience_counter}/{args.patience})'}"
         )
@@ -469,8 +527,10 @@ def train(args: argparse.Namespace) -> float:
             break
 
     total_time = time.perf_counter() - total_start
-    metric_label = "pseudo-public (выбор чекпоинта); pseudo-private только для отчёта" if cv_mode == "danya" else "full"
-    print(f"\n[DONE] Обучение завершено за {total_time:.2f}с. Лучший Val NDCG ({metric_label}): {best_ndcg:.4f}")
+    metric_label = "pseudo-public (выбор чекпоинта)" if cv_mode == "danya" else "full"
+    print(f"\n[DONE] Обучение завершено за {total_time:.2f}с. Лучший Val NDCG@30 ({metric_label}): {best_ndcg:.4f}")
+    if cv_mode == "danya":
+        print(f"       Соответствующий Val NDCG@30 (pseudo-private отчёт): {best_priv_ndcg:.4f}")
     print(f"Чекпоинт сохранен в: {out_dir / 'best_model.pt'}")
     return best_ndcg
 
@@ -495,22 +555,46 @@ def main() -> None:
     parser.add_argument("--nhead", type=int, default=4)
     parser.add_argument("--num-categories", type=int, default=1000)
     parser.add_argument("--max-hist-len", type=int, default=256)
-    parser.add_argument("--max-parts", type=int, default=None, help="Ограничить количество читаемых партов (для быстрого дебага)")
+    part_limits = parser.add_mutually_exclusive_group()
+    part_limits.add_argument("--train-parts", type=int, help="Ограничить только число шардов train")
+    part_limits.add_argument("--max-parts", type=int, default=None, help="Ограничить количество читаемых партов (для быстрого дебага)")
     parser.add_argument("--max-feeds", type=int, default=None, help="Ограничить общее количество читаемых лент (защита от OOM)")
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--loss", choices=["listnet", "bce"], default="listnet")
     parser.add_argument("--mixup-alpha", type=float, default=0.0, help="Beta(alpha, alpha) MixUp для эмбеддингов кандидатов (0 = выкл)")
     parser.add_argument("--temperature", type=float, default=1.0, help="Температура логитов в ListNet")
+    parser.add_argument("--target-temperature", type=float, default=1.0, help="Температура целевого распределения ListNet")
     parser.add_argument("--use-pos-bias", action="store_true", default=True, help="Включить голову debias для pos на train")
     parser.add_argument("--no-pos-bias", dest="use_pos_bias", action="store_false")
     parser.add_argument("--use_set_attention", "--use-set-attention", dest="use_set_attention", action="store_true", default=True, help="Включить Self-Attention между кандидатами ленты")
     parser.add_argument("--no_set_attention", "--no-set-attention", dest="use_set_attention", action="store_false", help="Отключить Set-Attention (для сравнения с baseline)")
     parser.add_argument("--log-every", type=int, default=5)
     parser.add_argument("--cv-mode", choices=["danya", "simple"], default="danya", help="Режим валидации: 'danya' (pseudo-public 30% / pseudo-private 70% по timestamp) или 'simple'")
+    parser.add_argument("--no-history-context", action="store_true", help="Ablate learned history context while retaining candidate features")
+    parser.add_argument("--numeric-head", action="store_true", help="Add a residual score from candidate features")
     parser.add_argument("--seed", type=int, default=42, help="Seed для воспроизводимости")
     parser.add_argument("--amp", action="store_true", default=False, help="Использовать Automatic Mixed Precision (только на GPU)")
+    parser.add_argument(
+        "--sharded-loader",
+        "--sharded_loader",
+        dest="sharded_loader",
+        action="store_true",
+        help="Использовать быстрый шардированный загрузчик на базе Polars (по умолчанию включен)",
+    )
+    parser.add_argument(
+        "--no-sharded-loader",
+        "--no_sharded_loader",
+        dest="sharded_loader",
+        action="store_false",
+        help="Использовать старый Map-style DataLoader (для отладки на синтетике)",
+    )
+    parser.set_defaults(sharded_loader=True)
     parser.add_argument("--device", default=None)
     args = parser.parse_args()
+    if not math.isfinite(args.target_temperature) or args.target_temperature <= 0:
+        parser.error("--target-temperature must be finite and positive")
+    if args.train_parts is not None and args.train_parts < 1:
+        parser.error("--train-parts must be at least 1")
 
     train(args)
 

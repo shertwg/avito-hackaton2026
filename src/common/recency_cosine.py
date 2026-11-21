@@ -63,12 +63,12 @@ def build_feature_part(candidates, feeds, vectors, vector_rows):
         pl.Series(name, np.concatenate(values), dtype=pl.Float32) for name, values in chunks.items()])
 
 
-def build_features(raw, prepared, output, *, train_parts=8, prefetch_parts=2, resume=False):
+def build_features(raw, prepared, output, *, train_parts=8, prefetch_parts=2, resume=False, train_start=None):
     raw, prepared, output = map(Path, (raw, prepared, output))
     if not 1 <= prefetch_parts <= 8:
         raise ValueError('prefetch parts must be between 1 and 8')
     source = json.loads((prepared / 'manifest.json').read_text())
-    entries = {'train': selected_parts(source, train_parts),
+    entries = {'train': selected_parts(source, train_parts, train_start),
                **{split: source['splits'][split]['parts'] for split in ('val', 'test')}}
     positions = {split: {p['source']: i for i, p in enumerate(parts)} for split, parts in entries.items()}
     loaded = {'split': None, 'frames': {}, 'rows': None, 'vectors': None}
@@ -91,4 +91,4 @@ def build_features(raw, prepared, output, *, train_parts=8, prefetch_parts=2, re
 
     return build_cache(prepared, output, train_parts=train_parts, group='recency_cosine', names=feature_names(),
         domains=domains(), producer=__file__, extra=dependency_identity(raw), build_part=build_part,
-        resume=resume, verify_extra=lambda: dependency_identity(raw))
+        resume=resume, train_start=train_start, verify_extra=lambda: dependency_identity(raw))

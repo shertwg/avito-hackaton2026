@@ -13,6 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('--memory-mb', type=int, default=1536)
     parser.add_argument('--candidate-batch', type=int, default=64)
     parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--first-train-shards', dest='train_start', action='store_const', const=0, help='alias for --train-start 0')
     args = parser.parse_args()
     build_features(args.prepared, args.out, train_parts=args.train_parts, memory_mb=args.memory_mb,
                    candidate_batch=args.candidate_batch, resume=args.resume, train_start=args.train_start)
