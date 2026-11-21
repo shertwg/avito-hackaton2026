@@ -1138,3 +1138,27 @@ uv run --locked python -m scripts.audit_click_item2item_features --cache data/fe
 Для 32 или 96 шардов измените число и каталог. Для непрерывного блока задайте
 `--train-start` или включите `--click-item2item` в `scripts.prepare_train_blocks`.
 Промежуточная база DuckDB сохраняет готовые части графа для возобновления.
+
+### История показов user_session
+
+Группа добавляет 14 признаков на кандидата. История показов берётся из
+train, val и test с условием `t_prev < t_curr`. Для одновременных лент
+одного пользователя признаки используют общий срез прошлого. Для выбора
+трёх предыдущих лент при равных timestamp порядок задаётся по feed_id,
+затем split. Счётчик товара учитывает каждую предыдущую ленту один раз.
+Доли категории считаются по числу показов кандидатов. Значение ID 0
+обозначает отсутствие объекта.
+
+Суммарные клики и ожидаемые клики по исходной позиции вычисляются только
+по донорскому train без выбранных обучающих шардов. Для CTR и отношения
+к ожидаемым кликам используется глобальный донорский prior, для оценки
+категории — CTR этой категории. Сила сглаживания равна 5.
+
+```powershell
+uv run --locked python -m scripts.build_user_session_features --train-parts 8 --out data/features/user-session-008 --resume
+uv run --locked python -m scripts.audit_user_session_features --cache data/features/user-session-008 --out runs/user-session-008-audit.json
+```
+
+Готовый кэш можно добавить в обучающий запуск через
+`--feature-root data/features/user-session-008`. Для другой когорты
+выберите соответствующие `--train-parts` и `--train-start` и новый каталог.

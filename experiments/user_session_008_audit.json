@@ -1,0 +1,46 @@
+{
+  "complete": true,
+  "manifest_sha256": "bfcf60023bb23b3af2817d493738734d9ea447c982d4615d8b60d8c7590fa242",
+  "features": 14,
+  "splits": {
+    "train": {
+      "rows": 3850759,
+      "item_history_rows": 22999,
+      "category_history_rows": 639500,
+      "simultaneous_feed_samples": 0
+    },
+    "val": {
+      "rows": 1389971,
+      "item_history_rows": 2542,
+      "category_history_rows": 367482,
+      "simultaneous_feed_samples": 0
+    },
+    "test": {
+      "rows": 2904806,
+      "item_history_rows": 3828,
+      "category_history_rows": 724253,
+      "simultaneous_feed_samples": 0
+    }
+  },
+  "donor_shards": 504,
+  "excluded_train_sources": [
+    "part-00000-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00073-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00146-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00219-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00292-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00365-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00438-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet",
+    "part-00511-e3428b2d-e8b5-4109-8f1d-0bb6189ed749-c000.zstd.parquet"
+  ],
+  "sampled_candidates": 57,
+  "max_used_timestamp": 1790612480,
+  "minimum_gap_seconds_in_checked_histories": 128,
+  "build_resources": {
+    "total_physical_bytes": 16890322944,
+    "available_physical_bytes": 7650279424,
+    "working_set_bytes": 249495552,
+    "peak_working_set_bytes": 2271170560
+  },
+  "build_seconds": 73.75
+}
