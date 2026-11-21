@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "members": [
+    {
+      "path": "../runs/dima-joint-item2item-008-cv-001",
+      "weight": 0.7,
+      "normalization": "zscore",
+      "sha256": {
+        "val": "1a916c874578f36a0536eb301efc11362f448f5288aadcc8966f0ad3265bb7f9",
+        "test": "2af106e2d862bf89d16c542ea8e5f39d27ba92e446e45b8a8e300571d58f65ba"
+      }
+    },
+    {
+      "path": "../runs/dima-joint-weighted-item2item-008-cv-001",
+      "weight": 0.3,
+      "normalization": "zscore",
+      "sha256": {
+        "val": "da114ff8aaa4ccf3c3953788ca5a37aad4831a529ddb444c6bd44f163fe69959",
+        "test": "16abf90c39b090d562fa3636b5fe612a7c9e445ef62b2021a4f1f1fcfeb63517"
+      }
+    }
+  ]
+}
