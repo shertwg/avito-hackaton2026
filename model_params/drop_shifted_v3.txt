@@ -1,0 +1,30 @@
+# Feed-constant, shifted, or donor-user-leaky columns from user-session-032 and click-item2item-032
+# 12 user_session cols (10 feed-constant/40x density shift + 2 contemporaneous donor-user category click leaks)
+us_user_prior_feeds_log
+us_time_since_prev_feed_log
+us_feeds_last_1h
+us_feeds_last_24h
+us_session_idx
+us_item_prior_impr
+us_time_since_item_shown_log
+us_donor_user_impr_log
+us_donor_user_ctr_smooth
+us_donor_user_coe
+us_donor_user_cat_lift
+us_donor_user_cat_clicks_log
+# 15 click_item2item cols (contemporaneous donor item-pair density shift: 2.6x-16x higher nz% on train vs val/test)
+ci2i_lift_mean_10
+ci2i_lift_max_10
+ci2i_lift_possum_10
+ci2i_ctr_max_10
+ci2i_matched_frac_10
+ci2i_lift_mean_50
+ci2i_lift_max_50
+ci2i_evt2_lift_max_50
+ci2i_evt10_lift_max_50
+ci2i_matched_frac_50
+coclick_mean_10
+coclick_max_10
+coclick_mean_50
+coclick_max_50
+cat_item_lift_max_50
