@@ -1,0 +1,20 @@
+{
+  "train": {
+    "rows": 3850759,
+    "nonzero_svd": 296122,
+    "svd_without_direct_click_pair": 169180,
+    "svd_without_either_exact_pair": 75280
+  },
+  "val": {
+    "rows": 1389971,
+    "nonzero_svd": 32863,
+    "svd_without_direct_click_pair": 25444,
+    "svd_without_either_exact_pair": 14969
+  },
+  "test": {
+    "rows": 2904806,
+    "nonzero_svd": 49545,
+    "svd_without_direct_click_pair": 39393,
+    "svd_without_either_exact_pair": 22955
+  }
+}

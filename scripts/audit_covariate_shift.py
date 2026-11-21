@@ -126,14 +126,17 @@ def classify(source, test, features, trees=300):
     }
 
 
-def audit(prepared, feature_root):
+def audit(prepared, feature_root, extra_groups=()):
     manifest_path = prepared / "manifest.json"
     m = json.loads(manifest_path.read_bytes())
     selected = select_parts(m, 8)
     names = {e["source"] for e in selected}
     caches = []
     hashes = {}
-    for name in GROUPS:
+    groups = (*GROUPS, *extra_groups)
+    if len(set(groups)) != len(groups):
+        raise ValueError("cache groups must be unique")
+    for name in groups:
         root = feature_root / name
         path = root / "manifest.json"
         meta = json.loads(path.read_bytes())
@@ -162,7 +165,7 @@ def audit(prepared, feature_root):
         "weighted-item2item-008/",
     )
     joint = [name for name in features if name in BASE or name.startswith(joint_groups)]
-    return {
+    report = {
         "prepared_sha256": digest(manifest_path),
         "cache_sha256": hashes,
         "features": len(features),
@@ -186,14 +189,24 @@ def audit(prepared, feature_root):
         },
         "joint_121": {split: classify(data[split], data["test"], joint) for split in ("train", "val")},
     }
+    if extra_groups:
+        extra_prefixes = tuple(f"{group}/" for group in extra_groups)
+        added = [name for name in features if name.startswith(extra_prefixes)]
+        report["added_groups"] = list(extra_groups)
+        report["added_feature_count"] = len(added)
+        report["joint_121_with_added_groups"] = {
+            split: classify(data[split], data["test"], joint + added) for split in ("train", "val")
+        }
+    return report
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prepared", type=Path, default=Path("data/prepared"))
     parser.add_argument("--features", type=Path, default=Path("data/features"))
+    parser.add_argument("--include-group", action="append", default=[], help="append a cache directory name")
     parser.add_argument("--out", type=Path, default=Path("runs/covariate_shift_report.json"))
     args = parser.parse_args()
-    report = audit(args.prepared, args.features)
+    report = audit(args.prepared, args.features, args.include_group)
     write_json(args.out, report)
     print({s: v["auc"] for s, v in report["contrasts"].items()})
