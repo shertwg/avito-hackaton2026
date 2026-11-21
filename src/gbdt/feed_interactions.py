@@ -19,6 +19,16 @@ NORM_COLS = [
     "cos_hist_max_10",
     "cos_hist_mean_50",
     "cos_user",
+    "ci2i_lift_mean_10",
+    "ci2i_lift_max_10",
+    "ci2i_lift_max_50",
+    "cat_ci2i_lift_mean_10",
+    "cat_ci2i_lift_max_10",
+    "cat_item_lift_max_50",
+    "coclick_max_50",
+    "us_donor_user_cat_lift",
+    "us_cat_prior_impr_share",
+    "us_cat_recent3_impr_share",
 ]
 
 RANK_COLS = [
@@ -32,6 +42,11 @@ RANK_COLS = [
     "is_item_history_evt1",
     "item_train_age_days",
     "cos_hist_mean_50",
+    "ci2i_lift_mean_10",
+    "cat_ci2i_lift_mean_10",
+    "cat_item_lift_max_50",
+    "us_donor_user_cat_lift",
+    "us_cat_recent3_impr_share",
 ]
 
 
@@ -85,6 +100,13 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         ("fi_wi2i10_x_cos10", "wi2i_all_max_10", "cos_hist_max_10", lambda a, b: a * b),
         ("fi_wi2i_ratio_10_50", "wi2i_all_mean_10", "wi2i_all_mean_50", lambda a, b: a / (b + pl.lit(1e-4, dtype=pl.Float32))),
         ("fi_wi2i_evt2_ratio", "wi2i_evt2_mean_50", "wi2i_all_mean_50", lambda a, b: a / (b + pl.lit(1e-4, dtype=pl.Float32))),
+        ("fi_ci2i10_x_cos", "ci2i_lift_mean_10", "cos_user", lambda a, b: a * b),
+        ("fi_ci2i10_x_ctr", "ci2i_lift_mean_10", "is_item_ctr", lambda a, b: a * b),
+        ("fi_catci2i10_x_cos", "cat_ci2i_lift_mean_10", "cos_user", lambda a, b: a * b),
+        ("fi_catci2i10_x_wi2i10", "cat_ci2i_lift_mean_10", "wi2i_all_mean_10", lambda a, b: a * b),
+        ("fi_us_cat_fatigue_delta", "us_cat_recent3_impr_share", "us_cat_prior_impr_share", lambda a, b: a - b),
+        ("fi_us_lift_x_cos", "us_donor_user_cat_lift", "cos_user", lambda a, b: a * b),
+        ("fi_us_lift_x_ctr", "us_donor_user_cat_lift", "is_item_ctr", lambda a, b: a * b),
     ]
     for name, c1, c2, fn in pairs:
         if c1 in df.columns and c2 in df.columns:
@@ -99,7 +121,7 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         exprs.append(cat_n.alias("fi_incat_count"))
         exprs.append((cat_n / feed_n).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias("fi_incat_share"))
         cols.extend(["fi_incat_count", "fi_incat_share"])
-        for c in ("cos_user", "is_item_ctr", "wi2i_all_mean_10"):
+        for c in ("cos_user", "is_item_ctr", "wi2i_all_mean_10", "cat_item_lift_max_50", "ci2i_lift_mean_10"):
             if c in df.columns:
                 col_f = pl.col(c).cast(pl.Float32)
                 cname = f"fi_incat_{c}_dmax"
