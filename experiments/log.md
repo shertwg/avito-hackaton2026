@@ -1275,6 +1275,8 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-21 | danya | - | cb32-v2clean-pairlogit-d6-l2-cv (32 шарда, 13 групп минус 25 смещённых колонок + fi v4, PairLogit d=6, l2=10) | priv: 0.3727/-/0.3138 | - | all@30=0.3165, pub@30=0.3228 (+0.00083 all к v2, +0.00109 pub и -0.00063 priv к v1) |
 | 2026-11-21 | danya | - | pos-teacher-032 (CatBoostRanker QueryRMSE d=8 1500it + YetiRank d=7 1200it по pos на 30 непересекающихся донорских шардах block-032-064) | priv: 0.3319/-/0.2558 | - | all@30=0.25914, pub@30=0.26689 (gain=0.25771, yeti=0.25711; feed_size%=2.73/1.33; validator OK) |
 | 2026-11-21 | danya | - | cb32-v3-pairlogit-d6-l2-cv (32 шарда, 14 групп включая pos-teacher-032, минус 27 смещённых колонок + fi_pt/fi_incat, PairLogit d=6, l2=10) | priv: 0.3739/-/0.3130 | - | all@30=0.3160, pub@30=0.3229 (против v1: pub +0.00126, priv -0.00144, all -0.00063; validator OK) |
+| 2026-11-21 | danya | - | cb32-v4-qsm-ipw5-vw3-td03-cv (32 шарда, 15 групп + collab-svd-032 + pos-teacher-032 - 27 shifted, QuerySoftMax ipw=5 val_weight=3 td=0.03) | priv: 0.3722/-/0.3111 | - | all@30=0.3139, pub@30=0.3205 (+0.00116 priv p=0.912 и +0.00055 all к v1 qsm-td03; validator OK) |
+| 2026-11-21 | danya | - | meta-blend-v40-add (mean_hybrid, 19 моделей: v34 + cb32-v4-qsm-ipw5-vw3-td03-cv) | priv: -/-/0.31690 | - | all@30=0.31963, pub@30=0.32597 (+0.00013 priv к v34 при -0.00002 all; вес OOF 0.0754) |
 
 ## Данные для проверки P0 и сверка с Public — Дима, 20.11.2026
 
