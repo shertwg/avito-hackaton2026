@@ -107,3 +107,32 @@ def test_contextual_donor_influences_candidate_query():
     difference = changed - original
     assert difference[0, 0, 0] > 0
     assert difference.count_nonzero() == 1
+
+
+def test_train_epoch_finishes_after_persistent_autocast_overflow():
+    from src.nn.train_cv import train_epoch
+
+    class OverflowingRanker(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.weight = torch.nn.Parameter(torch.tensor([[1.0, 0.0]]))
+
+        def forward(self, batch, use_pos_bias=False):
+            scores = self.weight
+            if torch.is_autocast_enabled("cpu"):
+                scores = scores * torch.full_like(scores, float("nan"))
+            return scores, scores
+
+    model = OverflowingRanker()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+    batch = {
+        "feed_id": torch.tensor([1]),
+        "target": torch.tensor([[1, 0]]),
+        "candidate_mask": torch.tensor([[True, True]]),
+    }
+    report = train_epoch(model, optimizer, [batch] * 10, torch.device("cpu"), amp_dtype=torch.bfloat16)
+
+    assert report["steps"] == 10
+    assert report["amp_fp32_retries"] == report["mixed_precision_attempts"] == 8
+    assert report["amp_skipped_steps"] == 0
+    assert model.weight[0, 0] > 1.0

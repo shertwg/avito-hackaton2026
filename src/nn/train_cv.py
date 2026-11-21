@@ -53,10 +53,13 @@ def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet, re
     feed_visits = 0
     scaler = torch.amp.GradScaler("cuda", init_scale=1024., enabled=amp_dtype == torch.float16)
     skipped = 0
+    fp32_retries = 0
+    mixed_precision_attempts = 0
     for batch in loader:
         feed_visits += batch["feed_id"].numel()
         batch = {key: value.to(device) for key, value in batch.items()}
         optimizer.zero_grad()
+        mixed_precision_attempts += int(amp_dtype is not None)
         with torch.autocast(device.type, dtype=amp_dtype, enabled=amp_dtype is not None):
             scores, _ = model(batch, use_pos_bias=True)
         target, mask = batch["target"], batch["candidate_mask"]
@@ -65,8 +68,23 @@ def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet, re
                 _, reference_scores = reference_model(batch, use_pos_bias=False)
             scores = boost_hard_negative_logits(scores, target, mask, reference_scores)
         loss = loss_fn(scores, target, mask)
-        if not torch.isfinite(loss).item():
-            raise RuntimeError(f"Non-finite loss at training step {len(losses) + 1}")
+        loss_value = loss.item()
+        if not np.isfinite(loss_value) and amp_dtype is not None:
+            # A finite gradient scaler cannot repair overflow in the forward pass.
+            fp32_retries += 1
+            print(f"Retrying step {len(losses) + 1} in FP32", flush=True)
+            scores, _ = model(batch, use_pos_bias=True)
+            if reference_model is not None:
+                scores = boost_hard_negative_logits(scores, target, mask, reference_scores)
+            loss = loss_fn(scores, target, mask)
+            loss_value = loss.item()
+            if fp32_retries >= 8:
+                # Repeated overflow makes double forward passes slower than FP32.
+                amp_dtype = None
+                scaler = torch.amp.GradScaler("cuda", enabled=False)
+                print("Eight AMP retries reached; completing this phase in FP32", flush=True)
+        if not np.isfinite(loss_value):
+            raise RuntimeError(f"Non-finite loss in FP32 at training step {len(losses) + 1}")
         scaler.scale(loss).backward()
         scaler.unscale_(optimizer)
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=not scaler.is_enabled())
@@ -74,12 +92,13 @@ def train_epoch(model, optimizer, loader, device, loss_fn=adaptation_listnet, re
         scaler.step(optimizer)
         scaler.update()
         skipped += int(scaler.get_scale() < scale_before)
-        losses.append(loss.item())
+        losses.append(loss_value)
         if len(losses) % 1000 == 0:
             elapsed = perf_counter() - start
             print(f"{len(losses)} steps, {elapsed:.1f}s, AMP skipped={skipped}", flush=True)
     stats = {"seconds": perf_counter() - start, "steps": len(losses), "feed_visits": feed_visits, "loss": float(np.mean(losses))}
-    stats["amp_skipped_steps"] = skipped
+    stats.update(amp_skipped_steps=skipped, amp_fp32_retries=fp32_retries,
+                 mixed_precision_attempts=mixed_precision_attempts)
     if skipped and skipped == len(losses):
         raise RuntimeError("AMP skipped all optimizer updates")
     if not np.isfinite(stats["loss"]):
