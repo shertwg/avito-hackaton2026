@@ -1189,3 +1189,26 @@ uv run --locked python -m scripts.audit_collab_svd_features --cache data/feature
 Добавьте `--feature-root data/features/collab-svd-008` к команде обучения.
 Для непрерывного train-блока используйте `--train-start` и каталог,
 выделенный под эту когорту.
+
+### Воспроизведение сабмита по сохранённым предсказаниям
+
+Для воспроизведения бленда передайте `--ensemble-config`. Рецепт версии 1
+содержит список `members` в порядке суммирования. Для каждой модели
+задайте каталог `path` относительно JSON, фиксированный `weight`,
+`normalization` и SHA-256 входных файлов в `sha256.val` и `sha256.test`.
+Веса неотрицательные и в сумме равны единице. Поддерживаются `zscore`
+и `rank01` внутри ленты, а также исходные скоры `raw`. Порядок строк
+во входных предсказаниях может различаться.
+
+```powershell
+uv run --locked python -m scripts.reproduce_ranking --raw competition --ensemble-config experiments/joint_109_121_frozen_recipe.json --out runs/reproduced-joint-109-weighted-121-008
+```
+
+Для этого примера нужны `competition/val/impressions`, файл шаблона
+`competition/sample_submission.parquet` и две папки сохранённых
+предсказаний из рецепта. Команда проверяет хеши, уникальность и совпадение
+ключей кандидатов, собирает Float32-скоры с фиксированными весами,
+проверяет test официальным валидатором и сохраняет `pipeline.json`
+с хешами выходов и NDCG@30. Обучение моделей выполняется отдельными
+командами. Для другого бленда создайте рецепт с его весами и файлами.
+[Проверенный рецепт 109/121](experiments/joint_109_121_frozen_recipe.json).

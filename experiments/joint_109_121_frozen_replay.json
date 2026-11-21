@@ -1,0 +1,41 @@
+{
+  "recipe_sha256": "65b16c99d34f50d8ff62b49128394a2fc3824347e6009ee4cc4e5f597c8d53ce",
+  "template_sha256": "7837aabc8084c244c30c3da6ed28fdd666fda5ea6ae19075c00bb4204de7b53c",
+  "members": [
+    {
+      "path": "../runs/dima-joint-item2item-008-cv-001",
+      "weight": 0.7,
+      "normalization": "zscore",
+      "sha256": {
+        "val": "1a916c874578f36a0536eb301efc11362f448f5288aadcc8966f0ad3265bb7f9",
+        "test": "2af106e2d862bf89d16c542ea8e5f39d27ba92e446e45b8a8e300571d58f65ba"
+      }
+    },
+    {
+      "path": "../runs/dima-joint-weighted-item2item-008-cv-001",
+      "weight": 0.3,
+      "normalization": "zscore",
+      "sha256": {
+        "val": "da114ff8aaa4ccf3c3953788ca5a37aad4831a529ddb444c6bd44f163fe69959",
+        "test": "16abf90c39b090d562fa3636b5fe612a7c9e445ef62b2021a4f1f1fcfeb63517"
+      }
+    }
+  ],
+  "predictions": {
+    "val_pred.parquet": {
+      "rows": 1389971,
+      "sha256": "12558507e29cfcfa2ab3adb11940ddb441761278527994a2c3396065b032b514"
+    },
+    "test_pred.parquet": {
+      "rows": 2904806,
+      "sha256": "00c351598b709000ba5ad8da9cac52befaea5c95f37d359b92a27ad583324cf3"
+    }
+  },
+  "ndcg30": {
+    "pseudo_public": 0.31765873229833075,
+    "pseudo_private": 0.3066321733982455,
+    "all": 0.3099409820316483
+  },
+  "complete": true,
+  "submission_validator": "passed"
+}

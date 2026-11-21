@@ -1,4 +1,4 @@
-"""Reproduce selected feature groups, CatBoost predictions and a validated submission."""
+"""Reproduce a CatBoost pipeline or replay a frozen ensemble from saved predictions."""
 import argparse
 import hashlib
 from pathlib import Path
@@ -129,6 +129,7 @@ def main():
     parser.add_argument('--feature-dir', type=Path, default=Path('data/features'))
     parser.add_argument('--catalogue', type=Path, default=Path('data/embedding_catalogue'))
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--ensemble-config', type=Path, help='frozen recipe with paths, score transforms and hashes')
     parser.add_argument('--train-parts', type=int, default=8)
     parser.add_argument('--infeed', action='store_true')
     parser.add_argument('--history', action='store_true')
@@ -150,6 +151,10 @@ def main():
     parser.add_argument('--memory-mb', type=int, default=2048, help='DuckDB aggregation memory limit')
     parser.add_argument('--resume', action='store_true', help='reuse matching data and feature caches')
     args = parser.parse_args()
+    if args.ensemble_config:
+        from scripts.reproduce_ensemble import rebuild_ensemble
+        rebuild_ensemble(args.raw, args.out, args.ensemble_config)
+        return
     reproduce_ranking(args.raw, args.out, prepared=args.prepared, feature_dir=args.feature_dir,
                       catalogue=args.catalogue,
                       train_parts=args.train_parts, infeed=args.infeed, history=args.history,
