@@ -1,0 +1,107 @@
+{
+  "official_source": {
+    "source": "https://storage.yandexcloud.net/avitotech-mlcup-2026/competition.zip",
+    "raw_bytes": 19246962474,
+    "raw_sha256": "f77cd999b916df23ab02ff3fa212903d4a13596862081da8ba17e5214bed7771",
+    "raw_archive_crc": "passed",
+    "impression_shards": {
+      "train": 512,
+      "val": 64,
+      "test": 64
+    },
+    "sample_submission_sha256": "7837aabc8084c244c30c3da6ed28fdd666fda5ea6ae19075c00bb4204de7b53c",
+    "fold_file_sha256": "8eb5445dcf0ec5cbbbd61582b3db0a88d72afde3ed04ab29d79072921dd2be63"
+  },
+  "local_archives": {
+    "features-008-val-test-v2.zip": {
+      "bytes": 2229185188,
+      "sha256": "0332969cf286648363c687c9381a971280c2c660610a5186992eb32b49b97e99"
+    },
+    "prepared-full-and-sample.zip": {
+      "bytes": 10211029420,
+      "sha256": "7c4459997f3ba7ebcde1e8542716aa3a3c09a0b57e24b26b6546d87bed7214a3"
+    }
+  },
+  "feature_rows": {
+    "groups": [
+      "cosine",
+      "infeed",
+      "history",
+      "itemstats-008",
+      "item2item-008",
+      "weighted-item2item-008",
+      "category-cooc-008",
+      "time-008",
+      "event-cosine",
+      "feature-ranks-008",
+      "userstats-008",
+      "recency-cosine",
+      "bayesian-ctr-008",
+      "feed-context-008"
+    ],
+    "splits": {
+      "train": {
+        "parts": 8,
+        "rows": 3850759
+      },
+      "val": {
+        "parts": 64,
+        "rows": 1389971
+      },
+      "test": {
+        "parts": 64,
+        "rows": 2904806
+      }
+    },
+    "all_keys": "matched",
+    "values": "finite Float32",
+    "recipient_loader": "first part of every split, every group"
+  },
+  "checked_loader": {
+    "checked_feature_groups": [
+      "cosine",
+      "infeed",
+      "history",
+      "itemstats-008",
+      "item2item-008",
+      "weighted-item2item-008"
+    ],
+    "splits": {
+      "train": {
+        "rows": 3850759,
+        "features": 121
+      },
+      "val": {
+        "rows": 1389971,
+        "features": 121
+      },
+      "test": {
+        "rows": 2904806,
+        "features": 121
+      }
+    },
+    "sample_submission_sha256": "7837aabc8084c244c30c3da6ed28fdd666fda5ea6ae19075c00bb4204de7b53c",
+    "archives_verified": true
+  },
+  "prepared_values": {
+    "check": "direct full comparison of raw rows with the prepared ZIP, including candidate order, all available labels/positions and history arrays",
+    "splits": {
+      "train": {
+        "shards": 512,
+        "feeds": 3151208,
+        "candidates": 246745836
+      },
+      "val": {
+        "shards": 64,
+        "feeds": 14423,
+        "candidates": 1389971
+      },
+      "test": {
+        "shards": 64,
+        "feeds": 28595,
+        "candidates": 2904806
+      }
+    },
+    "seconds": 215.3
+  }
+}

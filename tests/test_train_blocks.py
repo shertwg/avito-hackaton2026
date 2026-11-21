@@ -61,6 +61,12 @@ class TrainBlockPipelineTests(unittest.TestCase):
             options = dict(prepared=prepared, raw=raw, feature_dir=root / 'blocks', output=root / 'report',
                            starts=[0, 1], train_parts=1, cosine=base / 'cosine-selected', infeed=base / 'infeed-selected',
                            oof_out=root / 'models', weighted=True, memory_mb=256)
+            with patch('src.common.click_item2item.BUCKETS', 2):
+                click_plan = prepare_blocks(**{**options, 'click_item2item': True, 'starts': [1],
+                    'feature_dir': root / 'click-blocks', 'output': root / 'click-report'})
+            click_block = click_plan['blocks']['block-001-002']
+            self.assertEqual(click_block['model_features'], 139)
+            self.assertIn('click-item2item', click_block['audits'])
             plan = prepare_blocks(**options, plan_only=True)
             self.assertEqual(plan['status'], 'planned')
             self.assertFalse((root / 'blocks').exists())

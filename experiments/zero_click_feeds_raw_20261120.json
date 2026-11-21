@@ -1,0 +1,22 @@
+{
+  "train": {
+    "shards": 512,
+    "feeds": 3151208,
+    "candidates": 246745836,
+    "clicks": 5446872,
+    "zero_click_feeds": 0,
+    "zero_click_candidates": 0,
+    "all_click_feeds": 7,
+    "all_click_candidates": 101
+  },
+  "val": {
+    "shards": 64,
+    "feeds": 14423,
+    "candidates": 1389971,
+    "clicks": 21983,
+    "zero_click_feeds": 0,
+    "zero_click_candidates": 0,
+    "all_click_feeds": 0,
+    "all_click_candidates": 0
+  }
+}
