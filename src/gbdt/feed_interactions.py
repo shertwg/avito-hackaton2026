@@ -24,9 +24,11 @@ NORM_COLS = [
     "ci2i_lift_max_50",
     "cat_ci2i_lift_mean_10",
     "cat_ci2i_lift_max_10",
+    "cat_ci2i_src_lift_mean_50",
     "cat_item_lift_max_50",
     "coclick_max_50",
     "us_donor_user_cat_lift",
+    "us_donor_user_cat_clicks_log",
     "us_cat_prior_impr_share",
     "us_cat_recent3_impr_share",
 ]
@@ -44,8 +46,10 @@ RANK_COLS = [
     "cos_hist_mean_50",
     "ci2i_lift_mean_10",
     "cat_ci2i_lift_mean_10",
+    "cat_ci2i_src_lift_mean_50",
     "cat_item_lift_max_50",
     "us_donor_user_cat_lift",
+    "us_donor_user_cat_clicks_log",
     "us_cat_recent3_impr_share",
 ]
 
@@ -104,9 +108,11 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         ("fi_ci2i10_x_ctr", "ci2i_lift_mean_10", "is_item_ctr", lambda a, b: a * b),
         ("fi_catci2i10_x_cos", "cat_ci2i_lift_mean_10", "cos_user", lambda a, b: a * b),
         ("fi_catci2i10_x_wi2i10", "cat_ci2i_lift_mean_10", "wi2i_all_mean_10", lambda a, b: a * b),
+        ("fi_catci2i50_x_cos", "cat_ci2i_src_lift_mean_50", "cos_user", lambda a, b: a * b),
         ("fi_us_cat_fatigue_delta", "us_cat_recent3_impr_share", "us_cat_prior_impr_share", lambda a, b: a - b),
         ("fi_us_lift_x_cos", "us_donor_user_cat_lift", "cos_user", lambda a, b: a * b),
         ("fi_us_lift_x_ctr", "us_donor_user_cat_lift", "is_item_ctr", lambda a, b: a * b),
+        ("fi_us_cat_clicks_x_cos", "us_donor_user_cat_clicks_log", "cos_user", lambda a, b: a * b),
     ]
     for name, c1, c2, fn in pairs:
         if c1 in df.columns and c2 in df.columns:

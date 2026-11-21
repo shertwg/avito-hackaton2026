@@ -1271,6 +1271,7 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-21 | danya | - | meta-blend-v34-d8-bal-mean-hybrid (4-fold OOF Z+RankGauss alpha=0.25, mean_hybrid, 18 моделей с balanced NN) | priv: -/-/0.31677 | **0.3665061448** | all@30=0.31965 (новый рекорд), pub@30=0.32638; validator OK; Desktop обновлён |
 | 2026-11-21 | danya | - | cb32-all-wi2i-rc-fi3-pairlogit-d5-l2-cv-seeds3 (32 шарда, PairLogit d=5, l2=10, 3 сида) | priv: -/-/0.3138 | - | all@30=0.3161, pub@30=0.3215 |
 | 2026-11-21 | danya | - | cb32-all-wi2i-rc-us-fi4-qsm-td03-cv (32 шарда + user-session-032 + fi v4, QSM td03) | priv: 0.3686/-/0.3090 | - | all@30=0.3127, pub@30=0.3214 (против fi3 без user-session: -0.00092 priv, -0.00064 all, p=0.175) |
+| 2026-11-21 | danya | - | cb32-v2-pairlogit-d6-l2-cv (32 шарда, 13 групп + fi v4 без фильтра шифта, PairLogit d=6, l2=10) | priv: 0.3721/-/0.3132 | - | all@30=0.3156, pub@30=0.3212 (-0.00116 priv к v1 из-за 25 смещённых колонок us/ci2i) |
 
 ## Данные для проверки P0 и сверка с Public — Дима, 20.11.2026
 

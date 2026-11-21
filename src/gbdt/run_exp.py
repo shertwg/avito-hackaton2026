@@ -67,6 +67,7 @@ def get_args(argv=None) -> argparse.Namespace:
     ap.add_argument("--model-params", default=None, help="JSON-файл с доп. параметрами модели (пишет tune.py)")
     ap.add_argument("--features-dir", default=None, help="папка с внешними признаками (extra_features.py)")
     ap.add_argument("--extra", nargs="*", default=[], help="группы внешних признаков, напр. anton avgust")
+    ap.add_argument("--drop-cols-file", default=None, help="файл со списком колонок для удаления до feed_interactions")
     ap.add_argument("--feed-interactions", action="store_true", help="добавить внутриленточные z-score/dmax и взаимодействия")
     ap.add_argument("--max-parts", type=int, default=None)
     ap.add_argument("--n-jobs", type=int, default=1, help="процессов при построении признаков")
@@ -87,11 +88,26 @@ def _filter_zero_grad(df: pl.DataFrame) -> pl.DataFrame:
     return df.filter((s > 0) & (s < n))
 
 
+_PROTECTED_COLS = {"feed_id", "item_id", "category_id", "target", "pos", "timestamp", "candidate_index", "split"}
+
+
+def _load_drop_cols(path: str | None) -> set[str]:
+    if not path:
+        return set()
+    cols = set()
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if s and not s.startswith("#"):
+            cols.add(s)
+    return cols
+
+
 def load_all(a: argparse.Namespace, need_test: bool) -> tuple[dict[str, pl.DataFrame], list[str]]:
     frames, extra_cols = {}, []
     splits = ["train", "val"] + (["test"] if need_test else [])
     base_feats = MODEL_FEATURES
     drop_zg = getattr(a, "drop_zero_grad_feeds", False)
+    drop_cols = _load_drop_cols(getattr(a, "drop_cols_file", None)) - _PROTECTED_COLS
     for s in splits:
         if a.prepared:
             from src.gbdt.prepared import load_prepared
@@ -105,6 +121,14 @@ def load_all(a: argparse.Namespace, need_test: bool) -> tuple[dict[str, pl.DataF
             print(f"[drop-zero-grad] train rows: {before:,} -> {df.height:,} ({100.0 * df.height / max(before, 1):.1f}%)",
                   flush=True)
         df, extra_cols = attach(df, a.features_dir, a.extra, s)
+        if drop_cols:
+            present = [c for c in df.columns if c in drop_cols]
+            if present:
+                df = df.drop(present)
+                if s == "train":
+                    print(f"[drop-cols] dropped {len(present)} cols", flush=True)
+            base_feats = [c for c in base_feats if c not in drop_cols]
+            extra_cols = [c for c in extra_cols if c not in drop_cols]
         fi_cols: list[str] = []
         if getattr(a, "feed_interactions", False):
             from src.gbdt.feed_interactions import add_feed_interactions
