@@ -502,12 +502,15 @@ class FeedRankingModel(nn.Module):
             attention_mask = self.history_attention_bias(batch, safe_hist_mask, cand_repr.dtype)
             padding_mask = None  # The additive bias already masks padded keys.
 
+        # The scaled dot-product path keeps attention logits stable under AMP.
+        need_attention_weights = not torch.is_autocast_enabled(cand_repr.device.type)
         attn_out, _ = self.cross_attn(
             query=cand_repr,
             key=hist_encoded,
             value=hist_encoded,
             key_padding_mask=padding_mask,
             attn_mask=attention_mask,
+            need_weights=need_attention_weights,
         ) # [B, M, d_model]
 
         attn_out = attn_out * has_any_hist.unsqueeze(-1).float()
@@ -527,6 +530,7 @@ class FeedRankingModel(nn.Module):
                 key=cand_hist_ctx,
                 value=cand_hist_ctx,
                 key_padding_mask=~safe_cand_mask,
+                need_weights=need_attention_weights,
             ) # [B, M, d_model]
             set_out = set_out * cand_mask.unsqueeze(-1).float()
             cand_hist_ctx = self.set_norm(cand_hist_ctx + self.set_dropout(set_out))
