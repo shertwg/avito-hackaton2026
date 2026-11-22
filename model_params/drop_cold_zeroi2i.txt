@@ -1,0 +1,47 @@
+# Drop all donor item-ID-dependent columns that suffer from:
+# (a) future-click history leakage inside contemporaneous train shards (i2i/wi2i: +0.2934 train -> +0.0280 priv),
+# (b) classified listing catalog turnover decay (nz% 93%->53% or 19%->3%), or
+# (c) sign inversion across time (item_train_age_days: -0.0136 train -> +0.0116 priv).
+# Keeps 100% cold-item-ready content, embedding cosine, recency-cosine, event-cosine, infeed, user history, and category features.
+
+# itemstats-032 item-level columns (keep all 16 is_category_* columns)
+is_item_impressions
+is_item_clicks
+is_item_ctr
+is_item_expected_clicks
+is_item_position_ratio
+is_item_history_count
+is_item_history_evt1
+is_item_history_evt2
+is_item_history_evt3
+is_item_history_evt4
+is_item_history_evt5
+is_item_history_evt6
+is_item_history_evt7
+is_item_history_evt8
+is_item_history_evt9
+is_item_history_evt10
+
+# feature-ranks-032 item-level rank
+fr_is_item_ctr
+
+# time-032 donor item age / seen columns (keep time_hour_utc, time_weekday_utc)
+item_train_age_days
+item_seen_before
+
+# click-item2item-032 item-pair columns (keep 3 category-level cat_ci2i_* columns)
+ci2i_lift_mean_10
+ci2i_lift_max_10
+ci2i_lift_possum_10
+ci2i_ctr_max_10
+ci2i_matched_frac_10
+ci2i_lift_mean_50
+ci2i_lift_max_50
+ci2i_evt2_lift_max_50
+ci2i_evt10_lift_max_50
+ci2i_matched_frac_50
+coclick_mean_10
+coclick_max_10
+coclick_mean_50
+coclick_max_50
+cat_item_lift_max_50
