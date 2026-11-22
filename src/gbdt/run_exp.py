@@ -18,7 +18,9 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import gc
+import hashlib
 import json
+import shutil
 import time
 import warnings
 from pathlib import Path
@@ -319,21 +321,81 @@ def run(a: argparse.Namespace) -> dict:
         fold_of = dict(zip(uf.tolist(), fold.tolist()))
         row_fold = np.array([fold_of[x] for x in va_raw["feed_id"].to_numpy()])
         oof = np.zeros(va_raw.height)
+        n_test = int(len(te_feed_np)) if (te_prep is not None and te_feed_np is not None) else 0
+        sig_payload = json.dumps(
+            {
+                "kind": a.kind,
+                "loss": a.loss,
+                "iters": iters,
+                "lr": a.lr,
+                "depth": a.depth,
+                "seed": a.seed,
+                "pos_mode": a.pos_mode,
+                "pos_const": a.pos_const,
+                "topn": a.topn,
+                "ipw_max": a.ipw_max,
+                "val_weight": a.val_weight,
+                "time_decay": a.time_decay,
+                "drop_zero_grad_feeds": a.drop_zero_grad_feeds,
+                "folds": a.folds,
+                "model_params": a.model_params,
+                "train_parts": a.train_parts,
+                "train_start": a.train_start,
+                "feats": feats,
+                "n_val": int(va_raw.height),
+                "n_test": n_test,
+            },
+            sort_keys=True,
+        )
+        ckpt_sig = hashlib.sha256(sig_payload.encode("utf-8")).hexdigest()[:16]
+        ckpt_dir = out / "_cv_ckpt"
+        ckpt_dir.mkdir(parents=True, exist_ok=True)
+
         base_tr, base_w = _prepare_base_train(frames, a)
         frames.pop("train", None)
         gc.collect()
         for k in range(a.folds):
             t_fold = time.perf_counter()
             held = row_fold == k
+            ckpt_path = ckpt_dir / f"fold_{k}_{ckpt_sig}.npz"
+            resumed = False
+            if ckpt_path.is_file():
+                try:
+                    with np.load(ckpt_path) as data:
+                        f_oof = data["oof"]
+                        if f_oof.shape == (int(held.sum()),):
+                            if n_test == 0:
+                                oof[held] = f_oof
+                                resumed = True
+                            elif "test" in data and data["test"].shape == (n_test,):
+                                oof[held] = f_oof
+                                test_scores.append(data["test"].astype(np.float32, copy=False))
+                                resumed = True
+                except Exception:
+                    resumed = False
+            if resumed:
+                print(f"[cv] fold {k + 1}/{a.folds} resumed from {ckpt_path.name}", flush=True)
+                continue
+
             tr, w = _combine_train_val(base_tr, base_w, a, va_raw.filter(pl.Series(~held)))
             model = make_ranker(a, feats, iters).fit(tr, w)
             del tr, w
             gc.collect()
-            oof[held] = model.predict(apply_pos(va_raw.filter(pl.Series(held)), a, False))
+            fold_oof = model.predict(apply_pos(va_raw.filter(pl.Series(held)), a, False))
+            oof[held] = fold_oof
+            fold_test = None
             if te_prep is not None and te_feed_np is not None:
-                test_scores.append(feed_zscore(te_feed_np, model.predict_prepared(te_prep)))
+                fold_test = feed_zscore(te_feed_np, model.predict_prepared(te_prep)).astype(np.float32)
+                test_scores.append(fold_test)
             del model
             gc.collect()
+
+            tmp_ckpt = ckpt_dir / f"fold_{k}_{ckpt_sig}.tmp.npz"
+            if fold_test is not None:
+                np.savez(tmp_ckpt, oof=fold_oof.astype(np.float64), test=fold_test)
+            else:
+                np.savez(tmp_ckpt, oof=fold_oof.astype(np.float64))
+            tmp_ckpt.replace(ckpt_path)
             print(f"[cv] fold {k + 1}/{a.folds} done in {time.perf_counter() - t_fold:.1f}s", flush=True)
         del base_tr, base_w
         va = apply_pos(va_raw, a, False)
@@ -356,6 +418,7 @@ def run(a: argparse.Namespace) -> dict:
     if val_pred is not None:
         val_pred.write_parquet(out / "val_pred.parquet")
     (out / "metrics.json").write_text(json.dumps(res, indent=2, default=str), encoding="utf-8")
+    shutil.rmtree(out / "_cv_ckpt", ignore_errors=True)
     if a.mode != "final":
         if a.log:
             append_log(a, res)
