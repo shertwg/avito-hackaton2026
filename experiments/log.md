@@ -1284,6 +1284,7 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-22 | danya | - | meta-blend-v42-nn32-qsmv4 (mean_hybrid, 18 моделей: swap-bothnn + cb32-v4-qsm-ipw5-vw3-td03-cv) | priv: -/-/0.31665 | - | all@30=0.31974, pub@30=0.32697; v41-add=0.31949/0.31629; swap-nnoof4 oof_w=0.31946/priv=0.31681; v42c-p0plus=0.31960/0.31646 |
 | 2026-11-22 | danya | 0c6564f | cb32-v4-pairlogit-posf-d6-l2-cv (32 шарда, 15 групп - 27 shifted, без fi_incat_f3/f4, 254 признака, PairLogit d=6, l2=10, pos-mode feature 0.0) | priv: 0.3715/-/0.3129 | - | all@30=0.31543, pub@30=0.32143 (corr 0.9553 к v1; фолд1 0.30856; validator OK) |
 | 2026-11-22 | danya | - | meta-blend-v43b-nn32-posf (4-fold OOF oof_weighted, 18 моделей: 16 GBDT v34 + nn-v2-scale32-amp-s42-001 + cb32-v4-pairlogit-posf-d6-l2-cv) | priv: -/-/0.31717 | **0.3674662569** | **all@30=0.31975 (+0.00009 к v34), priv@30=0.31717 (+0.00040 к v34, новый рекорд priv), pub@30=0.32576**; mean_hybrid=0.31957/0.31640; v43a=0.31937/0.31657; v43c=0.31946/0.31645; validator OK; Desktop обновлён |
+| 2026-11-22 | danya | 0c6564f | lgb32-v4-binary-ipw5-vw3-td03-d8-cv (32 шарда, 15 групп - 27 shifted, без fi_incat_f3/f4, LightGBM binary ExtraTrees bin63 d=8, ipw=5 val_weight=3 td=0.03) | priv: 0.3693/-/0.3092 | - | all@30=0.31173, pub@30=0.31765 (vs lgb32-d8: -0.00507 priv p=0.000 — positives_only IPW на binary + vw=3 поверх td=0.03 переобучают d=8; не добавлен в бленд; validator OK) |
 
 ## Данные для проверки P0 и сверка с Public — Дима, 20.11.2026
 
