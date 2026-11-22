@@ -1277,6 +1277,11 @@ uv run --locked python -m scripts.probe_embedding_preference --train-parts 32 --
 | 2026-11-21 | danya | - | cb32-v3-pairlogit-d6-l2-cv (32 шарда, 14 групп включая pos-teacher-032, минус 27 смещённых колонок + fi_pt/fi_incat, PairLogit d=6, l2=10) | priv: 0.3739/-/0.3130 | - | all@30=0.3160, pub@30=0.3229 (против v1: pub +0.00126, priv -0.00144, all -0.00063; validator OK) |
 | 2026-11-21 | danya | - | cb32-v4-qsm-ipw5-vw3-td03-cv (32 шарда, 15 групп + collab-svd-032 + pos-teacher-032 - 27 shifted, QuerySoftMax ipw=5 val_weight=3 td=0.03) | priv: 0.3722/-/0.3111 | - | all@30=0.3139, pub@30=0.3205 (+0.00116 priv p=0.912 и +0.00055 all к v1 qsm-td03; validator OK) |
 | 2026-11-21 | danya | - | meta-blend-v40-add (mean_hybrid, 19 моделей: v34 + cb32-v4-qsm-ipw5-vw3-td03-cv) | priv: -/-/0.31690 | - | all@30=0.31963, pub@30=0.32597 (+0.00013 priv к v34 при -0.00002 all; вес OOF 0.0754) |
+| 2026-11-22 | danya | 9cd7273 | cb32-p0-base-pairlogit-d6-l2-cv (32 шарда, 11 стандартных групп + fi5, 220 признаков, PairLogit d=6, l2=10) | priv: 0.3723/-/0.3130 | - | all@30=0.31571, pub@30=0.32202 (vs fi3 v1: priv -0.00140 p=0.021 из-за fi_incat_f3/f4; validator OK) |
+| 2026-11-22 | danya | 9cd7273 | cb32-p0-plus-pairlogit-d6-l2-cv (32 шарда, 11 групп + click-item2item-032 без фильтра шифта, 265 признаков, PairLogit d=6, l2=10) | priv: 0.3714/-/0.3122 | - | all@30=0.31529, pub@30=0.32244 (vs p0-base: pub +0.00042, priv -0.00077 p=0.127, all -0.00041; validator OK) |
+| 2026-11-22 | avgust | - | nn-v2-scale32-amp-s42-001 (архив NN v2 32 шарда wi2i+rc+is+time, ListNet OOF4) | priv: -/-/0.3069 | - | all@30=0.31154, pub@30=0.32227, full=0.36947 (corr 0.9338/0.9363 к v34; validator OK) |
+| 2026-11-22 | danya | - | meta-blend-v41-nn32-swap-bothnn (mean_hybrid, 17 моделей: 16 GBDT v34 + nn-v2-scale32-amp-s42-001) | priv: -/-/0.31659 | - | all@30=0.31980 (+0.00015 к v34), pub@30=0.32731 (+0.00093 p=0.982); oof_w priv=0.31629; Desktop без изменений |
+| 2026-11-22 | danya | - | meta-blend-v42-nn32-qsmv4 (mean_hybrid, 18 моделей: swap-bothnn + cb32-v4-qsm-ipw5-vw3-td03-cv) | priv: -/-/0.31665 | - | all@30=0.31974, pub@30=0.32697; v41-add=0.31949/0.31629; swap-nnoof4 oof_w=0.31946/priv=0.31681; v42c-p0plus=0.31960/0.31646 |
 
 ## Данные для проверки P0 и сверка с Public — Дима, 20.11.2026
 
