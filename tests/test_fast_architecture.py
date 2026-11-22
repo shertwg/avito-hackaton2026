@@ -134,9 +134,10 @@ class FastArchitectureTests(unittest.TestCase):
         self.assertAlmostEqual(float(w_all[4]), float(w_all[5]), places=5)
 
     def test_cold_gated_load_zscore_runs(self):
+        from tempfile import TemporaryDirectory
         from src.ensemble.cold_gated_blend import _load_zscore_runs
 
-        with tempfile.TemporaryDirectory() as td:
+        with TemporaryDirectory() as td:
             root = Path(td)
             labels = pl.DataFrame({"feed_id": [1, 1, 1, 2, 2], "item_id": [10, 11, 12, 20, 21]}).cast(pl.Int32)
             r1, r2 = root / "r1", root / "r2"
