@@ -1,0 +1,20 @@
+# Drop sign-flipping donor item-age columns (item_train_age_days: -0.0136 train -> +0.0116 priv)
+# and contemporaneous donor item-pair click columns (ci2i_*), while keeping itemstats-032 (53.4% test coverage,
+# fi_is_item_position_ratio_dmax corr +0.0521 priv) for the Warm (wi2i==0, is_item>0) regime.
+item_train_age_days
+item_seen_before
+ci2i_lift_mean_10
+ci2i_lift_max_10
+ci2i_lift_possum_10
+ci2i_ctr_max_10
+ci2i_matched_frac_10
+ci2i_lift_mean_50
+ci2i_lift_max_50
+ci2i_evt2_lift_max_50
+ci2i_evt10_lift_max_50
+ci2i_matched_frac_50
+coclick_mean_10
+coclick_max_10
+coclick_mean_50
+coclick_max_50
+cat_item_lift_max_50
