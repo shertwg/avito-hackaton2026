@@ -1212,3 +1212,26 @@ uv run --locked python -m scripts.reproduce_ranking --raw competition --ensemble
 с хешами выходов и NDCG@30. Обучение моделей выполняется отдельными
 командами. Для другого бленда создайте рецепт с его весами и файлами.
 [Проверенный рецепт 109/121](experiments/joint_109_121_frozen_recipe.json).
+
+### Рецепт meta-blend-v34-d8-bal-mean-hybrid
+
+В рецепте зафиксированы 18 компонентов в порядке из сообщения Дани,
+равные веса 1/18, 36 SHA-256 входных Parquet и ожидаемый хеш сабмита.
+Нормировка `hybrid_rankgauss_025` смешивает 0,75 z-score исходных
+скоров и 0,25 z-score RankGauss внутри ленты. RankGauss применяет
+`ndtri` к рангам `rank01`, ограниченным диапазоном от 0,0001 до 0,9999.
+Гибридная колонка приводится к Float32 перед арифметическим средним
+`mean_float32` по моделям. Эта агрегация требует равных весов.
+Режим `raw_feed_stable` сортирует ленты по ID, сохраняя исходный порядок
+кандидатов внутри ленты. Порядок указан по аналогии с командным
+`src/ensemble/blend.py` и проверяется итоговым SHA-256 при запуске.
+
+```powershell
+uv run --locked python -m scripts.reproduce_ranking --raw competition --ensemble-config experiments/meta_blend_v34_d8_bal_mean_hybrid_recipe.json --out runs/replayed-meta-blend-v34
+```
+
+Команде нужны исходные val и test, шаблон сабмита и файлы `val_pred.parquet`
+и `test_pred.parquet` всех 18 моделей. При расхождении хеша в
+`expected_output_sha256` команда показывает ожидаемое и полученное
+значения и завершает работу до публикации выходного каталога.
+[Рецепт v34](experiments/meta_blend_v34_d8_bal_mean_hybrid_recipe.json).

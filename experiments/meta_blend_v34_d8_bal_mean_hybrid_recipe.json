@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "aggregation": "mean_float32",
+  "row_order": "raw_feed_stable",
+  "expected_output_sha256": {
+    "test": "68de7ab1d4cfaa736dc5e8b22841c25780e2649085caf95ae00afa36e9488aeb"
+  },
+  "members": [
+    {
+      "path": "../runs/cb32-all-wi2i-rc-fi3-pairlogit-d6-l2-cv",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "893b680901083d928855173f17a2d0c48bce642339ee828837450250d54c7c3b",
+        "test": "7a88189220bab859943ea73097a459227f04a1ec2b913522d7ca8305508451a6"
+      }
+    },
+    {
+      "path": "../runs/cb32-all-wi2i-rc-fi3-pairlogit-d7-cv",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "05b2ce51f305ee2f7c48cb4b54ce7480e96ff44ae464a05464a42f5c7779aa30",
+        "test": "94a7e2b7fdeedd18f4c21974ab2c9629b27cd543177ce507f48d3fb517add1e9"
+      }
+    },
+    {
+      "path": "../runs/cb32-all-wi2i-rc-fi3-pairlogit-d6-cv-seeds3",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "b48dac725b0e4a91d2c51fd58dcde2e358cdce7630490423d09699d145830e29",
+        "test": "40fdfa9764a216947eb39561fc5717b3bbfcfdad8e40ad5e23cc90c0040c9490"
+      }
+    },
+    {
+      "path": "../runs/lgb32-all-wi2i-rc-fi3-binary-cv-seeds3",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "8e9b40296e20cfc85e93e435a0fd78bc8ccee44c0043b712d065509665c60656",
+        "test": "6510a344f85b877e2f19cf5530e91728be40c795fefff7cb42b62ca6cceb5315"
+      }
+    },
+    {
+      "path": "../runs/lgb32-all-wi2i-rc-fi3-binary-td03-cv-seeds3",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "7e72f44f5e07947f0ccdf3882f2cf57192bc9c5fc72cdd6720f7220e7a785473",
+        "test": "c01bbc067d8bd2a0f0ebea96ccaabd1f79b593685b4bf51872e20de9fada7465"
+      }
+    },
+    {
+      "path": "../runs/lgb32-all-wi2i-rc-fi3-binary-td03-d8-cv",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "e4c521c490ffe4cd2a70771c6d7e8d555db2e31f6e4edffde41aa04782b3e6f4",
+        "test": "3f2a3ee18399a2a959f0a56810fe1d7bf15f932cbc7e4e3385465a6d0d76837a"
+      }
+    },
+    {
+      "path": "../runs/lgb32-all-wi2i-rc-fi3-bin63-lr005-s0",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "ad8bad018d378f8b66990fd579b567c17772d143930f96f0f93f601d2d3076a1",
+        "test": "22fe19321744a306e107a82ffd40230e7d95a32eaed71e0663648f56e7d96152"
+      }
+    },
+    {
+      "path": "../runs/cb32-all-wi2i-rc-fi3-qsm-td03-cv",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "7b81d0ec32ca71ff981c8e8a8d49d32ef0dd6e2efd19069e27ebce0c2536d374",
+        "test": "73fb5128202af7eb55ecb235d5a3daba2bb22ad5eaeba8939ed03c6c0feb3346"
+      }
+    },
+    {
+      "path": "../runs/cb96-blocks-wi2i-fi3-pairlogit-d6-cv",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "9c6a73b1bd970c90c361a462647ec968f892642d0a24694032a5ae4bef7b2887",
+        "test": "5830d6ddc8f2d46c387290e199254a067a3bed1277e6e6b94681d2c28cd731c3"
+      }
+    },
+    {
+      "path": "../runs/lgb96-blocks-wi2i-fi3-binary-cv",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "18377fcf80af9ebedcf4c89ec971cbbcf1e45ab19dea2680445198c28b3465c2",
+        "test": "f273a1fee9d6818f06457cc67cc6e71d37a19c704eac3e7e748f8c0927f2004c"
+      }
+    },
+    {
+      "path": "../runs/lgb96-blocks-wi2i-fi3-bin63-cv",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "aadf2a293e5ddc3664de1d9ddf1147afee86a8eaf87b6a8ba7accc92ffbe0d10",
+        "test": "4fb7126b8817daf322b427675ea078810296a9a7f3e6534ce0475bf1a7daf446"
+      }
+    },
+    {
+      "path": "../runs/cb8-all-wi2i-rc-fi3-pairlogit-d6-cv-seeds3",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "c87b2b2bb19a694bd1cdf538c92f614328df3d91ca608abda8b87ea2b4be0960",
+        "test": "dc1c47fab49a1a1585a3296196912fd0237305746639535f50fc02ba2fa828d0"
+      }
+    },
+    {
+      "path": "../runs/cb8-all-wi2i-rc-fi3-qsm-cv-seeds3",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "0f9434d03fdc2dfd7543e570ea5e3d7c34e9658e4b67f040362b8e0be784a62f",
+        "test": "f9a7db3ed21da40423f2efcb43e2afe47f5d5a6b637e599338a153e424f39443"
+      }
+    },
+    {
+      "path": "../runs/cb8-all-wi2i-rc-fi3-yeti-cv",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "d51899eab932171d61c5bf3f20240d3b70059d0394e163b031082395ba9d04f8",
+        "test": "903517bd4cb2c32349a049ebd9fdd9b6299d225eaec65233fdd4924ba0dc36c7"
+      }
+    },
+    {
+      "path": "../runs/lgb8-all-wi2i-rc-fi3-extratrees-seeds3",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "d5190dc4b3dd9c8d88e8b2f0f3fe678cf5df828c85d6cf2f68f1052c14133824",
+        "test": "235598ad768ef4c7453fd4cde10033c1811ad42f44d3df6d4f217bfaafb41f66"
+      }
+    },
+    {
+      "path": "../runs/lgb8-all-wi2i-fi-opt2-cv-bin63-lr005-s0",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "660b883b5d8f8386ddf33895c91282b19b0d78d6c456b6a6abd63034917efaee",
+        "test": "078f302fbf744736f4f54f0707f9e91253ca389edee1056c8a6732e872559c95"
+      }
+    },
+    {
+      "path": "../runs/nn-oof4",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "16a613ed4558d0c97cd3fcd2b23ad14710283668c62174d9ed8e83e5342653bb",
+        "test": "037e8d32dabbd4144c1a35793e9e56fccc72effd6eb4ac14ff10bf20d449bd5b"
+      }
+    },
+    {
+      "path": "../runs/nn-avgust-context-balanced-oof411",
+      "weight": 0.05555555555555555,
+      "normalization": "hybrid_rankgauss_025",
+      "sha256": {
+        "val": "786b2ecd589f286bc7973decc5d7e170b940987e81a12f3ee151dff8aa556618",
+        "test": "956effb990c68a71fdec24c2a989c7b37c0e18dc2de2ed4fba6deabd3f2ad49d"
+      }
+    }
+  ]
+}

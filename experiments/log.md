@@ -1331,3 +1331,12 @@ uv run --locked python -m scripts.audit_covariate_shift --include-group click-it
 строка, в test 2 904 806 строк. Pseudo-private NDCG@30 воспроизведён
 до 0,3066321734, test прошёл валидатор.
 [Рецепт](joint_109_121_frozen_recipe.json), [результат повтора](joint_109_121_frozen_replay.json).
+
+## Рецепт командного бленда v34, 21.11.2026
+
+Даня сообщил Public LB 0,3665061448 и NDCG@30 0,31965 / 0,32638 /
+0,31677 на all / pseudo-public / pseudo-private. Зафиксированы 18
+компонентов, равные веса, гибрид RankGauss со значением alpha 0,25 и хеш
+итогового сабмита. 18-компонентный тест воспроизводит хеш эталонного
+синтетического Parquet. Точное воспроизведение командного файла ожидает
+компоненты из 18 запусков. [Рецепт](meta_blend_v34_d8_bal_mean_hybrid_recipe.json).
