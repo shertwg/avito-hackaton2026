@@ -133,6 +133,28 @@ class FastArchitectureTests(unittest.TestCase):
         # При одинаковой позиции (pos=20 на индексах 4 и 5) позитив и негатив получают одинаковый вес 1/p(pos)
         self.assertAlmostEqual(float(w_all[4]), float(w_all[5]), places=5)
 
+    def test_cold_gated_load_zscore_runs(self):
+        from src.ensemble.cold_gated_blend import _load_zscore_runs
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            labels = pl.DataFrame({"feed_id": [1, 1, 1, 2, 2], "item_id": [10, 11, 12, 20, 21]}).cast(pl.Int32)
+            r1, r2 = root / "r1", root / "r2"
+            r1.mkdir()
+            r2.mkdir()
+            labels.with_columns(pl.Series("score", [0.0, 1.0, 2.0, 10.0, 20.0], dtype=pl.Float32)).write_parquet(
+                r1 / "val_pred.parquet"
+            )
+            labels.with_columns(pl.Series("score", [2.0, 1.0, 0.0, 20.0, 10.0], dtype=pl.Float32)).write_parquet(
+                r2 / "val_pred.parquet"
+            )
+            s_one = _load_zscore_runs(labels, [r1], "val")
+            self.assertEqual(s_one.shape, (5,))
+            self.assertAlmostEqual(float(s_one[:3].mean()), 0.0, places=5)
+            # Два противоположных ранжирования в сумме дают константу -> z-score = 0
+            s_both = _load_zscore_runs(labels, [r1, r2], "val")
+            np.testing.assert_allclose(s_both, np.zeros(5), atol=1e-6)
+
 
 if __name__ == "__main__":
     unittest.main()
