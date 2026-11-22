@@ -142,7 +142,7 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
                 cname = f"fi_incat_{c}_dmax"
                 exprs.append((col_f - col_f.max().over(["feed_id", "category_id"])).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(cname))
                 cols.append(cname)
-        for c in ("f1", "f3", "f4", "f5"):
+        for c in ("f1", "f5"):
             if c in df.columns:
                 col_f = pl.col(c).cast(pl.Float32)
                 mean_c = col_f.mean().over(["feed_id", "category_id"])
