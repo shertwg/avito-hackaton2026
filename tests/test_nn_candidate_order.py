@@ -1,6 +1,10 @@
 """Regression coverage for position-free candidate features."""
+import unittest
 import numpy as np
-import torch
+try:
+    import torch
+except ImportError as exc:
+    raise unittest.SkipTest(f"torch is not installed: {exc}") from exc
 
 from src.nn.dataset import CAND_FEAT_NAMES, compute_candidate_features
 from src.nn.train_cv import shuffle_candidates

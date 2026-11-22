@@ -81,7 +81,7 @@ def build_meta_features(df: pl.DataFrame, names: list[str], extra_cols: list[str
         parts.append(df.select([pl.col(c).cast(pl.Float32) for c in extra_cols]).to_numpy().astype(np.float32))
 
     X_meta = np.column_stack(parts).astype(np.float32)
-    hybrid = (0.85 * Z + 0.15 * RG).mean(axis=1).astype(np.float32)
+    hybrid = (0.75 * Z + 0.25 * RG).mean(axis=1).astype(np.float32)
     return X_meta, hybrid
 
 
@@ -91,8 +91,8 @@ def attach_context_cols(base: pl.DataFrame, data_dir: str, split: str) -> pl.Dat
     chunks = []
     for p in list_parts(data_dir, split):
         chunks.append(
-            pl.read_parquet(p, columns=["feed_id", "item_id", "category_id", "f1", "f2", "f3", "f5"])
-            .explode(["item_id", "category_id", "f1", "f2", "f3", "f5"])
+            pl.read_parquet(p, columns=["feed_id", "item_id", "category_id", "f1", "f2", "f3", "f4", "f5"])
+            .explode(["item_id", "category_id", "f1", "f2", "f3", "f4", "f5"])
             .cast({"feed_id": pl.Int32, "item_id": pl.Int32, "category_id": pl.Int32})
         )
     ctx = pl.concat(chunks)
@@ -145,7 +145,7 @@ def main(argv=None) -> None:
     pub, priv = pseudo_split(f, ts)
     m_pub, m_priv = mask_feeds(f, pub), mask_feeds(f, priv)
 
-    extra_cols = ["f1", "f2", "f3", "f5"]
+    extra_cols = ["f1", "f2", "f3", "f4", "f5"]
     X_meta, s_base = build_meta_features(val, names, extra_cols=extra_cols)
     if a.base_run:
         bp = pl.read_parquet(Path(a.base_run) / "val_pred.parquet").select(KEYS + ["score"]).cast(
@@ -158,10 +158,12 @@ def main(argv=None) -> None:
     row_fold = np.array([fold_of[i] for i in f])
 
     oof_lgb = np.zeros(len(f), dtype=np.float64)
+    fold_models = []
     for k in range(a.folds):
         held = row_fold == k
         tr = ~held
         m = fit_lgb_meta(X_meta[tr], t[tr], f[tr], seed=a.seed + k, lr=a.lr, rounds=a.rounds, num_leaves=a.num_leaves)
+        fold_models.append(m)
         oof_lgb[held] = feed_zscore(f[held], m.predict(X_meta[held]))
         print(f"[meta-reranker] fold {k+1}/{a.folds} lgb_ndcg@30={mean_ndcg(f[held], t[held], oof_lgb[held], 30):.5f}", flush=True)
 
@@ -179,7 +181,7 @@ def main(argv=None) -> None:
     best_al, best_pub, best_priv, best_all = max(grid, key=lambda x: x[1])
     s_best = ((1.0 - best_al) * s_base + best_al * oof_lgb).astype(np.float32)
 
-    # Predict test
+    # Predict test using 4-fold ensemble (exact calibration match to OOF!)
     te_keys = load_labels(a.data, "test").cast({"feed_id": pl.Int32, "item_id": pl.Int32})
     te, _ = collect(te_keys, runs, "test")
     te = attach_context_cols(te, a.data, "test").sort("feed_id", maintain_order=True)
@@ -190,8 +192,10 @@ def main(argv=None) -> None:
             {"feed_id": pl.Int32, "item_id": pl.Int32}
         )
         st_base = feed_zscore(ft, te.select(KEYS).join(btp, on=KEYS, how="left")["score"].to_numpy())
-    m_full = fit_lgb_meta(X_meta, t, f, seed=a.seed, lr=a.lr, rounds=a.rounds, num_leaves=a.num_leaves)
-    st_lgb = feed_zscore(ft, m_full.predict(Xt_meta))
+    st_lgb = feed_zscore(
+        ft,
+        np.mean([feed_zscore(ft, m_k.predict(Xt_meta)) for m_k in fold_models], axis=0),
+    )
     st_best = ((1.0 - best_al) * st_base + best_al * st_lgb).astype(np.float32)
 
     pl.DataFrame({"feed_id": ft, "item_id": te["item_id"], "score": st_best}).write_parquet(out / "test_pred.parquet")

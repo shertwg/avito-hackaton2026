@@ -1,7 +1,10 @@
 """Checks for the optional numeric and attention paths in the neural ranker."""
-
-import torch
-import pytest
+import unittest
+try:
+    import torch
+    import pytest
+except ImportError as exc:
+    raise unittest.SkipTest(f"optional NN test dependency missing: {exc}") from exc
 
 from src.nn.model import FeedRankingModel, HistoryAttentionBias
 

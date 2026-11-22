@@ -18,10 +18,14 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import unittest
 import numpy as np
 import polars as pl
-import pytest
-import torch
+try:
+    import pytest
+    import torch
+except ImportError as exc:
+    raise unittest.SkipTest(f"optional NN test dependency missing: {exc}") from exc
 
 from src.nn.dataset import (
     CAND_FEAT_NAMES,

@@ -15,10 +15,15 @@ from src.common.cv import pseudo_split
 from src.common.data import load_labels
 from src.common.metric import per_feed_ndcg
 from src.common.preparation import write_json
-from src.common.scores import feed_rank01, feed_zscore
+from src.common.scores import feed_hybrid_rankgauss, feed_rank01, feed_zscore
 
 SPLITS = ("val", "test")
-NORMALIZERS = {"zscore": feed_zscore, "rank01": feed_rank01, "raw": lambda _, score: score}
+NORMALIZERS = {
+    "zscore": feed_zscore,
+    "rank01": feed_rank01,
+    "hybrid_rankgauss_025": lambda feed, score: feed_hybrid_rankgauss(feed, score, rank_alpha=0.25),
+    "raw": lambda _, score: score,
+}
 
 
 def sha256(path):

@@ -35,7 +35,11 @@ class TrainSelectionTests(unittest.TestCase):
             select_parts(source, 2, 0)
 
 
+REFERENCE = Path(__file__).resolve().parents[1] / 'competition/baseline/calculate_metrics.py'
+
+
 class TrainBlockPipelineTests(unittest.TestCase):
+    @unittest.skipUnless(REFERENCE.is_file(), 'download baseline/calculate_metrics.py to run block OOF test')
     def test_prepare_resume_audits_and_nonzero_block_oof(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

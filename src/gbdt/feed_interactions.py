@@ -1,4 +1,12 @@
-"""Внутриленточные нормировки, ранги и взаимодействия сильнейших признаков (без утечек между лентами)."""
+"""Внутриленточные нормировки, ранги и взаимодействия сильнейших признаков (без утечек между лентами).
+
+Исправления архитектуры:
+1. Z-score внутри ленты и внутри (feed_id, category_id) считается в Float64 с порогом std > 1e-7 -> 0.0,
+   что полностью исключает шум float32-вычитания на константных/связанных группах.
+2. Исключены константный внутри категории f3 и позиционно-смещённый инвертирующий знак f4.
+3. Добавлены внутриленточные нормировки/ранги и взаимодействия для позиционно-дебиасированных
+   донорских Click-Over-Expected (is_item_position_ratio, is_category_position_ratio) и collab-svd (svd_*).
+"""
 from __future__ import annotations
 
 import polars as pl
@@ -15,6 +23,8 @@ NORM_COLS = [
     "rc_cos_profile_50",
     "is_item_history_evt1",
     "is_item_ctr",
+    "is_item_position_ratio",
+    "is_category_position_ratio",
     "item_train_age_days",
     "cos_hist_max_10",
     "cos_hist_mean_50",
@@ -31,6 +41,8 @@ NORM_COLS = [
     "us_donor_user_cat_clicks_log",
     "us_cat_prior_impr_share",
     "us_cat_recent3_impr_share",
+    "svd_cos_max_50",
+    "svd_cos_profile_50",
 ]
 
 RANK_COLS = [
@@ -42,6 +54,8 @@ RANK_COLS = [
     "wi2i_evt2_mean_50",
     "rc_cos_profile_10",
     "is_item_history_evt1",
+    "is_item_position_ratio",
+    "is_category_position_ratio",
     "item_train_age_days",
     "cos_hist_mean_50",
     "ci2i_lift_mean_10",
@@ -51,7 +65,24 @@ RANK_COLS = [
     "us_donor_user_cat_lift",
     "us_donor_user_cat_clicks_log",
     "us_cat_recent3_impr_share",
+    "svd_cos_max_50",
 ]
+
+
+def _safe_zscore(col_name: str, over_cols: str | list[str], alias: str) -> pl.Expr:
+    """Точный z-score в Float64 с обнулением константных групп (без шума округления Float32)."""
+    v = pl.col(col_name).cast(pl.Float64)
+    mean = v.mean().over(over_cols)
+    std = v.std(ddof=0).over(over_cols).fill_nan(0.0).fill_null(0.0)
+    return (
+        pl.when(std > 1e-7)
+        .then((v - mean) / std)
+        .otherwise(0.0)
+        .fill_nan(0.0)
+        .fill_null(0.0)
+        .cast(pl.Float32)
+        .alias(alias)
+    )
 
 
 def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
@@ -66,16 +97,9 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         col_f = pl.col(c).cast(pl.Float32)
         z_name = f"fi_{c}_z"
         d_name = f"fi_{c}_dmax"
-        std = col_f.std().over("feed_id").fill_null(0.0)
-        mean = col_f.mean().over("feed_id")
         mx = col_f.max().over("feed_id")
-        exprs.append(
-            ((col_f - mean) / (std + pl.lit(1e-6, dtype=pl.Float32)))
-            .fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(z_name)
-        )
-        exprs.append(
-            (col_f - mx).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(d_name)
-        )
+        exprs.append(_safe_zscore(c, "feed_id", z_name))
+        exprs.append((col_f - mx).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(d_name))
         cols.extend([z_name, d_name])
 
     for c in RANK_COLS:
@@ -84,12 +108,17 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         r_name = f"fi_{c}_rank"
         exprs.append(
             (pl.col(c).cast(pl.Float32).rank(method="average").over("feed_id") / feed_n)
-            .fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(r_name)
+            .fill_nan(0.0)
+            .fill_null(0.0)
+            .cast(pl.Float32)
+            .alias(r_name)
         )
         cols.append(r_name)
 
     pairs = [
         ("fi_cos_x_ctr", "cos_user", "is_item_ctr", lambda a, b: a * b),
+        ("fi_cos_x_posratio", "cos_user", "is_item_position_ratio", lambda a, b: a * b),
+        ("fi_wi2i10_x_posratio", "wi2i_all_mean_10", "is_item_position_ratio", lambda a, b: a * b),
         ("fi_i2i50_x_cos", "i2i_sum_50", "cos_user", lambda a, b: a * b),
         ("fi_ctr_per_age", "is_item_ctr", "item_train_age_days", lambda a, b: a / (b + pl.lit(1.0, dtype=pl.Float32))),
         ("fi_i2i_ratio_10_50", "i2i_sum_10", "i2i_sum_50", lambda a, b: a / (b + pl.lit(1e-3, dtype=pl.Float32))),
@@ -115,12 +144,18 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         ("fi_us_cat_clicks_x_cos", "us_donor_user_cat_clicks_log", "cos_user", lambda a, b: a * b),
         ("fi_pt_x_cos", "pt_gain", "cos_user", lambda a, b: a * b),
         ("fi_pt_x_ctr", "pt_gain", "is_item_ctr", lambda a, b: a * b),
+        ("fi_pt_x_posratio", "pt_gain", "is_item_position_ratio", lambda a, b: a * b),
+        ("fi_svd50_x_cos", "svd_cos_max_50", "cos_user", lambda a, b: a * b),
+        ("fi_svd50_x_wi2i10", "svd_cos_max_50", "wi2i_all_mean_10", lambda a, b: a * b),
     ]
     for name, c1, c2, fn in pairs:
         if c1 in df.columns and c2 in df.columns:
             exprs.append(
                 fn(pl.col(c1).cast(pl.Float32), pl.col(c2).cast(pl.Float32))
-                .fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(name)
+                .fill_nan(0.0)
+                .fill_null(0.0)
+                .cast(pl.Float32)
+                .alias(name)
             )
             cols.append(name)
 
@@ -136,27 +171,51 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
             .alias("fi_feed_unique_cats_ratio")
         )
         cols.extend(["fi_incat_count", "fi_incat_share", "fi_feed_unique_cats_ratio"])
-        for c in ("cos_user", "is_item_ctr", "wi2i_all_mean_10", "cat_item_lift_max_50", "ci2i_lift_mean_10"):
+        for c in (
+            "cos_user",
+            "is_item_ctr",
+            "is_item_position_ratio",
+            "wi2i_all_mean_10",
+            "svd_cos_max_50",
+            "cat_item_lift_max_50",
+            "ci2i_lift_mean_10",
+        ):
             if c in df.columns:
                 col_f = pl.col(c).cast(pl.Float32)
                 cname = f"fi_incat_{c}_dmax"
-                exprs.append((col_f - col_f.max().over(["feed_id", "category_id"])).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(cname))
+                exprs.append(
+                    (col_f - col_f.max().over(["feed_id", "category_id"]))
+                    .fill_nan(0.0)
+                    .fill_null(0.0)
+                    .cast(pl.Float32)
+                    .alias(cname)
+                )
                 cols.append(cname)
         for c in ("f1", "f5"):
             if c in df.columns:
                 col_f = pl.col(c).cast(pl.Float32)
-                mean_c = col_f.mean().over(["feed_id", "category_id"])
-                std_c = col_f.std(ddof=0).over(["feed_id", "category_id"]).fill_nan(0.0).fill_null(0.0)
                 z_name = f"fi_incat_{c}_z"
                 dmax_name = f"fi_incat_{c}_dmax"
-                exprs.append(((col_f - mean_c) / (std_c + 1e-6)).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(z_name))
-                exprs.append((col_f - col_f.max().over(["feed_id", "category_id"])).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(dmax_name))
+                exprs.append(_safe_zscore(c, ["feed_id", "category_id"], z_name))
+                exprs.append(
+                    (col_f - col_f.max().over(["feed_id", "category_id"]))
+                    .fill_nan(0.0)
+                    .fill_null(0.0)
+                    .cast(pl.Float32)
+                    .alias(dmax_name)
+                )
                 cols.extend([z_name, dmax_name])
         for c in ("f1", "f5"):
             if c in df.columns:
                 col_f = pl.col(c).cast(pl.Float32)
                 r_name = f"fi_incat_{c}_rank"
-                exprs.append((col_f.rank(method="average").over(["feed_id", "category_id"]).cast(pl.Float32) / cat_n).fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(r_name))
+                exprs.append(
+                    (col_f.rank(method="average").over(["feed_id", "category_id"]).cast(pl.Float32) / cat_n)
+                    .fill_nan(0.0)
+                    .fill_null(0.0)
+                    .cast(pl.Float32)
+                    .alias(r_name)
+                )
                 cols.append(r_name)
 
     for c in ["i2i_sum_50", "is_item_history_evt1", "item_train_age_days"]:
@@ -164,7 +223,10 @@ def add_feed_interactions(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
             lname = f"fi_log_{c}"
             exprs.append(
                 pl.col(c).cast(pl.Float32).clip(lower_bound=0.0).log1p()
-                .fill_nan(0.0).fill_null(0.0).cast(pl.Float32).alias(lname)
+                .fill_nan(0.0)
+                .fill_null(0.0)
+                .cast(pl.Float32)
+                .alias(lname)
             )
             cols.append(lname)
 

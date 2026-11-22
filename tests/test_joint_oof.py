@@ -13,7 +13,11 @@ from scripts.validate_submission import validate
 from src.common.preparation import write_json
 
 
+REFERENCE = Path(__file__).resolve().parents[1] / 'competition/baseline/calculate_metrics.py'
+
+
 class JointOofTests(unittest.TestCase):
+    @unittest.skipUnless(REFERENCE.is_file(), 'download baseline/calculate_metrics.py to run joint OOF test')
     def test_disk_oof_exclusion_and_fold_resume(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
